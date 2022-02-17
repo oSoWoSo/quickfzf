@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+progname=${0##*/}
+c1=$(tput setaf 1) # red
+c2=$(tput setaf 2) # green
+c3=$(tput setaf 3) # yellow
+c4=$(tput setaf 4) # blue
+c=$(tput sgr0)
 
 # Here the quick 'n dirty guide to adding a new OS to quickget
 #
@@ -41,10 +47,11 @@ function pretty_name() {
     archlinux)          PRETTY_NAME="Arch Linux";;
     arcolinux)          PRETTY_NAME="Arco Linux";;
     cachyos)            PRETTY_NAME="CachyOS";;
+    devuan)             PRETTY_NAME="Devuan";;
     elementary)         PRETTY_NAME="elementary OS";;
     freebsd)            PRETTY_NAME="FreeBSD";;
-    gentoo)             PRETTY_NAME="Gentoo";;
     garuda)             PRETTY_NAME="Garuda Linux";;
+    gentoo)             PRETTY_NAME="Gentoo";;
     haiku)              PRETTY_NAME="Haiku";;
     kdeneon)            PRETTY_NAME="KDE Neon";;
     kolibrios)          PRETTY_NAME="KolibriOS";;
@@ -62,6 +69,7 @@ function pretty_name() {
     mxlinux-xfce)       PRETTY_NAME="MX Linux XFCE";;
     mxlinux-kde)        PRETTY_NAME="MX Linux KDE";;
     mxlinux-fluxbox)    PRETTY_NAME="MX Linux Fluxbox";;
+    netboot)            PRETTY_NAME="netboot";;
     nixos-gnome)        PRETTY_NAME="NixOS Gnome";;
     nixos-plasma5)      PRETTY_NAME="NixOS KDE";;
     nixos-minimal)      PRETTY_NAME="NixOS Minimal";;
@@ -80,7 +88,16 @@ function pretty_name() {
     zorin)              PRETTY_NAME="Zorin OS";;
     *)                  PRETTY_NAME="${SIMPLE_NAME^}";;
   esac
-  echo "${PRETTY_NAME}"
+  echo "$c2${PRETTY_NAME}$c"
+}
+
+function use_fzf() {
+    OS=
+    RELEASE=
+    OS=$(os_support | tr ' ' '\n ' | sort -r | fzf)
+    FUZZY=$(echo $OS |cut -d'-' -f1)
+    RELEASE=$(releases_${FUZZY} | tr ' ' '\n ' | fzf)
+    "$progname" "$OS" "$RELEASE"
 }
 
 function validate_release() {
@@ -91,8 +108,8 @@ function validate_release() {
   DISPLAY_NAME="$(pretty_name "${OS}")"
   RELEASES=$(${RELEASE_GENERATOR})
   if [[ "${RELEASES}" != *"${RELEASE}"* ]]; then
-      echo "ERROR! ${DISPLAY_NAME} ${RELEASE} is not a supported release."
-      echo "${RELEASES}"
+      echo " $c1 ERROR! ${DISPLAY_NAME} $c1${RELEASE}$c is not a supported release.$c"
+      echo " $c2${RELEASES}$c"
       exit 1
   fi
 }
@@ -173,6 +190,10 @@ function list_csv() {
         for OPTION in standard nonfree; do
          echo "${DISPLAY_NAME},${OS},${RELEASE},${OPTION},${DOWNLOADER},${PNG},${SVG}"
         done
+      elif [ "${OS}" == "devuan" ]; then
+        for OPTION in standard nonfree; do
+         echo "${DISPLAY_NAME},${OS},${RELEASE},${OPTION},${DOWNLOADER},${PNG},${SVG}"
+        done
       elif [ "${OS}" == "alma" ]; then
         for OPTION in minimal dvd; do
           echo "${DISPLAY_NAME},${OS},${RELEASE},${OPTION},${DOWNLOADER},${PNG},${SVG}"
@@ -193,6 +214,7 @@ function os_support() {
     arcolinux \
     cachyos \
     debian \
+    devuan \
     elementary \
     freebsd \
     fedora \
@@ -222,6 +244,7 @@ function os_support() {
     nixos-minimal \
     lubuntu \
     macos \
+    netboot \
     openbsd \
     opensuse \
     oraclelinux \
@@ -274,6 +297,9 @@ function releases_arcolinux() {
     echo latest
 }
 
+function releases_cachyos() {
+    echo 2022.01.09
+}
 # later refactor these DE variants like languages and avoid the arch ?
 # all these are available with a "nonfree" option too
 function releases_debian() {
@@ -287,8 +313,12 @@ function releases_debian() {
     xfce
 }
 
-function releases_cachyos() {
-    echo 2022.01.09
+function releases_devuan() {
+    echo amd64_desktop \
+    amd64_netinstall \
+    amd64_server \
+    amd64_desktop-live \
+    amd64_minimal-live
 }
 
 function releases_elementary() {
@@ -306,10 +336,6 @@ function releases_fedora(){
     35
 }
 
-function releases_gentoo(){
-    echo latest
-}
-
 function releases_garuda() {
     echo bspwm \
     dr460nized \
@@ -325,6 +351,10 @@ function releases_garuda() {
     xfce \
     mate \
     cinnamon
+}
+
+function releases_gentoo(){
+    echo latest
 }
 
 function releases_haiku() {
@@ -352,8 +382,30 @@ function releases_linuxmint(){
     echo 20.2
 }
 
+function releases_macos() {
+    echo high-sierra \
+    mojave \
+    catalina \
+    big-sur \
+    monterey
+}
+
+function releases_manjaro() {
+    case ${OS} in
+    *xfce|*kde|*gnome) echo full \
+    minimal \
+    minimal-lts;;
+    *budgie|*cinnamon|*deepin|*i3|*mate) echo full \
+    minimal;;
+    esac
+}
+
 function releases_mxlinux(){
     echo 21
+}
+
+function releases_netboot() {
+    echo latest
 }
 
 function releases_nixos(){
@@ -384,24 +436,6 @@ function releases_oraclelinux() {
     7.7
 }
 
-function releases_macos() {
-    echo high-sierra \
-    mojave \
-    catalina \
-    big-sur \
-    monterey
-}
-
-function releases_manjaro() {
-    case ${OS} in
-    *xfce|*kde|*gnome) echo full \
-    minimal \
-    minimal-lts;;
-    *budgie|*cinnamon|*deepin|*i3|*mate) echo full \
-    minimal;;
-    esac
-}
-
 function releases_popos() {
     echo 20.04 \
     21.04 \
@@ -414,7 +448,6 @@ function releases_regolith() {
     2.0.0_impish \
     2.0.0_hirsute
 }
-
 
 function releases_rockylinux() {
     echo 8.5 \
@@ -450,6 +483,21 @@ function releases_void() {
     musl \
     xfce \
     xfce-musl
+}
+
+function releases_windows() {
+    echo 8 \
+    10 \
+    11
+}
+
+function releases_zorin() {
+    echo 16core64 \
+    15lite64 \
+    15lite32 \
+    15education64 \
+    15edulite64 \
+    15edulite32
 }
 
 function languages_windows() {
@@ -493,22 +541,6 @@ function languages_windows() {
     Ukrainian)
 }
 
-
-function releases_windows() {
-    echo 8 \
-    10 \
-    11
-}
-
-function releases_zorin() {
-    echo 16core64 \
-    15lite64 \
-    15lite32 \
-    15education64 \
-    15edulite64 \
-    15edulite32
-}
-
 function check_hash() {
     local iso=""
     local hash=""
@@ -522,17 +554,17 @@ function check_hash() {
       40) hash_algo=sha1sum;;
       64) hash_algo=sha256sum;;
       128) hash_algo=sha512sum;;
-       *) echo "WARNING! Can't guess hash algorithm, not checking ${iso} hash."
+       *) echo " $c3 WARNING! Can't guess hash algorithm, not checking ${iso} hash."
           return;;
     esac
 
     echo -n "Checking ${iso} with ${hash_algo}... "
-    if ! echo "${hash} ${iso}" | ${hash_algo} --check --status; then
-        echo "ERROR!"
-        echo "${iso} doesn't match ${hash}. Try running 'quickget' again."
+    if ! echo " ${hash} ${iso}" | ${hash_algo} --check --status; then
+        echo " $c1 ERROR!"
+        echo " ${iso}$c doesn't match ${hash}. Try running ${progname} again.$c"
         exit 1
     else
-        echo "Good!"
+        echo "$c2 Good!$c"
     fi
 }
 
@@ -545,8 +577,8 @@ function copy_local(){
       LOCALFILE=$(find ${ISODIR} -type f -name "${LOCALISO}" -print -quit )
       #echo got local file "${LOCALFILE}"
       if [ -f "${DIR}/${FILE}" ]; then
-        echo "ERROR! File Exists - not copying over local file"
-        echo "Move it out of the way to replace it with a local file"
+        echo " $c1 ERROR! File Exists - not copying over local file"
+        echo "Move it out of the way to replace it with a local file$c"
         exit 1
       else
         cp -pv "${LOCALFILE}" ${DIR}/${FILE}
@@ -569,7 +601,7 @@ function web_get() {
     fi
 
     if ! mkdir -p "${DIR}" 2>/dev/null; then
-      echo "ERROR! Unable to create directory ${DIR}"
+      echo " $c1 ERROR! Unable to create directory ${DIR}$c"
       exit 1
     fi
     copy_local
@@ -577,17 +609,16 @@ function web_get() {
     if command -v aria2c > /dev/null; then
         if ! aria2c -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" -o "${DIR}/${FILE}"; then
           echo #Necessary as aria2c in suppressed mode doesnot have new lines
-          echo "ERROR! Failed to download ${URL}. Try running 'quickget' again."
+        echo " $c1 ERROR! Failed to download ${URL}. Try running '${progname}' again.$c"
           exit 1
         fi
         echo #Necessary as aria2c in suppressed mode doesnot have new lines
     else
         if ! wget --quiet --continue --show-progress --progress=bar:force:noscroll "${URL}" -O "${DIR}/${FILE}"; then
-          echo "ERROR! Failed to download ${URL}. Try running 'quickget' again."
+        echo " $c1 ERROR! Failed to download ${URL}. Try running '${progname}' again.$c"
           exit 1
         fi
     fi
-
 }
 
 function zsync_get() {
@@ -609,14 +640,14 @@ function zsync_get() {
       fi
 
       if ! mkdir -p "${DIR}" 2>/dev/null; then
-        echo "ERROR! Unable to create directory ${DIR}"
+        echo " $c1 ERROR! Unable to create directory ${DIR}$c"
         exit 1
       fi
 
     copy_local
 
       if ! zsync "${URL}.zsync" -i "${DIR}/${OUT}" -o "${DIR}/${OUT}" 2>/dev/null; then
-          echo "ERROR! Failed to download ${URL}.zsync"
+          echo " $c1 ERROR! Failed to download ${URL}.zsync$c"
           exit 1
       fi
 
@@ -624,14 +655,14 @@ function zsync_get() {
           rm "${DIR}/${OUT}.zs-old"
       fi
     else
-      echo "INFO: zsync not found, falling back to wget"
+      echo " $c4 INFO: zsync not found, falling back to wget$c"
       web_get "${ISO}" "${DIR}"
     fi
 }
 
 function start_vm_info() {
     echo
-    echo "To start your ${OS} ${RELEASE} virtual machine run:"
+    echo " To start your ${OS} ${RELEASE} virtual machine run:"
     echo "    quickemu --vm ${OS}-${RELEASE}.conf"
     echo
 }
@@ -646,9 +677,11 @@ function make_vm_config() {
     IMAGE_FILE="${1}"
     ISO_FILE="${2}"
     case "${OS}" in
-        alma | android | archlinux | debian | elementary | fedora | kali | \
-        garuda | kdeneon | linuxmint* | nixos* | opensuse | oraclelinux | \
-        popos | regolith | rockylinux | solus | *ubuntu* | zorin )
+        alma | alpine | android | archlinux | arcolinux | cachyos | \
+        debian | devuan | elementary | fedora | garuda | gentoo | \
+        kali | kdeneon | linuxmint* | manjaro | mxlinux | netboot | \
+        nixos* | opensuse | oraclelinux | popos | regolith | \
+        rockylinux | solus | tails | *ubuntu* | void | zorin )
             GUEST="linux"
             IMAGE_TYPE="iso";;
         freebsd )
@@ -680,7 +713,7 @@ function make_vm_config() {
     fi
 
     if [ ! -e "${OS}-${RELEASE}.conf" ]; then
-        echo "Making VM configuration for ${OS}-${RELEASE}..."
+        echo " Making VM configuration for ${OS}-${RELEASE}..."
         cat << EOF > "${OS}-${RELEASE}.conf"
 guest_os="${GUEST}"
 disk_img="${VM_PATH}/disk.qcow2"
@@ -696,6 +729,10 @@ EOF
 
         if [ "${OS}" == "kolibrios" ]; then
             echo "boot=\"legacy\"" >> "${OS}-${RELEASE}.conf"
+        fi
+
+        if [ "${OS}" == "devuan"  ]; then
+            echo "display=\"spice\"" >> "${OS}-${RELEASE}.conf"
         fi
 
         if [ "${OS}" == "openbsd" ]; then
@@ -753,34 +790,6 @@ EOF
     start_vm_info
 }
 
-function get_android() {
-  local HASH=""
-  local ISO=""
-  local URL=""
-
-  validate_release "releases_android"
-  fosshubVersionInfo=$(wget -O - -q "https://www.fosshub.com/Android-x86-old.html" | grep "var settings =")
-  version="android-x86-${RELEASE}"
-  releaseJson=$(echo "${fosshubVersionInfo:16}" | jq --arg ver "${version}" 'first(.pool.f[] | select((.n | startswith($ver)) and (.n | endswith(".iso"))))')
-
-  HASH=$(echo "${releaseJson}" | jq -r .hash.sha256)
-  ISO=$(echo "${releaseJson}" | jq -r .n)
-
-  baseurl="https://mirrors.gigenet.com/OSDN/android-x86/"
-
-  releaseFolders=$(wget -q -O - ${baseurl} | grep -o -E '[0-9]{5}' | uniq)
-  for item in $releaseFolders; do
-    file=$(wget -O - -q "${baseurl}${item}" | grep "${ISO}")
-    if [[ $file != "" ]]; then
-      URL="${baseurl}${item}/${ISO}"
-      break
-    fi
-  done
-  web_get "${URL}" "${VM_PATH}"
-  check_hash "${ISO}" "${HASH}"
-  make_vm_config "${ISO}"
-}
-
 function get_alma() {
     local HASH=""
     local ISO=""
@@ -794,7 +803,6 @@ function get_alma() {
     if [ -n "${1}" ]; then
       ISOTYPE="${1}"
     fi
-
 
     # The mirror url returns 10 or so local mirrors with some kind or RR rotation/load balancing
     # We'll just grab the first
@@ -832,6 +840,34 @@ function get_alpine() {
     make_vm_config "${ISO}"
 }
 
+function get_android() {
+  local HASH=""
+  local ISO=""
+  local URL=""
+
+  validate_release "releases_android"
+  fosshubVersionInfo=$(wget -O - -q "https://www.fosshub.com/Android-x86-old.html" | grep "var settings =")
+  version="android-x86-${RELEASE}"
+  releaseJson=$(echo "${fosshubVersionInfo:16}" | jq --arg ver "${version}" 'first(.pool.f[] | select((.n | startswith($ver)) and (.n | endswith(".iso"))))')
+
+  HASH=$(echo "${releaseJson}" | jq -r .hash.sha256)
+  ISO=$(echo "${releaseJson}" | jq -r .n)
+
+  baseurl="https://mirrors.gigenet.com/OSDN/android-x86/"
+
+  releaseFolders=$(wget -q -O - ${baseurl} | grep -o -E '[0-9]{5}' | uniq)
+  for item in $releaseFolders; do
+    file=$(wget -O - -q "${baseurl}${item}" | grep "${ISO}")
+    if [[ $file != "" ]]; then
+      URL="${baseurl}${item}/${ISO}"
+      break
+    fi
+  done
+  web_get "${URL}" "${VM_PATH}"
+  check_hash "${ISO}" "${HASH}"
+  make_vm_config "${ISO}"
+}
+
 function get_archlinux() {
     local HASH=""
     local ISO=""
@@ -863,7 +899,6 @@ function get_arcolinux() {
     check_hash "${ISO}" "${HASH}"
     make_vm_config "${ISO}"
 }
-
 
 function get_cachyos() {
     local HASH=""
@@ -907,6 +942,39 @@ function get_debian() {
     make_vm_config "${ISO}"
 }
 
+function get_devuan() {
+    local HASH=""
+    local ISO=""
+    local URL=""
+    local HASHLINE=""
+
+    validate_release "releases_devuan"
+    
+    case $RELEASE in
+      *minimal-live)  URL="https://files.devuan.org/devuan_chimaera/minimal-live" ;;
+      *desktop-live)  URL="https://files.devuan.org/devuan_chimaera/desktop-live" ;;
+      *)              URL="https://files.devuan.org/devuan_chimaera/installer-iso";;
+    esac
+    
+    case $RELEASE in
+      *minimal-live)  HASHLINE=$(wget -q -O- ${URL}/SHASUMS.txt | grep ${RELEASE}.iso) ;;
+      *desktop-live)  HASHLINE=$(wget -q -O- ${URL}/SHASUMS.txt | grep ${RELEASE}.iso) ;;
+      *)              HASHLINE=$(wget -q -O- ${URL}/SHA256SUMS | grep ${RELEASE}.iso);;
+    esac
+    
+    echo $HASHLINE
+
+    ISO="$(echo ${HASHLINE} | awk '{print $NF}' )"
+    HASH=$(echo ${HASHLINE} | cut -d\  -f1)
+
+    RELEASE="${ISO%.*}"
+    VM_PATH="${RELEASE}"
+
+    web_get "${URL}/${ISO}" "${VM_PATH}"
+    check_hash "${ISO}" "${HASH}"
+    make_vm_config "${ISO}"
+}
+
 function get_elementary() {
     local ISO=""
     local URL=""
@@ -919,20 +987,6 @@ function get_elementary() {
     # TODO:  derive region from geoIP
     URL="https://ams3.dl.elementary.io/download/${B66tim}=/${ISO}"
     web_get "${URL}" "${VM_PATH}"
-    make_vm_config "${ISO}"
-}
-
-function get_freebsd() {
-    local HASH=""
-    local ISO=""
-    local URL=""
-
-    validate_release "releases_freebsd"
-    ISO="FreeBSD-${RELEASE}-RELEASE-amd64-dvd1.iso"
-    HASH=$(wget -q -O- "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/${RELEASE}/CHECKSUM.SHA512-FreeBSD-${RELEASE}-RELEASE-amd64" | grep '('"${ISO}"')' | cut -d' ' -f4)
-    URL="https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/${RELEASE}/${ISO}"
-    web_get "${URL}" "${VM_PATH}"
-    check_hash "${ISO}" "${HASH}"
     make_vm_config "${ISO}"
 }
 
@@ -963,6 +1017,56 @@ function get_fedora() {
     make_vm_config "${ISO}"
 }
 
+function get_freebsd() {
+    local HASH=""
+    local ISO=""
+    local URL=""
+
+    validate_release "releases_freebsd"
+    ISO="FreeBSD-${RELEASE}-RELEASE-amd64-dvd1.iso"
+    HASH=$(wget -q -O- "https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/${RELEASE}/CHECKSUM.SHA512-FreeBSD-${RELEASE}-RELEASE-amd64" | grep '('"${ISO}"')' | cut -d' ' -f4)
+    URL="https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/${RELEASE}/${ISO}"
+    web_get "${URL}" "${VM_PATH}"
+    check_hash "${ISO}" "${HASH}"
+    make_vm_config "${ISO}"
+}
+
+function get_garuda() {
+    local HASH=""
+    local ISO=""
+    local URL=""
+    local REL_TYPE=""
+    local LATEST_URL=""
+    local HASH_URL=""
+    local GLDL="http://mirrors.fossho.st/garuda/iso"
+
+    validate_release "releases_garuda"
+
+    # Part of the path is different for a couple of community releases vs the supported garuda ones
+    case ${RELEASE} in
+      mate|cinnamon)
+        REL_TYPE="community";;
+      *)
+        REL_TYPE="garuda";;
+    esac
+
+    # need to follow daily releases and use contents of SHA sums file
+    # to derive the filename and date
+    LATEST_URL="${GLDL}/latest/${REL_TYPE}/${RELEASE}/latest.iso.sha256"
+    HASH_URL="$(wget -q -O- ${LATEST_URL})"
+    ISO="$(echo ${HASH_URL} | awk '{print $NF}' )"
+    HASH=$(echo "${HASH_URL}" | cut -d\  -f1)
+    LDATE=$(echo "${ISO}" | awk -F'-' '{print $NF}' |cut -d'.' -f1) #
+    URL="${GLDL}/${REL_TYPE}/${RELEASE}/${LDATE}"
+
+    #web_get "${URL}/${ISO}" "${VM_PATH}"
+    zsync_get "${URL}/${ISO}" "${VM_PATH}" "${OS}-${RELEASE}.iso"
+    #if [ -n "${HASH}" ]; then
+    #  check_hash "${ISO}" "${HASH}"
+    #fi
+    make_vm_config "${OS}-${RELEASE}.iso"
+}
+
 function get_gentoo() {
     local HASH=""
     local ISO=""
@@ -980,6 +1084,21 @@ function get_gentoo() {
 
     web_get "${URL}" "${VM_PATH}"
     HASH=$(wget -q -O- ${LOCAT}/${INSTALLMIN}.DIGESTS|grep -e iso|grep  -v -e CONT -e catalyst|cut -d\  -f1)
+    check_hash "${ISO}" "${HASH}"
+    make_vm_config "${ISO}"
+}
+
+function get_haiku() {
+    local ISO=""
+    local URL=""
+    local HASH=""
+
+    validate_release "releases_haiku"
+
+    ISO="haiku-${RELEASE}-anyboot.iso"
+    URL="https://cdn.haiku-os.org/haiku-release/$(echo $RELEASE | awk -F '-' '{print $1}')/${ISO}"
+    HASH=$(wget -q -O- ${URL}.sha256 | grep "${ISO}" | cut -d' ' -f4)
+    web_get "${URL}" "${VM_PATH}"
     check_hash "${ISO}" "${HASH}"
     make_vm_config "${ISO}"
 }
@@ -1050,7 +1169,74 @@ function get_linuxmint() {
     web_get "${URL}" "${VM_PATH}"
     check_hash "${ISO}" "${HASH}"
     make_vm_config "${ISO}"
+}
 
+function get_macos() {
+    local BOARD_ID=""
+    local CWD=""
+    local MACRECOVERY=""
+    local MLB=""
+
+    case ${RELEASE} in
+        high-sierra)
+            BOARD_ID="Mac-7BA5B2D9E42DDD94"
+            MLB="00000000000J80300";;
+        mojave)
+            BOARD_ID="Mac-7BA5B2DFE22DDD8C"
+            MLB="00000000000KXPG00";;
+        catalina)
+            BOARD_ID="Mac-CFF7D910A743CAAF"
+            MLB="00000000000PHCD00";;
+        big-sur)
+            BOARD_ID="Mac-35C1E88140C3E6CF"
+            MLB="00000000000000000";;
+        monterey)
+            BOARD_ID="Mac-06F11F11946D27C5"
+            MLB="00000000000000000";;
+        *) echo "$c1 ERROR! Unknown release: ${RELEASE}$c"
+           releases_macos
+           exit 1;;
+    esac
+
+    # Use a bundled macrecovery if possible
+    CWD="$(dirname "${0}")"
+    if [ -x "${CWD}/macrecovery" ]; then
+        MACRECOVERY="${CWD}/macrecovery"
+    elif [ -x /usr/bin/macrecovery ]; then
+        MACRECOVERY="/usr/bin/macrecovery"
+    else
+        web_get "https://raw.githubusercontent.com/wimpysworld/quickemu/master/macrecovery" "${HOME}/.quickemu"
+        MACRECOVERY="python3 ${HOME}/.quickemu/macrecovery"
+    fi
+
+    if [ -z "${MACRECOVERY}" ]; then
+        echo "$c1 ERROR! Can not find a usable macrecovery.$c"
+        exit 1
+    fi
+
+    # Get firmware
+    web_get "https://github.com/kholia/OSX-KVM/raw/master/OpenCore/OpenCore.qcow2" "${VM_PATH}"
+    web_get "https://github.com/kholia/OSX-KVM/raw/master/OVMF_CODE.fd" "${VM_PATH}"
+    if [ ! -e "${VM_PATH}/OVMF_VARS-1024x768.fd" ]; then
+        web_get "https://github.com/kholia/OSX-KVM/raw/master/OVMF_VARS-1024x768.fd" "${VM_PATH}"
+    fi
+
+    if [ ! -e "${VM_PATH}/RecoveryImage.chunklist" ]; then
+        echo "Downloading ${RELEASE}..."
+        ${MACRECOVERY} \
+            --board-id "${BOARD_ID}" \
+            --mlb "${MLB}" \
+            --basename RecoveryImage \
+            --outdir "${VM_PATH}" \
+            download
+    fi
+
+    if [ -e "${VM_PATH}/RecoveryImage.dmg" ] && [ ! -e "${VM_PATH}/RecoveryImage.img" ]; then
+        echo "Converting RecoveryImage..."
+        qemu-img convert "${VM_PATH}/RecoveryImage.dmg" -O raw "${VM_PATH}/RecoveryImage.img"
+    fi
+
+    make_vm_config RecoveryImage.img
 }
 
 function get_manjaro() {
@@ -1134,6 +1320,7 @@ function get_nixos() {
     make_vm_config "${ISO}"
 
 }
+
 function get_openbsd() {
     local HASH=""
     local ISO=""
@@ -1143,95 +1330,6 @@ function get_openbsd() {
     ISO="install${RELEASE//\./}.iso"
     URL="https://cdn.openbsd.org/pub/OpenBSD/${RELEASE}/amd64/${ISO}"
     HASH=$(wget -q -O- "https://cdn.openbsd.org/pub/OpenBSD/${RELEASE}/amd64/SHA256" | grep "${ISO}" | cut -d' ' -f4)
-    web_get "${URL}" "${VM_PATH}"
-    check_hash "${ISO}" "${HASH}"
-    make_vm_config "${ISO}"
-}
-
-function get_void() {
-    local HASH=""
-    local ISO=""
-    local URL=""
-    local HASH_URL=""
-
-    validate_release "releases_void"
-    DATE=$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | awk 'NR == 1' |cut -d'.' -f1| cut -d'-' -f4)
-    URL="http://mirror.fit.cvut.cz/voidlinux/live/current"
-    case ${RELEASE} in
-      base)
-        ISO="void-live-x86_64-${DATE}.iso";;
-      musl)
-        ISO="void-live-x86_64-musl-${DATE}.iso";;
-      xfce)
-        ISO="void-live-x86_64-${DATE}-xfce.iso";;
-      xfce-musl)
-        ISO="void-live-x86_64-musl-${DATE}-xfce.iso";;
-    esac
-    case ${RELEASE} in
-      base)
-        HASH="$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | grep "void-live-x86_64-${DATE}.iso" | cut -d' ' -f4)";;
-      musl)
-        HASH="$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | grep "void-live-x86_64-musl-${DATE}.iso" | cut -d' ' -f4)";;
-      xfce)
-        HASH="$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | grep "void-live-x86_64-${DATE}-xfce.iso" | cut -d' ' -f4)";;
-      xfce-musl)
-        HASH="$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | grep "void-live-x86_64-musl-${DATE}.iso" | cut -d' ' -f4)";;
-    esac
-    web_get "${URL}/${ISO}" "${VM_PATH}"
-    check_hash "${ISO}" "${HASH}"
-    make_vm_config "${ISO}"
-}
-
-function get_zorin() {
-    local ISO=""
-    local URL=""
-
-    validate_release "releases_zorin"
-    # their redirector returns an href so we need to get that and parse out the iso
-    URL=$(curl -s "https://zrn.co/${RELEASE}" |cut -d\" -f2)
-    ISO=$(echo "${URL}"| awk -F\/ ' {print $NF}')
-    web_get "${URL}" "${VM_PATH}"
-    make_vm_config "${ISO}"
-}
-
-function get_rocky() {
-    local HASH=""
-    local ISO=""
-    local URL=""
-
-    local arch="x86_64"
-    local baseurl="https://download.rockylinux.org/pub/rocky/${RELEASE}/isos/${arch}"
-
-    validate_release "releases_rockylinux"
-    ISO="Rocky-${RELEASE}-${arch}-${ISOTYPE}.iso"
-    URL="${baseurl}/${ISO}"
-    HASH=$(wget -q -O- "${baseurl}/CHECKSUM" | grep "SHA256 (${ISO})" | grep -E -i -w -o '[0-9a-z]{64}')
-
-    web_get "${URL}" "${VM_PATH}"
-    check_hash "${ISO}" "${HASH}"
-    make_vm_config "${ISO}"
-}
-
-function get_solus() {
-    local RELNUM=""
-    local RELTYPE=""
-    local HASH=""
-    local ISO=""
-    local URL=""
-
-    validate_release "releases_solus"
-    RELNUM=$(echo "${RELEASE}" | cut -d'-' -f1)
-    RELTYPE=$(echo "${RELEASE}" | cut -d'-' -f2)
-    case ${RELTYPE} in
-      mate|gnome)
-        RELTYPE=${RELTYPE^^};;
-      *)
-        RELTYPE=${RELTYPE^};;
-    esac
-
-    ISO="Solus-${RELNUM}-${RELTYPE}.iso"
-    URL="https://mirrors.rit.edu/solus/images/${RELNUM}/${ISO}"
-    HASH=$(wget -q -O- "${URL}.sha256sum" |  cut -d' ' -f1)
     web_get "${URL}" "${VM_PATH}"
     check_hash "${ISO}" "${HASH}"
     make_vm_config "${ISO}"
@@ -1294,74 +1392,6 @@ function get_oraclelinux() {
     make_vm_config "${ISO}"
 }
 
-function get_macos() {
-    local BOARD_ID=""
-    local CWD=""
-    local MACRECOVERY=""
-    local MLB=""
-
-    case ${RELEASE} in
-        high-sierra)
-            BOARD_ID="Mac-7BA5B2D9E42DDD94"
-            MLB="00000000000J80300";;
-        mojave)
-            BOARD_ID="Mac-7BA5B2DFE22DDD8C"
-            MLB="00000000000KXPG00";;
-        catalina)
-            BOARD_ID="Mac-CFF7D910A743CAAF"
-            MLB="00000000000PHCD00";;
-        big-sur)
-            BOARD_ID="Mac-35C1E88140C3E6CF"
-            MLB="00000000000000000";;
-        monterey)
-            BOARD_ID="Mac-06F11F11946D27C5"
-            MLB="00000000000000000";;
-        *) echo "ERROR! Unknown release: ${RELEASE}"
-           releases_macos
-           exit 1;;
-    esac
-
-    # Use a bundled macrecovery if possible
-    CWD="$(dirname "${0}")"
-    if [ -x "${CWD}/macrecovery" ]; then
-        MACRECOVERY="${CWD}/macrecovery"
-    elif [ -x /usr/bin/macrecovery ]; then
-        MACRECOVERY="/usr/bin/macrecovery"
-    else
-        web_get "https://raw.githubusercontent.com/wimpysworld/quickemu/master/macrecovery" "${HOME}/.quickemu"
-        MACRECOVERY="python3 ${HOME}/.quickemu/macrecovery"
-    fi
-
-    if [ -z "${MACRECOVERY}" ]; then
-        echo "ERROR! Can not find a usable macrecovery."
-        exit 1
-    fi
-
-    # Get firmware
-    web_get "https://github.com/kholia/OSX-KVM/raw/master/OpenCore/OpenCore.qcow2" "${VM_PATH}"
-    web_get "https://github.com/kholia/OSX-KVM/raw/master/OVMF_CODE.fd" "${VM_PATH}"
-    if [ ! -e "${VM_PATH}/OVMF_VARS-1024x768.fd" ]; then
-        web_get "https://github.com/kholia/OSX-KVM/raw/master/OVMF_VARS-1024x768.fd" "${VM_PATH}"
-    fi
-
-    if [ ! -e "${VM_PATH}/RecoveryImage.chunklist" ]; then
-        echo "Downloading ${RELEASE}..."
-        ${MACRECOVERY} \
-            --board-id "${BOARD_ID}" \
-            --mlb "${MLB}" \
-            --basename RecoveryImage \
-            --outdir "${VM_PATH}" \
-            download
-    fi
-
-    if [ -e "${VM_PATH}/RecoveryImage.dmg" ] && [ ! -e "${VM_PATH}/RecoveryImage.img" ]; then
-        echo "Converting RecoveryImage..."
-        qemu-img convert "${VM_PATH}/RecoveryImage.dmg" -O raw "${VM_PATH}/RecoveryImage.img"
-    fi
-
-    make_vm_config RecoveryImage.img
-}
-
 function get_popos() {
     local DRIVER="intel"
     local HASH=""
@@ -1383,7 +1413,6 @@ function get_popos() {
     check_hash "${ISO}" "${HASH}"
     make_vm_config "${ISO}"
 }
-
 
 function get_regolith() {
     local HASH=""
@@ -1411,6 +1440,49 @@ function get_regolith() {
     if [ -n "${HASH}" ]; then
       check_hash "${ISO}" "${HASH}"
     fi
+    make_vm_config "${ISO}"
+}
+
+function get_rocky() {
+    local HASH=""
+    local ISO=""
+    local URL=""
+
+    local arch="x86_64"
+    local baseurl="https://download.rockylinux.org/pub/rocky/${RELEASE}/isos/${arch}"
+
+    validate_release "releases_rockylinux"
+    ISO="Rocky-${RELEASE}-${arch}-${ISOTYPE}.iso"
+    URL="${baseurl}/${ISO}"
+    HASH=$(wget -q -O- "${baseurl}/CHECKSUM" | grep "SHA256 (${ISO})" | grep -E -i -w -o '[0-9a-z]{64}')
+
+    web_get "${URL}" "${VM_PATH}"
+    check_hash "${ISO}" "${HASH}"
+    make_vm_config "${ISO}"
+}
+
+function get_solus() {
+    local RELNUM=""
+    local RELTYPE=""
+    local HASH=""
+    local ISO=""
+    local URL=""
+
+    validate_release "releases_solus"
+    RELNUM=$(echo "${RELEASE}" | cut -d'-' -f1)
+    RELTYPE=$(echo "${RELEASE}" | cut -d'-' -f2)
+    case ${RELTYPE} in
+      mate|gnome)
+        RELTYPE=${RELTYPE^^};;
+      *)
+        RELTYPE=${RELTYPE^};;
+    esac
+
+    ISO="Solus-${RELNUM}-${RELTYPE}.iso"
+    URL="https://mirrors.rit.edu/solus/images/${RELNUM}/${ISO}"
+    HASH=$(wget -q -O- "${URL}.sha256sum" |  cut -d' ' -f1)
+    web_get "${URL}" "${VM_PATH}"
+    check_hash "${ISO}" "${HASH}"
     make_vm_config "${ISO}"
 }
 
@@ -1442,12 +1514,12 @@ function get_ubuntu() {
       ubuntu-studio)
         PROJECT="ubuntustudio"
         DEVEL="dvd";;
-      *) echo "ERROR! ${OS} is not a recognised Ubuntu flavour."
+      *) echo " $c1 ERROR! ${OS} is not a recognised Ubuntu flavour.$c"
          exit 1;;
     esac
 
     if [ "${RELEASE}" == "canary" ] && [ "${OS}" != "ubuntu" ]; then
-      echo "ERROR! Canary is currently only available for Ubuntu."
+      echo " $c1 ERROR! Canary is currently only available for Ubuntu.$c"
       exit 1
     else
       validate_release "releases_ubuntu"
@@ -1476,54 +1548,49 @@ function get_ubuntu() {
     fi
 }
 
-function get_garuda() {
+function get_void() {
     local HASH=""
     local ISO=""
     local URL=""
-    local REL_TYPE=""
-    local LATEST_URL=""
     local HASH_URL=""
-    local GLDL="http://mirrors.fossho.st/garuda/iso"
 
-    validate_release "releases_garuda"
-
-    # Part of the path is different for a couple of community releases vs the supported garuda ones
+    validate_release "releases_void"
+    DATE=$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | awk 'NR == 1' |cut -d'.' -f1| cut -d'-' -f4)
+    URL="http://mirror.fit.cvut.cz/voidlinux/live/current"
     case ${RELEASE} in
-      mate|cinnamon)
-        REL_TYPE="community";;
-      *)
-        REL_TYPE="garuda";;
+      base)
+        ISO="void-live-x86_64-${DATE}.iso";;
+      musl)
+        ISO="void-live-x86_64-musl-${DATE}.iso";;
+      xfce)
+        ISO="void-live-x86_64-${DATE}-xfce.iso";;
+      xfce-musl)
+        ISO="void-live-x86_64-musl-${DATE}-xfce.iso";;
     esac
-
-    # need to follow daily releases and use contents of SHA sums file
-    # to derive the filename and date
-    LATEST_URL="${GLDL}/latest/${REL_TYPE}/${RELEASE}/latest.iso.sha256"
-    HASH_URL="$(wget -q -O- ${LATEST_URL})"
-    ISO="$(echo ${HASH_URL} | awk '{print $NF}' )"
-    HASH=$(echo "${HASH_URL}" | cut -d\  -f1)
-    LDATE=$(echo "${ISO}" | awk -F'-' '{print $NF}' |cut -d'.' -f1) #
-    URL="${GLDL}/${REL_TYPE}/${RELEASE}/${LDATE}"
-
-    #web_get "${URL}/${ISO}" "${VM_PATH}"
-    zsync_get "${URL}/${ISO}" "${VM_PATH}" "${OS}-${RELEASE}.iso"
-    #if [ -n "${HASH}" ]; then
-    #  check_hash "${ISO}" "${HASH}"
-    #fi
-    make_vm_config "${OS}-${RELEASE}.iso"
+    case ${RELEASE} in
+      base)
+        HASH="$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | grep "void-live-x86_64-${DATE}.iso" | cut -d' ' -f4)";;
+      musl)
+        HASH="$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | grep "void-live-x86_64-musl-${DATE}.iso" | cut -d' ' -f4)";;
+      xfce)
+        HASH="$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | grep "void-live-x86_64-${DATE}-xfce.iso" | cut -d' ' -f4)";;
+      xfce-musl)
+        HASH="$(wget -q -O- "https://mirror.fit.cvut.cz/voidlinux/live/current/sha256sum.txt" | grep "void-live-x86_64-musl-${DATE}.iso" | cut -d' ' -f4)";;
+    esac
+    web_get "${URL}/${ISO}" "${VM_PATH}"
+    check_hash "${ISO}" "${HASH}"
+    make_vm_config "${ISO}"
 }
 
-function get_haiku() {
+function get_zorin() {
     local ISO=""
     local URL=""
-    local HASH=""
 
-    validate_release "releases_haiku"
-
-    ISO="haiku-${RELEASE}-anyboot.iso"
-    URL="https://cdn.haiku-os.org/haiku-release/$(echo $RELEASE | awk -F '-' '{print $1}')/${ISO}"
-    HASH=$(wget -q -O- ${URL}.sha256 | grep "${ISO}" | cut -d' ' -f4)
+    validate_release "releases_zorin"
+    # their redirector returns an href so we need to get that and parse out the iso
+    URL=$(curl -s "https://zrn.co/${RELEASE}" |cut -d\" -f2)
+    ISO=$(echo "${URL}"| awk -F\/ ' {print $NF}')
     web_get "${URL}" "${VM_PATH}"
-    check_hash "${ISO}" "${HASH}"
     make_vm_config "${ISO}"
 }
 
@@ -1829,6 +1896,92 @@ function dbg_windows() {
   fi
 }
 
+function use_fzf2() {
+    OS=
+    RELEASE=
+    OS=$(cat newOSlist | cut -d';' -f1 | fzf)
+    FUZZY=${OS}
+    RELEASE=$(cat newOSlist | grep "$OS" |cut -d';' -f2 | sed 's/ /\n/g' | fzf)
+    get_magic
+}
+
+function use_fzf() {
+    OS=
+    RELEASE=
+    OS=$(os_support | tr ' ' '\n ' | sort -r | fzf)
+    if echo $OS | grep ubuntu ; then
+        FUZZY="ubuntu"
+    elif echo $OS | grep - ; then
+        FUZZY=$(echo $OS |cut -d'-' -f1)
+    else
+        FUZZY=${OS}
+    fi
+    RELEASE=$(releases_${FUZZY} | tr ' ' '\n ' | fzf)
+    get_"$FUZZY"
+}
+
+function releases() {
+    RELEASE=$(cat newOSlist | grep $OS | cut -d';' -f2)
+    echo $RELEASE
+}
+
+function get_magic(){
+    validate_release "releases"
+    local DIR="$DIR"
+    local HASH=""
+    local ISO=""
+    local URL=""
+    local VERSION=""
+    local BRANCH=""
+    local HASHLINE=""
+    local FREEDOM=""
+    get_"$OS"
+}
+
+function os_list(){
+    echo alma;8.4 8.5 \
+    alpine;latest 3.12 3.13 3.14 3.15 \
+    android;2.2 4.0 4.4 5.1 6.0 7.1 8.1 9.0 \
+    archlinux;latest \
+    arcolinux;latest \
+    cachyos;2022.01.09 \
+    debian;cinnamon gnome kde lxde lxqt mate standart xfce \
+    devuan;amd64_minimal-live amd64_netinstall amd64_desktop amd64_desktop-live amd64_server \
+    elementary;6.1 \
+    fedora;33 34 35 \
+    freebsd;12.2 13.0 \
+    garuda;bspwm cinnamon dr460nized dr460nized-blackarch dr460nized-gaming gnome i3 kde-barebones mate lxqt-kwin qtile sway wayfire xfce \
+    gentoo;latest \
+    haiku;r1beta3-x86_64 r1beta3-x86_gcc2h \
+    kali;latest weekly \
+    kdeneon;user testing unstable developer \
+    kolibrios;latest \
+    linuxmint;20.2;cinnamon mate xfce \
+    manjaro;21.2.2;minimal minimal-lts budgie-minimal budgie cinnamon-minimal cinnamon deepin-minimal deepin gnome-minimal gnome-minimal-lts gnome i3-minimal i3 kde kde-minimal kde-minimal-lts kde mate-minimal mate xfce-minimal xfce-minimal-lts xfce \
+    mxlinux;21;fluxbox kde xfce \
+    netboot.xyz;latest \
+    nixos;21.05 21.11;minimal gnome plasma \
+    openbsd;7.0 \
+    opensuse;15.0 15.1 15.2 15.3 microos tumbleweed \
+    oraclelinux;7.7 7.8 7.9 8.2 8.3 8.4 8.5 \
+    popos;20.04 21.04 21.10 \
+    regolith;1.6.0_hirsuite 1.6.0_focal 2.0.0_impish 2.0.0_hirsuite \
+    rockylinux;8.0 8.1 8.2 8.3 8.4 8.5 \
+    solus;4.3;budgie gnome mate plasma \
+    tails;stable \
+    ubuntu;18.04-bionic 20.04-focal 21.04-hirsuite 21.10-impish devel canary;budgie ubuntu kubuntu kylin lubuntu mate studio xubuntu \
+    void;libc musl;xfce \
+    zorin;16core64 15lite64 15lite32 15education64 15edulite64 15edulite32 \
+    macos;high-sierra mojave catalina big-sur monterey \
+    windows;11 10 8
+}
+
+function set_path() {
+    echo "Choose where to store Vitrtual Machines"
+    PATH=~/quickemu
+    mkdir -r ~/quickemu
+}
+
 # Adapted from https://gist.github.com/hongkongkiwi/15a5bf16437315df256c118c163607cb
 function get_windows() {
     local ARCH="x64"
@@ -1981,10 +2134,15 @@ languages_windows
           *)
 
 if [ -n "${1}" ]; then
+    if [ "${1,,}" = fzf ]; then
+        use_fzf
+        exit 0
+    fi
     OS="${1,,}"
 else
-    echo "ERROR! You must specify an operating system:"
+    echo "$c1 ERROR! You must specify an operating system:$c"
     os_support
+    echo " $c2 Or try run: $c $progname fzf$c2 for fuzzy list available...$c"
     exit 1
 fi
 
@@ -1993,7 +2151,7 @@ if [ -n "${2}" ]; then
     VM_PATH="${OS}-${RELEASE}"
 
     if [ "${OS}" == "alma" ]; then
-     if [ -n "${3}" ]; then
+        if [ -n "${3}" ]; then
             ISOTYPE="${3,,}"
             ISOTYPES=(minimal dvd ) # boot) # a step too far
             if [[ ! ${ISOTYPES[*]} =~ ${ISOTYPE} ]]; then
@@ -2023,7 +2181,7 @@ if [ -n "${2}" ]; then
             FREEDOM="${3}"
             FREEDOMS=(standard nonfree)
             if [[ ! ${FREEDOMS[*]} =~ ${FREEDOM} ]]; then
-                echo "ERROR! ${FREEDOM} is not a supported freedom:"
+                echo " $c1 ERROR! ${FREEDOM} is not a supported freedom:$c"
                 for DRIVER in "${FREEDOMS[@]}"; do
                   echo "${FREEDOM}"
                 done
@@ -2075,7 +2233,7 @@ if [ -n "${2}" ]; then
             DRIVER="${3}"
             DRIVERS=(intel nvidia)
             if [[ ! ${DRIVERS[*]} =~ ${DRIVER} ]]; then
-                echo "ERROR! ${DRIVER} is not a supported driver:"
+                echo " $c1 ERROR! ${DRIVER} is not a supported driver:$c"
                 for DRIVER in "${DRIVERS[@]}"; do
                   echo "${DRIVER}"
                 done
@@ -2114,7 +2272,7 @@ if [ -n "${2}" ]; then
         if [ -n "${3}" ]; then
             LANG_NAME="${3}"
             if [[ ! ${LANGS[*]} =~ ${LANG_NAME} ]]; then
-                echo "ERROR! ${LANG_NAME} is not a supported language:"
+                echo " $c1 ERROR! ${LANG_NAME} is not a supported language:$c"
                 for LANG in "${LANGS[@]}"; do
                   echo "${LANG}"
                 done
@@ -2126,88 +2284,32 @@ if [ -n "${2}" ]; then
         get_windows "${LANG_NAME}"
     elif [ "${OS}" == "zorin" ]; then
         get_zorin
+    elif ( os_support | grep -q "${OS}" ; echo $? == 0 > /dev/null) ; then
+        get_"${OS}"
     else
-        echo "ERROR! ${OS} is unknown:"
+        echo -n " $c1 ERROR! ${OS} is unknown:$c"
         os_support
+        echo -n " $c2 Or try run: $c $progname fzf$c2 for fuzzy list available...$c"
         exit 1
     fi
 else
-    echo -n "ERROR! You must specify a release: "
-    if [ "${OS}" == "alma" ]; then
-        releases_alma
-    elif [ "${OS}" == "alpine" ]; then
-        releases_alpine
-    elif [ "${OS}" == "android" ]; then
-        releases_android
-    elif [ "${OS}" == "archlinux" ]; then
-        releases_archlinux
-    elif [ "${OS}" == "arcolinux" ]; then
-        releases_arcolinux
-    elif [ "${OS}" == "debian" ]; then
-        releases_debian
-    elif [ "${OS}" == "elementary" ]; then
-        releases_elementary
-    elif [ "${OS}" == "freebsd" ]; then
-        releases_freebsd
-    elif [ "${OS}" == "fedora" ]; then
-        releases_fedora
-    elif [ "${OS}" == "garuda" ]; then
-        releases_garuda
-    elif [ "${OS}" == "cachyos" ]; then
-        releases_cachyos
-    elif [ "${OS}" == "gentoo" ]; then
-        releases_gentoo
-    elif [ "${OS}" == "haiku" ]; then
-        releases_haiku
-    elif [ "${OS}" == "kali" ]; then
-        releases_kali
-    elif [ "${OS}" == "kolibrios" ]; then
-        releases_kolibrios
-    elif [[ "${OS}" == *"linuxmint-"* ]]; then
-        releases_linuxmint
-    elif [[ "${OS}" == *"manjaro-"* ]]; then
-        releases_manjaro
-    elif [[ "${OS}" == *"mxlinux-"* ]]; then
-        releases_mxlinux
-    elif [[ "${OS}" == *"nixos-"* ]]; then
-        releases_nixos
-    elif [ "${OS}" == "opensuse" ]; then
-        releases_opensuse
-    elif [ "${OS}" == "oraclelinux" ]; then
-        releases_oraclelinux
-    elif [ "${OS}" == "openbsd" ]; then
-        releases_openbsd
-    elif [ "${OS}" == "macos" ]; then
-        releases_macos
-    elif [ "${OS}" == "popos" ]; then
-        releases_popos
-    elif [ "${OS}" == "regolith" ]; then
-        releases_regolith
-    elif [ "${OS}" == "rockylinux" ]; then
-        releases_rockylinux
-    elif [ "${OS}" == "solus" ]; then
-        releases_solus
-    elif [[ "${OS}" == "tails"* ]]; then
-        releases_tails
-    elif [[ "${OS}" == *"ubuntu"* ]]; then
-        releases_ubuntu
-    elif [ "${OS}" == "void" ]; then
-        releases_void
-    elif [ "${OS}" == "windows" ]; then
-        releases_windows
-    elif [ "${OS}" == "zorin" ]; then
-        releases_zorin
+    echo -n " $c1 ERROR! You must specify a release: $c"
+    echo
+    if os_support | grep -q "${OS}" ; echo $? == 0 > /dev/null ; then
+        releases_"${OS}"
     else
-        echo "${OS} is unknown"
+        echo -n " ${OS} is unknown"
         os_support
     fi
+    echo " $c2 Or try run: $c $progname fzf$c2 for fuzzy list available...$c"
     exit 1
 fi
 ;;
    esac
     done
     if [ $# == 0 ]; then
-      echo "Error: You must supply an OS!"
+      echo "$c1 ERROR!: You must supply an OS:$c"
       os_support
+      echo -n " $c2 Or try run: $c $progname fzf$c2 for fuzzy list available...$c"
       exit 1
 fi
