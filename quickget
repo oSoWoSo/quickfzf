@@ -43,6 +43,7 @@ function pretty_name() {
     endeavouros)        PRETTY_NAME="EndeavourOS";;
     freebsd)            PRETTY_NAME="FreeBSD";;
     freedos)            PRETTY_NAME="FreeDOS";;
+    fvoid)              PRETTY_NAME="F-Void";;
     garuda)             PRETTY_NAME="Garuda Linux";;
     ghostbsd)           PRETTY_NAME="GhostBSD";;
     kdeneon)            PRETTY_NAME="KDE Neon";;
@@ -182,6 +183,7 @@ function os_support() {
     fedora \
     freebsd \
     freedos \
+    fvoid \
     garuda \
     gentoo \
     ghostbsd \
@@ -346,6 +348,14 @@ function editions_freebsd(){
 
 function releases_freedos() {
     echo 1.2 1.3
+}
+
+function releases_fvoid() {
+    echo 20220818 20221021 20221223 20230124 20230222
+}
+
+function editions_fvoid() {
+    echo lxqt
 }
 
 function releases_garuda() {
@@ -1156,6 +1166,25 @@ function get_freedos() {
           ;;
     esac
 
+    echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_fvoid() {
+    local HASH=""
+    local ISO=""
+    case ${RELEASE} in
+      20220818)
+        URL="https://sourceforge.net/projects/f-void/files/18_08_2022/void-live-x86_64-20220818-lxqt.iso/download";;
+      20221021)
+        URL="https://sourceforge.net/projects/f-void/files/21_10_2022/fvoid-live-x86_64-20221021_2-lxqt.iso/download";;
+      20221223)
+        URL="https://sourceforge.net/projects/f-void/files/23_12_2022/fvoid-live-x86_64-20221223-lxqt.iso/download";;
+      20230124)
+        URL="https://sourceforge.net/projects/f-void/files/24_01_2023/fvoid-live-x86_64-20230124-lxqt.iso/download";;
+      20230222)
+        URL="https://sourceforge.net/projects/f-void/files/22_02_2023/fvoid-live-x86_64-20230222-lxqt.iso/download";;
+    esac
+    HASH=$(wget -q -O- "${URL}/${ISO}.sha256" | cut -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
 }
 
