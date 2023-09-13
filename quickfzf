@@ -1,8 +1,7 @@
 #!/usr/bin/bash
 
 # Author: zenobit
-# Description: Uses fzf to provide a simple TUI for quickemu and quickget
-# script must be in same directory as quickget and quickemu!
+# Description: Uses fzf to provide a simple GUI for quickemu and quickget
 # License MIT
 
 # Define variables
@@ -18,9 +17,16 @@ trap "exit" EXIT
 if ! command -v fzf >/dev/null 2>&1; then
 	echo "You are missing fzf..." && exit 255
 fi
-# Dispaly version and prepared VMs
+
+if ! command -v quickemu >/dev/null 2>&1; then
+	echo "You are missing quickemu..." && exit 255
+fi
+
+QUICKGET=$(command -v quickget)   || exit 255
+
+# Display version and prepared VMs
 #printf " $progname: $version\n quickemu: $(quickemu --version)\n\n Prepared VMs:\n-------------\n"
-printf '%s: v.%s\nquickemu: v.%s\n\n Work dir.: %s\n\n Prepared VMs:\n-------------\n' "$progname" "$version" "$(quickemu --version)" "$(pwd)"
+printf '%s: v.%s\nquickemu: v.%s\n\n Workdir: %s\n\n Prepared VMs:\n-------------\n' "$progname" "$version" "$(quickemu --version)" "$(pwd)"
 # Check if there are any VMs
 if [ ${#vms[@]} -eq 0 ]; then
     echo "No VMs found."
@@ -55,9 +61,9 @@ Choose other language" | fzf --cycle)
 10
 11" | fzf --cycle)
 			# get window language list
-			wlend=$(($(cat quickget | sed '/Arabic/,$!d' | grep -n '}' | cut -d':' -f1 | head -n 1) - 1))
+			wlend=$(($(cat $QUICKGET  | sed '/Arabic/,$!d' | grep -n '}' | cut -d':' -f1 | head -n 1) - 1))
 			# get windows language
-			wlang=$(cat quickget | sed '/Arabic/,$!d' | head -n $wlend | cut -d'=' -f2 | tail -c +2 | head -c -2 | sed 's/^[ \t]*//' | fzf --cycle --header='Choose Language
+			wlang=$(cat $QUICKGET | sed '/Arabic/,$!d' | head -n $wlend | cut -d'=' -f2 | tail -c +2 | head -c -2 | sed 's/^[ \t]*//' | fzf --cycle --header='Choose Language
  or CTRL-c or ESC to quit')
 			# downloading windows
 			printf '\n Trying to download Windows %s %s...\n\n' "$wrelease" "$wlang"
@@ -86,11 +92,11 @@ Choose other language" | fzf --cycle)
 	fi
 fi
 # choose VM to run
-choosed=$(echo "$(ls *.conf 2>/dev/null | sed 's/\.conf$//')" | fzf --cycle --header='Choose VM to run
+chosen=$(echo "$(ls *.conf 2>/dev/null | sed 's/\.conf$//')" | fzf --cycle --header='Choose VM to run
  or CTRL-c or ESC to quit')
 
-# Run choosed VM
-printf '\n Starting %s...\n\n' "$choosed"
-quickemu -vm "$choosed.conf"
+# Run chosen VM
+printf '\n Starting %s...\n\n' "$chosen"
+quickemu -vm "$chosen.conf"
 
 exit 0
