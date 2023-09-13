@@ -1667,8 +1667,7 @@ function get_solus() {
 
 function get_holoiso() {
     local HASH=""
-    local DATE="20221211"
-    local ISO="HoloISO_${RELEASE}_OfflineInstaller-${DATE}_1636-x86_64.iso"
+    local ISO="HoloISO_${RELEASE}_ux_changes-20230626_66f7c74061_bootchoice_fixes-1-x86_64.iso"
     local URL="http://holoiso.itsvixano.me"
 
     HASH=$(wget -q -O- "${URL}/${ISO}.sha256sum" | cut -d' ' -f1)
