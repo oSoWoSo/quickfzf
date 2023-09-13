@@ -2433,6 +2433,7 @@ create_vm() {
         unzip ${VM_PATH}/${ISO} -d ${VM_PATH}
         ISO=$(ls ${VM_PATH} | grep -i '.iso')
     fi
+
     if [[ ${OS} == "batocera" ]] && [[ ${ISO} =~ ".gz" ]]; then
         gzip -d "${VM_PATH}/${ISO}"
         ISO="${ISO/.gz/}"
@@ -2443,6 +2444,8 @@ create_vm() {
     if [[ ${OS} == "dragonflybsd" ]] && [[ ${ISO} =~ ".bz2" ]]; then
         bzip2 -d  "${VM_PATH}/${ISO}"
         ISO="${ISO/.bz2/}"
+    fi
+    
     if [ ${OS} == "dietpi" ] && [[ $ISO =~ ".7z" ]]; then
         7zip x -o${VM_PATH} ${VM_PATH}/${ISO}
         ISO=$(ls ${VM_PATH} | grep -i '.iso')
