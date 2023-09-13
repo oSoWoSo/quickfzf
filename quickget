@@ -195,6 +195,7 @@ function os_support() {
     batocera \
     biglinux \
     blendos \
+    bodhi \
     cachyos \
     centos-stream \
     cereus \
@@ -317,6 +318,14 @@ function releases_blendos() {
 
 function editions_blendos() {
     echo gnome kde
+}
+
+function releases_bodhi() {
+    echo 7.0.0
+}
+
+function editions_bodhi() {
+    echo standart hwe s76
 }
 
 function releases_cachyos() {
@@ -1235,6 +1244,21 @@ function get_batocera() {
     esac
 
 
+    echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_bodhi() {
+    local EDITION="${1:-}"
+    local HASH=""
+    local ISO=""
+    local URL="https://sourceforge.net/projects/bodhilinux/files/${release}/"
+
+    case ${EDITION} in
+      standart) ISO="bodhi-${RELEASE}-64.iso";;
+      hwe) ISO="bodhi-${RELEASE}-64-hwe.iso";;
+      s76) ISO="bodhi-${RELEASE}-64-s76.iso";;
+    esac
+    HASH=$(wget -q -O- "${URL}/${ISO}.sha256" | cut -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
 }
 
