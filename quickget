@@ -30,6 +30,7 @@ function pretty_name() {
   local PRETTY_NAME=""
   SIMPLE_NAME="${1}"
   case ${SIMPLE_NAME} in
+    agarimos)           PRETTY_NAME="AgarimOS";;
     alma)               PRETTY_NAME="Alma Linux";;
     alpine)             PRETTY_NAME="Alpine Linux";;
     android)            PRETTY_NAME="Android x86";;
@@ -39,12 +40,16 @@ function pretty_name() {
     blendos)            PRETTY_NAME="BlendOS";;
     cachyos)            PRETTY_NAME="CachyOS";;
     centos-stream)      PRETTY_NAME="CentOS Stream";;
+    cereus)             PRETTY_NAME="Cereus Linux";;
+    dietpi)             PRETTY_NAME="DietPi";;
     dragonflybsd)       PRETTY_NAME="DragonFlyBSD";;
     elementary)         PRETTY_NAME="elementary OS";;
     endeavouros)        PRETTY_NAME="EndeavourOS";;
     endless)            PRETTY_NAME="Endless OS";;
     freebsd)            PRETTY_NAME="FreeBSD";;
     freedos)            PRETTY_NAME="FreeDOS";;
+    fvoid)              PRETTY_NAME="F-Void";;
+    gabeeos)            PRETTY_NAME="gabeeOS Linux";;
     garuda)             PRETTY_NAME="Garuda Linux";;
     ghostbsd)           PRETTY_NAME="GhostBSD";;
     kdeneon)            PRETTY_NAME="KDE Neon";;
@@ -65,7 +70,7 @@ function pretty_name() {
     reactos)            PRETTY_NAME="ReactOS";;
     rebornos)           PRETTY_NAME="RebornOS";;
     rockylinux)         PRETTY_NAME="Rocky Linux";;
-    holoiso)            PRETTY_NAME="HoloISO";;
+    slitaz)             PRETTY_NAME="SliTaz GNU/Linux";;
     truenas-core)       PRETTY_NAME="TrueNAS Core";;
     truenas-scale)      PRETTY_NAME="TrueNAS Scale";;
     ubuntu-budgie)      PRETTY_NAME="Ubuntu Budgie";;
@@ -77,6 +82,7 @@ function pretty_name() {
     ubuntu-unity)       PRETTY_NAME="Ubuntu Unity";;
     vanillaos)          PRETTY_NAME="Vanilla OS";;
     void)               PRETTY_NAME="Void Linux";;
+    voidpup)            PRETTY_NAME="Void Puppy";;
     vxlinux)            PRETTY_NAME="VX Linux";;
     xerolinux)          PRETTY_NAME="XeroLinux";;
     zorin)              PRETTY_NAME="Zorin OS";;
@@ -176,7 +182,8 @@ function list_csv() {
 }
 
 function os_support() {
-    echo alma \
+    echo agarimos \
+    alma \
     alpine \
     android \
     archlinux \
@@ -186,9 +193,11 @@ function os_support() {
     blendos \
     cachyos \
     centos-stream \
+    cereus \
     debian \
     deepin \
     devuan \
+    dietpi \
     dragonflybsd \
     elementary \
     endeavouros \
@@ -196,10 +205,13 @@ function os_support() {
     fedora \
     freebsd \
     freedos \
+    fvoid \
+    gabeeos \
     garuda \
     gentoo \
     ghostbsd \
     haiku \
+    holoiso \
     kali \
     kdeneon \
     kolibrios \
@@ -224,8 +236,8 @@ function os_support() {
     rockylinux \
     siduction \
     slackware \
+    slitaz \
     solus \
-    holoiso \
     tails \
     truenas-core \
     truenas-scale \
@@ -239,11 +251,16 @@ function os_support() {
     ubuntu-unity \
     vanillaos \
     void \
+    voidpup \
     vxlinux \
     windows \
     xerolinux \
     xubuntu \
     zorin
+}
+
+function releases_agarimos() {
+    echo 20230305 20230303 20230225 20230216
 }
 
 function releases_alma() {
@@ -309,6 +326,14 @@ function editions_centos-stream() {
     echo dvd1 boot
 }
 
+function releases_cereus() {
+    echo latest
+}
+
+function editions_cereus() {
+    echo base lxqt xfce
+}
+
 function releases_debian() {
     DEBCURRENT=$(wget -q https://cdimage.debian.org/debian-cd/ -O- |grep '\.[0-9]/'|cut -d\> -f9|cut -d\/ -f1)
     local DEBOLD=$(wget -q https://cdimage.debian.org/cdimage/archive/ -O- |grep -e '>[1-9][0-9]\.'|grep -v 'live' | cut -d\> -f9|cut -d\/ -f1 )
@@ -326,6 +351,14 @@ function releases_deepin() {
 
 function releases_devuan() {
     echo beowulf chimaera
+}
+
+function releases_dietpi() {
+    echo bios uefi
+}
+
+function editions_dietpi() {
+    echo bookworm bookworm-installer bullseye bullseye-installer
 }
 
 function releases_dragonflybsd() {
@@ -394,6 +427,14 @@ function editions_freebsd(){
 
 function releases_freedos() {
     echo 1.2 1.3
+}
+
+function releases_fvoid() {
+    echo latest
+}
+
+function releases_gabeeos() {
+    echo latest
 }
 
 function releases_garuda() {
@@ -559,8 +600,20 @@ function editions_siduction() {
     echo kde lxqt nox xfce xorg
 }
 
+function releases_siduction() {
+    echo latest
+}
+
+function editions_siduction() {
+    echo kde lxqt nox xfce xorg
+}
+
 function releases_slackware() {
     echo 14.2 15.0
+}
+
+function releases_slitaz() {
+    echo preferred core core64 loram core-5in1 preinit
 }
 
 function releases_solus() {
@@ -572,7 +625,7 @@ function editions_solus() {
 }
 
 function releases_holoiso() {
-    echo 4.0
+    echo 4.5
 }
 
 function releases_tails() {
@@ -682,11 +735,23 @@ function releases_vanillaos() {
 }
 
 function releases_void() {
-    echo current
+    echo current 20221001 20210316 20210930 20210218 20191109 20190526 20190217 20181111 20171007 20170825 20170220
 }
 
 function editions_void() {
-    echo glibc musl xfce-glibc xfce-musl
+    echo base base-musl cinnamon cinnamon-musl enlightenment enlightenment-musl gnome gnome-musl lxde lxde-musl lxqt lxqt-musl mate mate-musl xfce xfce-musl
+}
+
+function releases_voidpup() {
+    echo latest
+}
+
+function releases_vxlinux() {
+    echo 6.1 5.0 4.2 4.1 4.0
+}
+
+function releases_vxlinux() {
+    echo 6.1.2 6.1 5.0 4.2 4.1 4.0.
 }
 
 function releases_vxlinux() {
@@ -695,6 +760,10 @@ function releases_vxlinux() {
 
 function releases_windows() {
     echo 10 11
+}
+
+function releases_xerolinux() {
+    echo kde
 }
 
 function releases_xerolinux() {
@@ -888,6 +957,11 @@ EOF
             echo "disk_size=\"32G\"" >> "${CONF_FILE}";;
           batocera)
             echo "disk_size=\"8G\"" >> "${CONF_FILE}";;
+          dietpi)
+            if [ "${RELEASE}" == "bios" ]; then
+                echo "boot=\"legacy\"" >> "${CONF_FILE}"
+            fi
+            ;;
           dragonflybsd|haiku|openbsd|netbsd|slackware|tails)
             echo "boot=\"legacy\"" >> "${CONF_FILE}";;
           deepin)
@@ -903,6 +977,11 @@ EOF
             echo "boot=\"legacy\"" >> "${CONF_FILE}"
             echo "disk_size=\"2G\"" >> "${CONF_FILE}"
             echo "ram=\"128M\"" >> "${CONF_FILE}"
+            ;;
+          slitaz)
+            echo "boot=\"legacy\"" >> "${CONF_FILE}"
+            echo "disk_size=\"4G\"" >> "${CONF_FILE}"
+            echo "ram=\"512M\"" >> "${CONF_FILE}"
             ;;
           truenas-scale|truenas-core)
             echo "boot=\"legacy\"" >> "${CONF_FILE}"
@@ -965,6 +1044,34 @@ EOF
     echo "    quickemu --vm ${CONF_FILE}"
     echo
     exit 0
+}
+
+function get_agarimos() {
+    local EDITION="${1:-}"
+    local HASH=""
+    local ISO=""
+    local URL=""
+    case ${RELEASE} in
+        20230305)
+            URL="https://sourceforge.net/projects/agarimos/files/Gnome"
+            ISO="AgarimOS-Gnome-Catppuccin-Live-x86_64-6.1.14_1-20230305.iso"
+            ;;
+        20230303)
+            URL="https://sourceforge.net/projects/agarimos/files/Plasma"
+            ISO="AgarimOS-Plasma-Dracula-Live-x86_64-6.1.14_1-20230303.iso"
+            ;;
+        20230225)
+            URL="https://sourceforge.net/projects/agarimos/files/XFCE4"
+            ISO="AgarimOS-XFCE4-Catppuccin-Live-x86_64-6.1.12_1-20230216.iso"
+            ;;
+        20230216)
+            URL="https://sourceforge.net/projects/agarimos/files/XFCE4"
+            ISO="AgarimOS-XFCE4-Catppuccin-Live-6.1.13_1-20230225.iso"
+            ;;
+    esac
+
+    HASH=$(wget -q -O- "${URL}/${ISO}.sha256" | cut -d' ' -f1)
+    echo "${URL}/${ISO} ${HASH}"
 }
 
 function get_alma() {
@@ -1130,6 +1237,30 @@ function get_centos-stream() {
     echo "${URL}/${ISO} ${HASH}"
 }
 
+function get_cereus() {
+    local HASH=""
+    local ISO=""
+    local URL=""
+    case ${EDITION} in
+      base)
+        ISO="cereus-beta-live-x86_64-xfce-2023.02.17.iso"
+        URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/base"
+        HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f2)
+        ;;
+      lxqt)
+        ISO="cereus-beta-live-x86_64-lxqt-2023.02.17.iso"
+        URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/lxqt"
+        HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f4)
+        ;;
+      xfce)
+        ISO="cereus-beta-live-x86_64-xfce-2023.02.17.iso"
+        URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/xfce"
+        HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f4)
+        ;;
+    esac
+    echo "${URL}/${ISO} ${HASH}"
+}
+
 function get_debian() {
     local EDITION="${1:-}"
     local HASH=""
@@ -1184,6 +1315,42 @@ function get_devuan() {
     case ${RELEASE} in
       beowulf) ISO="devuan_${RELEASE}_3.1.1_amd64_desktop-live.iso";;
       chimaera) ISO="devuan_${RELEASE}_4.0.2_amd64_desktop-live.iso";;
+    esac
+    HASH=$(wget -q -O- "${URL}/SHASUMS.txt" | grep "${ISO}" | cut -d' ' -f1)
+    echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_dietpi() {
+    local HASH=""
+    local ISO=""
+    local URL="https://dietpi.com/downloads/images"
+    case ${RELEASE} in
+      bios)
+        case ${EDITION} in
+          bookworm)
+            local ISO="DietPi_NativePC-BIOS-x86_64-Bookworm.7z"
+            ;;
+          bullseye)
+            local ISO="DietPi_NativePC-BIOS-x86_64-Bullseye.7z"
+            ;;
+          bookworm-installer)
+            local ISO="DietPi_NativePC-BIOS-x86_64-Bookworm_Installer.7z"
+            ;;
+          bullseye-installer)
+            local ISO="DietPi_NativePC-BIOS-x86_64-Bullseye_Installer.7z"
+            ;;
+        esac
+      ;;
+      uefi)
+        case ${EDITION} in
+          bookworm-installer)
+            local ISO="DietPi_NativePC-UEFI-x86_64-Bookworm_Installer.7z"
+            ;;
+          bullseye-installer)
+            local ISO="DietPi_NativePC-UEFI-x86_64-Bullseye_Installer.7z"
+            ;;
+        esac
+      ;;
     esac
     HASH=$(wget -q -O- "${URL}/SHASUMS.txt" | grep "${ISO}" | cut -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
@@ -1296,6 +1463,26 @@ function get_freedos() {
     esac
 
     echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_fvoid() {
+    local HASH=""
+    local URL=""
+    local TMPURL=""
+
+    TMPURL=$(wget -q -S -O- --max-redirect=0 "https://sourceforge.net/projects/f-void/files/latest/download" 2>&1 | grep -i Location | cut -d' ' -f4)
+    URL=${TMPURL%\?*}
+    echo "${URL} ${HASH}"
+}
+
+function get_gabeeos() {
+    local HASH=""
+    local URL=""
+    local TMPURL=""
+
+    TMPURL=$(wget -q -S -O- --max-redirect=0 "https://sourceforge.net/projects/gabeeos/files/latest/download" 2>&1 | grep -i Location | cut -d' ' -f4)
+    URL=${TMPURL%\?*}
+    echo "${URL} ${HASH}"
 }
 
 function get_garuda() {
@@ -1655,6 +1842,20 @@ function get_slackware() {
     echo "${URL}/${ISO} ${HASH}"
 }
 
+function get_slitaz() {
+    local HASH=""
+    local ISO="slitaz-rolling-${RELEASE}"
+    local URL="http://mirror.slitaz.org/iso/rolling"
+
+    case ${RELEASE} in
+      preferred) ISO="slitaz-rolling";;
+      *)   ISO="slitaz-rolling-${RELEASE}";;
+    esac
+
+    HASH=$(wget -q -O- "${URL}/${ISO}.md5" |  cut -d' ' -f1)
+    echo "${URL}/${ISO}.iso ${HASH}"
+}
+
 function get_solus() {
     local EDITION="${1:-}"
     local HASH=""
@@ -1667,7 +1868,6 @@ function get_solus() {
 
 function get_holoiso() {
     local HASH=""
-    local DATE="20221211"
     local ISO="HoloISO_${RELEASE}_ux_changes-20230626_66f7c74061_bootchoice_fixes-1-x86_64.iso"
     local URL="http://holoiso.itsvixano.me"
 
@@ -1793,19 +1993,61 @@ function get_void() {
     local EDITION="${1:-}"
     local HASH=""
     local ISO=""
-    local URL="https://alpha.de.repo.voidlinux.org/live/current"
-
-    DATE=$(wget -q -O- "${URL}/sha256sum.txt" | head -n1 | cut -d'.' -f1 | cut -d'-' -f4)
-    case ${EDITION} in
-        glibc)      ISO="void-live-x86_64-${DATE}-base.iso";;
-        musl)       ISO="void-live-x86_64-musl-${DATE}-base.iso";;
-        xfce-glibc) ISO="void-live-x86_64-${DATE}-xfce.iso";;
-        xfce-musl)  ISO="void-live-x86_64-musl-${DATE}-xfce.iso";;
-    esac
+    local URL="https://alpha.de.repo.voidlinux.org/live/${RELEASE}"
+    if [[ "${RELEASE}" == "current" ]]; then
+        DATE=$(wget -q -O- "${URL}/sha256sum.txt" | head -n1 | cut -d'.' -f1 | cut -d'-' -f4)
+        case ${EDITION} in
+            base)      ISO="void-live-x86_64-${DATE}-base.iso";;
+            base-musl) ISO="void-live-x86_64-musl-${DATE}-base.iso";;
+            xfce)      ISO="void-live-x86_64-${DATE}-xfce.iso";;
+            xfce-musl) ISO="void-live-x86_64-musl-${DATE}-xfce.iso";;
+        esac
+    else
+        case ${EDITION} in
+            cinnamon)           ISO="void-live-x86_64-${RELEASE}-cinnamon.iso";;
+            cinnamon-musl)      ISO="void-live-x86_64-musl-${RELEASE}-cinnamon.iso";;
+            enlightenment)      ISO="void-live-x86_64-${RELEASE}-enlightenment.iso";;
+            enlightenment-musl) ISO="void-live-x86_64-musl-${RELEASE}-enlightenment.iso";;
+            gnome)              ISO="void-live-x86_64-${RELEASE}-gnome.iso";;
+            gnome-musl)         ISO="void-live-x86_64-musl-${RELEASE}-gnome.iso";;
+            lxde)               ISO="void-live-x86_64-${RELEASE}-lxde.iso";;
+            lxde-musl)          ISO="void-live-x86_64-musl-${RELEASE}-lxde.iso";;
+            lxqt)               ISO="void-live-x86_64-${RELEASE}-lxqt.iso";;
+            lxqt-musl)          ISO="void-live-x86_64-musl-${RELEASE}-lxqt.iso";;
+            mate)               ISO="void-live-x86_64-${RELEASE}-mate.iso";;
+            mate-musl)          ISO="void-live-x86_64-musl-${RELEASE}-mate.iso";;
+            xfce)               ISO="void-live-x86_64-${RELEASE}-xfce.iso";;
+            xfce-musl)          ISO="void-live-x86_64-musl-${RELEASE}-xfce.iso";;
+            base)               ISO="void-live-x86_64-${RELEASE}.iso";;
+            base-musl)          ISO="void-live-x86_64-musl-${RELEASE}.iso";;
+        esac
+    fi
     HASH="$(wget -q -O- "${URL}/sha256sum.txt" | grep "${ISO}" | cut -d' ' -f4)"
     echo "${URL}/${ISO} ${HASH}"
 }
 
+function get_voidpup() {
+    local HASH=""
+    local URL=""
+    local TMPURL=""
+
+    TMPURL=$(wget -q -S -O- --max-redirect=0 "https://sourceforge.net/projects/vpup/files/latest/download" 2>&1 | grep -i Location | cut -d' ' -f4)
+    URL=${TMPURL%\?*}
+    echo "${URL} ${HASH}"
+}
+
+function get_vxlinux() {
+    local HASH=""
+    local ISO=""
+    local URL="https://github.com/dessington/vx-linux/releases/download/${RELEASE}"
+
+    if [ "$RELEASE" == "4.0" ]; then
+        ISO="vx-linux-4.0-qt.iso"
+    else
+        ISO="vx-linux-${RELEASE}.iso"
+    fi
+    echo "${URL}/${ISO} ${HASH}"
+}
 
 function get_xerolinux() {
     local HASH=""
@@ -2219,6 +2461,9 @@ create_vm() {
     if [[ ${OS} == "dragonflybsd" ]] && [[ ${ISO} =~ ".bz2" ]]; then
         bzip2 -d  "${VM_PATH}/${ISO}"
         ISO="${ISO/.bz2/}"
+    if [ ${OS} == "dietpi" ] && [[ $ISO =~ ".7z" ]]; then
+        7zip x -o${VM_PATH} ${VM_PATH}/${ISO}
+        ISO=$(ls ${VM_PATH} | grep -i '.iso')
     fi
 
     if [ ${OS} == "reactos" ] && [[ $ISO =~ ".zip" ]]; then
@@ -2290,6 +2535,73 @@ if [ -n "${2}" ]; then
             fi
         fi
 
+        # Handle odd missing dietpi cominations
+        if [[ $OS == dietpi ]] ; then
+            if [[ ${RELEASE} = "uefi"  &&  ${EDITION} = "bookworm"  ]] || [[  ${RELEASE} = "uefi"  &&  ${EDITION} = "bullseye"   ]] ; then
+                echo "ERROR! Unsupported combination"
+                echo "Only installers are supported for uefi, please choose another Release or Edition"
+                exit 1;
+            fi
+        fi
+
+        # Handle void missing edition
+        case "${RELEASE}-${EDITION}" in
+          "20170220-gnome"|"20170220-gnome-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Posible editions are: base base-musl cinnamon cinnamon-musl enlightenment enlightenment-musl lxde lxde-musl lxqt lxqt-musl mate mate-musl xfce xfce-musl"
+            exit 1;
+            ;;
+          "20170825-gnome"|"20170825-gnome-musl"|"20170825-enlightenment"|"20170825-enlightenment-musl"|"20170825-lxqt"|"20170825-lxqt-musl"|"20170825-base"|"20170825-mate-musl"|"20170825-lxde"|"20170825-lxde-musl"|"20170825-cinnamon"|"20170825-cinnamon-musl"|"20170825-xfce"|"20170825-xfce-musl"|"20170825-base-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Only one possible edition: mate"
+            exit 1;
+            ;;
+          "20171007-gnome"|"20171007-gnome-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Posible editions are: base base-musl cinnamon cinnamon-musl enlightenment enlightenment-musl lxde lxde-musl lxqt lxqt-musl mate mate-musl xfce xfce-musl"
+            exit 1;
+            ;;
+          "20181111-gnome"|"20181111-gnome-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Posible editions are: base base-musl cinnamon cinnamon-musl enlightenment enlightenment-musl lxde lxde-musl lxqt lxqt-musl mate mate-musl xfce xfce-musl"
+            exit 1;
+            ;;
+          "20190217-gnome"|"20190217-gnome-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Posible editions are: base base-musl cinnamon cinnamon-musl enlightenment enlightenment-musl lxde lxde-musl lxqt lxqt-musl mate mate-musl xfce xfce-musl"
+            exit 1;
+            ;;
+          "20190526-gnome"|"20190526-gnome-musl"|"20190526-enlightenment"|"20190526-enlightenment-musl"|"20190526-lxqt"|"20190526-lxqt-musl"|"20190526-mate"|"20190526-mate-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Posible editions are only: base base-musl cinnamon cinnamon-musl enlightenment enlightenment-musl lxde lxde-musl lxqt lxqt-musl"
+            exit 1;
+            ;;
+          "20191109:gnome"|"20191109:gnome-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Possible editions are: base base-musl cinnamon cinnamon-musl enlightenment enlightenment-musl lxde lxde-musl lxqt lxqt-musl mate mate-musl xfce xfce-musl"
+            exit 1
+            ;;
+          "20210316:gnome"|"20210316:gnome-musl"|"20210316:enlightenment"|"20210316:enlightenment-musl"|"20210316:lxqt"|"20210316:lxqt-musl"|"20210316:mate"|"20210316:mate-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Possible editions are only: base base-musl cinnamon cinnamon-musl lxde lxde-musl xfce xfce-musl"
+            exit 1
+            ;;
+          "20210930:gnome"|"20210930:gnome-musl"|"20210930:enlightenment"|"20210930:enlightenment-musl"|"20210930:lxqt"|"20210930:lxqt-musl"|"20210930:mate"|"20210930:mate-musl"|"20210930:lxde"|"20210930:lxde-musl"|"20210930:cinnamon"|"20210930:cinnamon-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Possible editions are only: base base-musl xfce xfce-musl"
+            exit 1
+            ;;
+          "20221001:gnome"|"20221001:gnome-musl"|"20221001:enlightenment"|"20221001:enlightenment-musl"|"20221001:lxqt"|"20221001:lxqt-musl"|"20221001:mate"|"20221001:mate-musl"|"20221001:lxde"|"20221001:lxde-musl"|"20221001:cinnamon"|"20221001:cinnamon-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Possible editions are only: base base-musl xfce xfce-musl"
+            exit 1
+            ;;
+          "current:gnome"|"current:gnome-musl"|"current:enlightenment"|"current:enlightenment-musl"|"current:lxqt"|"current:lxqt-musl"|"current:mate"|"current:mate-musl"|"current:lxde"|"current:lxde-musl"|"current:cinnamon"|"current:cinnamon-musl")
+            echo "ERROR! Unsupported combination"
+            echo "Possible editions are only: base base-musl xfce xfce-musl"
+            exit 1
+            ;;
+        esac
 
         VM_PATH="${OS}-${RELEASE}-${EDITION}"
         validate_release "releases_${OS}"
