@@ -53,6 +53,7 @@ function pretty_name() {
     gabeeos)            PRETTY_NAME="gabeeOS Linux";;
     garuda)             PRETTY_NAME="Garuda Linux";;
     ghostbsd)           PRETTY_NAME="GhostBSD";;
+    holoiso)            PRETTY_NAME="HoloISO";;
     kdeneon)            PRETTY_NAME="KDE Neon";;
     kolibrios)          PRETTY_NAME="KolibriOS";;
     linuxmint)          PRETTY_NAME="Linux Mint";;
@@ -72,6 +73,7 @@ function pretty_name() {
     rebornos)           PRETTY_NAME="RebornOS";;
     rockylinux)         PRETTY_NAME="Rocky Linux";;
     slitaz)             PRETTY_NAME="SliTaz GNU/Linux";;
+    tuxedoos)           PRETTY_NAME="TuxedoOS";;
     truenas-core)       PRETTY_NAME="TrueNAS Core";;
     truenas-scale)      PRETTY_NAME="TrueNAS Scale";;
     ubuntu-budgie)      PRETTY_NAME="Ubuntu Budgie";;
@@ -241,6 +243,7 @@ function os_support() {
     slitaz \
     solus \
     tails \
+    tuxedoos \
     truenas-core \
     truenas-scale \
     ubuntu \
@@ -641,6 +644,10 @@ function releases_holoiso() {
 
 function releases_tails() {
     echo stable
+}
+
+function releases_tuxedoos() {
+    echo 2
 }
 
 function releases_truenas() {
@@ -1918,6 +1925,16 @@ function get_tails() {
     URL=$(echo "${JSON}" | jq -r '.installations[0]."installation-paths"[]|select(.type=="iso")|."target-files"[0].url')
     HASH=$(echo "${JSON}" | jq -r '.installations[0]."installation-paths"[]|select(.type=="iso")|."target-files"[0].sha256')
     echo "${URL} ${HASH}"
+}
+
+function get_tuxedoos() {
+    local DATE="202309111354"
+    local HASH=""
+    local ISO="TUXEDO-OS-${RELEASE}-${DATE}.iso"
+    local URL="https://os.tuxedocomputers.com/"
+
+    HASH=$(wget -q -O- "${URL}/checksums" | grep "${ISO}" | cut -d' ' -f1)
+    echo "${URL}/${ISO} ${HASH}"
 }
 
 function get_truenas-scale() {
