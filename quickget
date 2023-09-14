@@ -723,6 +723,14 @@ function releases_crunchbang++() {
     echo 12 11 10 9 8
 }
 
+function releases_cereus() {
+    echo latest
+}
+
+function editions_cereus() {
+    echo base lxqt xfce
+}
+
 function releases_debian() {
     local DEBOLD
     DEBCURRENT=$(wget -q https://cdimage.debian.org/debian-cd/ -O- | grep '\.[0-9]/' | cut -d\> -f9 | cut -d\/ -f1)
@@ -1807,6 +1815,30 @@ function get_crunchbang++() {
         ;;
     esac
     URL="${URLPART}/${URLPART2}"
+    echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_cereus() {
+    local HASH=""
+    local ISO=""
+    local URL=""
+    case ${EDITION} in
+      base)
+        ISO="cereus-beta-live-x86_64-xfce-2023.02.17.iso"
+        URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/base"
+        HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f2)
+        ;;
+      lxqt)
+        ISO="cereus-beta-live-x86_64-lxqt-2023.02.17.iso"
+        URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/lxqt"
+        HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f4)
+        ;;
+      xfce)
+        ISO="cereus-beta-live-x86_64-xfce-2023.02.17.iso"
+        URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/xfce"
+        HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f4)
+        ;;
+    esac
     echo "${URL}/${ISO} ${HASH}"
 }
 
