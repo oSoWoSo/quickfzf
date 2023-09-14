@@ -931,6 +931,10 @@ function releases_manjaro() {
     echo xfce gnome plasma budgie cinnamon i3 mate sway
 }
 
+function editions_manjaro(){
+    echo full minimal
+}
+
 function releases_mxlinux(){
     echo 21.3
 }
