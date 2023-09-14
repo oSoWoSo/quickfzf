@@ -2779,6 +2779,16 @@ function get_tuxedo-os() {
     echo "${URL} ${HASH}"
 }
 
+function get_tuxedoos() {
+    local DATE="202309111354"
+    local HASH=""
+    local ISO="TUXEDO-OS-${RELEASE}-${DATE}.iso"
+    local URL="https://os.tuxedocomputers.com/"
+
+    HASH=$(wget -q -O- "${URL}/checksums" | grep "${ISO}" | cut -d' ' -f1)
+    echo "${URL}/${ISO} ${HASH}"
+}
+
 function get_ubuntu-server() {
     local HASH=""
     local ISO=""
