@@ -699,6 +699,14 @@ function releases_bunsenlabs() {
     echo latest
 }
 
+function releases_bodhi() {
+    echo 7.0.0
+}
+
+function editions_bodhi() {
+    echo standard hwe s76
+}
+
 function releases_cachyos() {
     echo latest
 }
