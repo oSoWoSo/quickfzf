@@ -668,6 +668,10 @@ function releases_biglinux() {
     echo kde
 }
 
+function releases_biglinux() {
+    echo kde
+}
+
 function releases_blendos() {
     echo latest
 }
