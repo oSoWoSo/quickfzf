@@ -560,6 +560,7 @@ os_support() {
     ubuntustudio \
     ubuntu-unity \
     vanillaos \
+    ventoy \
     void \
     voidpup \
     vxlinux \
@@ -1214,6 +1215,10 @@ function releases_ubuntu-server() {
 
 function releases_vanillaos() {
     echo 22.10
+}
+
+function releases_ventoy() {
+    echo 1.0.95
 }
 
 function releases_void() {
@@ -2956,6 +2961,15 @@ function get_vanillaos() {
     local HASH=$(curl -s "https://cdn.vanillaos.org/assets/ISO/22.10-r8/VanillaOS-22.10-all.20230226.sha256.txt" | cut_1)
     local URL="https://cdn.vanillaos.org/assets/ISO/22.10-r8/VanillaOS-22.10-all.20230226.iso"
     echo "${URL} ${HASH}"
+}
+
+function get_ventoy() {
+    local HASH=""
+    local ISO="ventoy-${RELEASE}-livecd.iso"
+    local URL="https://github.com/ventoy/Ventoy/releases/download/v${RELEASE}"
+
+    HASH="$(wget -q -O- "${URL}/sha256.txt" | grep "${ISO}" | cut -d' ' -f4)"
+    echo "${URL}/${ISO} ${HASH}"
 }
 
 function get_void() {
