@@ -516,6 +516,7 @@ os_support() {
     lmde \
     mageia \
     manjaro \
+    miyo \
     mxlinux \
     netboot \
     netbsd \
@@ -837,6 +838,10 @@ function releases_gabeeos() {
     echo latest
 }
 
+function editions_gabeeos() {
+    echo qtile budgie
+}
+
 function releases_garuda() {
     echo latest
 }
@@ -937,6 +942,14 @@ function releases_manjaro() {
 
 function editions_manjaro(){
     echo full minimal
+}
+
+function releases_miyo() {
+    echo 2022
+}
+
+function editions_miyo(){
+    echo Kwin Deboot-Ceres JWM Openbox MATE
 }
 
 function releases_mxlinux(){
@@ -2424,6 +2437,23 @@ function get_manjaro() {
     fi
     HASH=$(wget -qO- "${URL}.sha512" | cut_1)
     echo "${URL} ${HASH}"
+}
+
+function get_miyo() {
+    local EDITION="${1:-}"
+    local HASH=""
+    local URL="https://sourceforge.net/projects/miyolinux/files/${RELEASE}-Release/${EDITION}"
+
+    case ${EDITION} in
+      Kwin) ISO="miyo-kwin-x86_64-BIOS-20220526.iso";;
+      Deboot-Ceres) ISO="Deboot-Ceres-x86-64-BIOS-20220415.iso";;
+      JWM) ISO="miyolinux-jwm-x86_64-BIOS-20220226.iso";;
+      Openbox) ISO="MiyoLinux-x86_64-BIOS-20220129.iso";;
+      MATE) ISO="mate-minimal-x86_64-BIOS-20220107.iso";;
+    esac
+
+    HASH=$(wget -q -O- "${URL}/${ISO}.sha256" | cut -d' ' -f1)
+    echo "${URL}/${ISO} ${HASH}"
 }
 
 function get_mxlinux() {
