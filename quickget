@@ -593,7 +593,7 @@ function editions_antix() {
 	echo net-sysv core-sysv base-sysv full-sysv net-runit core-runit base-runit full-runit
 }
 
-function releases_archcraft() {
+function releases_archlinux() {
     echo latest
 }
 
