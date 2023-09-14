@@ -488,6 +488,7 @@ os_support() {
     debian \
     deepin \
     devuan \
+    dietpi \
     dragonflybsd \
     easyos \
     edubuntu \
@@ -749,6 +750,14 @@ function releases_deepin() {
 
 function releases_devuan() {
     echo beowulf chimaera daedalus
+}
+
+function releases_dietpi() {
+    echo bios uefi
+}
+
+function editions_dietpi() {
+    echo bookworm bookworm-installer bullseye bullseye-installer
 }
 
 function releases_dragonflybsd() {
@@ -1892,6 +1901,42 @@ function get_devuan() {
       daedalus) ISO="devuan_${RELEASE}_5.0.0_amd64_desktop-live.iso";;
     esac
     HASH=$(wget -q -O- "${URL}/SHASUMS.txt" | grep "${ISO}" | cut_1)
+    echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_dietpi() {
+    local HASH=""
+    local ISO=""
+    local URL="https://dietpi.com/downloads/images"
+    case ${RELEASE} in
+      bios)
+        case ${EDITION} in
+          bookworm)
+            local ISO="DietPi_NativePC-BIOS-x86_64-Bookworm.7z"
+            ;;
+          bullseye)
+            local ISO="DietPi_NativePC-BIOS-x86_64-Bullseye.7z"
+            ;;
+          bookworm-installer)
+            local ISO="DietPi_NativePC-BIOS-x86_64-Bookworm_Installer.7z"
+            ;;
+          bullseye-installer)
+            local ISO="DietPi_NativePC-BIOS-x86_64-Bullseye_Installer.7z"
+            ;;
+        esac
+      ;;
+      uefi)
+        case ${EDITION} in
+          bookworm-installer)
+            local ISO="DietPi_NativePC-UEFI-x86_64-Bookworm_Installer.7z"
+            ;;
+          bullseye-installer)
+            local ISO="DietPi_NativePC-UEFI-x86_64-Bullseye_Installer.7z"
+            ;;
+        esac
+      ;;
+    esac
+    HASH=$(wget -q -O- "${URL}/SHASUMS.txt" | grep "${ISO}" | cut -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
 }
 
