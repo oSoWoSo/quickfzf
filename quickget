@@ -1064,6 +1064,10 @@ function releases_slitaz() {
     echo preferred core core64 loram core-5in1 preinit
 }
 
+function releases_slitaz() {
+    echo preferred core core64 loram core-5in1 preinit
+}
+
 function releases_solus() {
     echo 4.3
 }
