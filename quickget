@@ -1099,6 +1099,14 @@ function releases_slitaz() {
     echo preferred core core64 loram core-5in1 preinit
 }
 
+function releases_slax() {
+    echo latest
+}
+
+function editions_slax() {
+    echo Debian Slackware
+}
+
 function releases_slitaz() {
     echo preferred core core64 loram core-5in1 preinit
 }
