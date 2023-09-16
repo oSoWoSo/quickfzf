@@ -1753,6 +1753,18 @@ function get_athenaos() {
     echo "${URL}/${ISO} ${HASH}"
 }
 
+
+function get_artix() {
+    local EDITION="${1:-}"
+    local HASH=""
+    local ISO=""
+    local URL="https://iso.artixlinux.org/iso"
+    DATE=$(wget -q -O- ${URL}/sha256sums | cut -d'-' -f4 | head -1)
+    ISO="artix-${EDITION}-${DATE}-x86_64.iso"
+    HASH=$(wget -q -O- ${URL}/sha256sums | grep "${ISO}")
+    echo "${URL}/${ISO} ${HASH}"
+}
+
 function get_athenaos() {
     local HASH=""
     local URL=""
