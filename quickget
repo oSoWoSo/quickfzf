@@ -793,6 +793,10 @@ function releases_easyos() {
     echo 5.7 5.6.7 5.6.6 5.6.5 5.6.4 5.6.3 5.6.2 5.6.1 5.5.5 5.5.4
 }
 
+function releases_edubuntu() {
+    echo 23.04
+}
+
 function releases_elementary() {
     echo 7.1 7.0
 }
