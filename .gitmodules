@@ -1,3 +1,0 @@
-[submodule "build-docs"]
-	path = build-docs
-	url = git@github.com:philclifford/quickemu-docs.git
