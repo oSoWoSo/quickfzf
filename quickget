@@ -72,7 +72,8 @@ function pretty_name() {
     holoiso)            PRETTY_NAME="Steam OS HoloISO";;
     kdeneon)            PRETTY_NAME="KDE Neon";;
     kolibrios)          PRETTY_NAME="KolibriOS";;
-    lite)               PRETTY_NAME="Linux Lite";;
+    linuxlite)          PRETTY_NAME="Linux Lite";;
+    linuxmint)          PRETTY_NAME="Linux Mint";;
     lmde)               PRETTY_NAME="Linux Mint Debian Edition";;
     mageia)             PRETTY_NAME="Mageia";;
     mint)               PRETTY_NAME="Linux Mint";;
@@ -250,7 +251,8 @@ function os_support() {
     kdeneon \
     kolibrios \
     kubuntu \
-    lite \
+    linuxlite \
+    linuxmint \
     lmde \
     lubuntu \
     mageia \
@@ -597,8 +599,16 @@ function releases_kolibrios() {
     echo latest
 }
 
-function releases_lite() {
+function releases_linuxlite() {
 	echo 6.0 6.2 6.4 6.6
+}
+
+function releases_linuxmint(){
+    echo 20.2 20.3 21 21.1 21.2
+}
+
+function editions_linuxmint(){
+    echo cinnamon mate xfce
 }
 
 function editions_lmde(){
@@ -1859,7 +1869,17 @@ function get_kolibrios() {
     echo "${URL}/${ISO} ${HASH}"
 }
 
-function get_lite() {
+function get_linuxlite() {
+    local HASH=""
+    local ISO="linux-lite-${RELEASE}-64bit.iso"
+    local URL="https://sourceforge.net/projects/linux-lite/files/${RELEASE}"
+
+    HASH=$(wget -q -O- "${URL}/${ISO}.sha256" | cut -d' ' -f1)
+    echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_linuxmint() {
+    local EDITION="${1:-}"
     local HASH=""
     local ISO="linux-lite-${RELEASE}-64bit.iso"
     local URL="https://sourceforge.net/projects/linux-lite/files/${RELEASE}"
