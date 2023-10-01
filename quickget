@@ -45,6 +45,7 @@ function pretty_name() {
     cachyos)            PRETTY_NAME="CachyOS";;
     centos-stream)      PRETTY_NAME="CentOS Stream";;
     cereus)             PRETTY_NAME="Cereus Linux";;
+    chimera)            PRETTY_NAME="Chimera Linux";;
     devuan)             PRETTY_NAME="Devuan";;
     dietpi)             PRETTY_NAME="DietPi";;
     dragonflybsd)       PRETTY_NAME="DragonFlyBSD";;
@@ -209,6 +210,7 @@ function os_support() {
     cachyos \
     centos-stream \
     cereus \
+    chimera \
     debian \
     deepin \
     devuan \
@@ -391,6 +393,14 @@ function editions_cereus() {
     echo base lxqt xfce
 }
 
+function releases_chimera() {
+	echo latest
+}
+
+function editions_chimera() {
+	echo base gnome
+}
+
 function releases_debian() {
     DEBCURRENT=$(wget -q https://cdimage.debian.org/debian-cd/ -O- |grep '\.[0-9]/'|cut -d\> -f9|cut -d\/ -f1)
     local DEBOLD=$(wget -q https://cdimage.debian.org/cdimage/archive/ -O- |grep -e '>[1-9][0-9]\.'|grep -v 'live' | cut -d\> -f9|cut -d\/ -f1 )
@@ -454,6 +464,10 @@ function editions_endless() {
 
 function releases_fedora() {
     echo 33 34 35 36 37 38
+}
+
+function releases_batocera() {
+  echo 32 33 34
 }
 
 function editions_fedora() {
@@ -1353,6 +1367,19 @@ function get_cereus() {
         HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f4)
         ;;
     esac
+    echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_chimera() {
+    local EDITION="${1:-}"
+    local HASH=""
+    local DATE=""
+    local ISO=""
+    local URL="https://repo.chimera-linux.org/live/${RELEASE}"
+
+    DATE=$(wget -q -O- "${URL}/sha256sums.txt" | head -n1 | cut -d'-' -f5)
+    ISO="chimera-linux-x86_64-LIVE-${DATE}-${EDITION}.iso"
+    HASH=$(wget -q -O- "${URL}/sha256sums.txt" | grep 'x86_64-LIVE' | grep "${EDITION}" | cut -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
 }
 
@@ -2270,6 +2297,19 @@ function get_zorin() {
     echo "${URL} ${HASH}"
 }
 
+function get_vxlinux() {
+    local HASH=""
+    local ISO=""
+    local URL="https://github.com/dessington/vx-linux/releases/download/${RELEASE}"
+
+    if [ "$RELEASE" == "4.0" ]; then
+        ISO="vx-linux-4.0-qt.iso"
+    else
+        ISO="vx-linux-${RELEASE}.iso"
+    fi
+    echo "${URL}/${ISO} ${HASH}"
+}
+
 function unattended_windows() {
     cat << 'EOF' > "${1}"
 <?xml version="1.0" encoding="utf-8"?>
@@ -2797,4 +2837,3 @@ else
 fi
 
 # vim:tabstop=4:shiftwidth=4:expandtab
-
