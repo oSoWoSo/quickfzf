@@ -1,6 +1,6 @@
 ---
 author: Martin Wimpress
-date: June 27, 2023
+date: October 1, 2023
 footer: quickget
 header: Quickget User Manual
 section: 1
@@ -75,6 +75,7 @@ series.
 All the official Ubuntu flavours are supported, just replace `ubuntu`
 with your preferred flavour.
 
+-   `edubuntu` (Edubuntu)
 -   `kubuntu` (Kubuntu)
 -   `lubuntu` (Lubuntu)
 -   `ubuntu-budgie` (Ubuntu Budgie)
@@ -91,19 +92,26 @@ with your preferred flavour.
 
 `quickget` also supports:
 
+-   `agarimos` (AgarimOS)
 -   `alma` (Alma Linux)
 -   `alpine` (Alpine Linux)
 -   `android` (Android x86)
 -   `archcraft` (Archcraft)
 -   `archlinux` (Arch Linux)
 -   `arcolinux` (Arco Linux)
+-   `artix` (Artix Linux)
+-   `athenaos` (Athenaos)
 -   `batocera` (Batocera)
+-   `biglinux` (BigLinux)
 -   `blendos` (BlendOS)
+-   `bodhi` (Bodhi Linux)
 -   `cachyos` (CachyOS)
 -   `centos-stream` (CentOS Stream)
+-   `cereus` (Cereus Linux)
 -   `debian` (Debian)
 -   `deepin` (Deepin)
 -   `devuan` (Devuan)
+-   `dietpi` (DietPi)
 -   `dragonflybsd` (DragonFlyBSD)
 -   `elementary` (elementary OS)
 -   `endeavouros` (EndeavourOS)
@@ -111,17 +119,22 @@ with your preferred flavour.
 -   `fedora` (Fedora)
 -   `freebsd` (FreeBSD)
 -   `freedos` (FreeDOS)
+-   `fvoid` (F-Void)
+-   `gabeeos` (gabeeOS Linux)
+-   `garuda` (Garuda Linux)
 -   `gentoo` (Gentoo)
 -   `ghostbsd` (GhostBSD)
 -   `haiku` (Haiku)
--   `holoiso` (HoloISO)
+-   `holoiso` (Steam OS HoloISO)
 -   `kali` (Kali)
 -   `kdeneon` (KDE Neon)
 -   `kolibrios` (KolibriOS)
+-   `linuxlite` (Linux Lite)
 -   `linuxmint` (Linux Mint)
 -   `lmde` (Linux Mint Debian Edition)
 -   `mageia` (Mageia)
 -   `manjaro` (Manjaro)
+-   `miyo` (Miyo Linux)
 -   `mxlinux` (MX Linux)
 -   `netboot` (netboot.xyz)
 -   `netbsd` (NetBSD)
@@ -136,11 +149,17 @@ with your preferred flavour.
 -   `rockylinux` (Rocky Linux)
 -   `siduction` (Siduction)
 -   `slackware` (Slackware)
+-   `slax` (Slax)
+-   `slitaz` (SliTaz GNU/Linux)
 -   `solus` (Solus)
 -   `tails` (Tails)
+-   `tinycore` (Tiny Core Linux)
 -   `truenas-core` (TrueNAS Core)
 -   `truenas-scale` (TrueNAS Scale)
+-   `tuxedoos` (TuxedoOS)
 -   `vanillaos` (Vanilla OS)
+-   `ventoy` (Ventoy)
+-   `voidpup` (Void Puppy)
 -   `void` (Void Linux)
 -   `vxlinux` (VX Linux)
 -   `xerolinux` (XeroLinux)
@@ -339,7 +358,7 @@ quickemu --vm windows-11-22H2.conf
 
 -   Complete the installation as you normally would.
 -   All relevant drivers and services should be installed automatically.
--   A local administrator user account is automatically created, with
+-   A local adminstrator user account is automatically created, with
     these credentials:
     -   Username: `Quickemu`
     -   Password: `quickemu`

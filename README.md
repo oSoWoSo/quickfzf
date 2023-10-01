@@ -219,6 +219,7 @@ series.
 All the official Ubuntu flavours are supported, just replace `ubuntu`
 with your preferred flavour.
 
+-   `edubuntu` (Edubuntu)
 -   `kubuntu` (Kubuntu)
 -   `lubuntu` (Lubuntu)
 -   `ubuntu-budgie` (Ubuntu Budgie)
@@ -235,19 +236,26 @@ with your preferred flavour.
 
 `quickget` also supports:
 
+-   `agarimos` (AgarimOS)
 -   `alma` (Alma Linux)
 -   `alpine` (Alpine Linux)
 -   `android` (Android x86)
 -   `archcraft` (Archcraft)
 -   `archlinux` (Arch Linux)
 -   `arcolinux` (Arco Linux)
+-   `artix` (Artix Linux)
+-   `athenaos` (Athenaos)
 -   `batocera` (Batocera)
+-   `biglinux` (BigLinux)
 -   `blendos` (BlendOS)
+-   `bodhi` (Bodhi Linux)
 -   `cachyos` (CachyOS)
 -   `centos-stream` (CentOS Stream)
+-   `cereus` (Cereus Linux)
 -   `debian` (Debian)
 -   `deepin` (Deepin)
 -   `devuan` (Devuan)
+-   `dietpi` (DietPi)
 -   `dragonflybsd` (DragonFlyBSD)
 -   `elementary` (elementary OS)
 -   `endeavouros` (EndeavourOS)
@@ -255,17 +263,22 @@ with your preferred flavour.
 -   `fedora` (Fedora)
 -   `freebsd` (FreeBSD)
 -   `freedos` (FreeDOS)
+-   `fvoid` (F-Void)
+-   `gabeeos` (gabeeOS Linux)
+-   `garuda` (Garuda Linux)
 -   `gentoo` (Gentoo)
 -   `ghostbsd` (GhostBSD)
 -   `haiku` (Haiku)
--   `holoiso` (HoloISO)
+-   `holoiso` (Steam OS HoloISO)
 -   `kali` (Kali)
 -   `kdeneon` (KDE Neon)
 -   `kolibrios` (KolibriOS)
+-   `linuxlite` (Linux Lite)
 -   `linuxmint` (Linux Mint)
 -   `lmde` (Linux Mint Debian Edition)
 -   `mageia` (Mageia)
 -   `manjaro` (Manjaro)
+-   `miyo` (Miyo Linux)
 -   `mxlinux` (MX Linux)
 -   `netboot` (netboot.xyz)
 -   `netbsd` (NetBSD)
@@ -280,11 +293,17 @@ with your preferred flavour.
 -   `rockylinux` (Rocky Linux)
 -   `siduction` (Siduction)
 -   `slackware` (Slackware)
+-   `slax` (Slax)
+-   `slitaz` (SliTaz GNU/Linux)
 -   `solus` (Solus)
 -   `tails` (Tails)
+-   `tinycore` (Tiny Core Linux)
 -   `truenas-core` (TrueNAS Core)
 -   `truenas-scale` (TrueNAS Scale)
+-   `tuxedoos` (TuxedoOS)
 -   `vanillaos` (Vanilla OS)
+-   `ventoy` (Ventoy)
+-   `voidpup` (Void Puppy)
 -   `void` (Void Linux)
 -   `vxlinux` (VX Linux)
 -   `xerolinux` (XeroLinux)
@@ -477,7 +496,7 @@ quickemu --vm windows-11-22H2.conf
 
 -   Complete the installation as you normally would.
 -   All relevant drivers and services should be installed automatically.
--   A local administrator user account is automatically created, with
+-   A local adminstrator user account is automatically created, with
     these credentials:
     -   Username: `Quickemu`
     -   Password: `quickemu`
@@ -766,7 +785,7 @@ You can also pass optional parameters
   --viewer <viewer>                 : Choose an alternative viewer. @Options: 'spicy' (default), 'remote-viewer', 'none'
   --ssh-port <port>                 : Set ssh-port manually
   --spice-port <port>               : Set spice-port manually
-  --public-dir <path>               : expose share directory. @Options: '' (default: xdg-user-dir PUBLICSHARE), '<directory>', 'none'
+  --public-dir <path>               : Expose share directory. @Options: '' (default: xdg-user-dir PUBLICSHARE), '<directory>', 'none'
   --monitor <type>                  : Set monitor connection type. @Options: 'socket' (default), 'telnet', 'none'
   --monitor-telnet-host <ip/host>   : Set telnet host for monitor. (default: 'localhost')
   --monitor-telnet-port <port>      : Set telnet port for monitor. (default: '4440')
@@ -778,12 +797,13 @@ You can also pass optional parameters
   --keyboard_layout <layout>        : Set keyboard layout.
   --mouse <type>                    : Set mouse. @Options: 'tablet' (default), 'ps2', 'usb', 'virtio'
   --usb-controller <type>           : Set usb-controller. @Options: 'ehci' (default), 'xhci', 'none'
+  --sound-card <type>               : Set sound card. @Options: 'intel-hda' (default), 'ac97', 'es1370', 'sb16', 'none'
   --extra_args <arguments>          : Pass additional arguments to qemu
   --version                         : Print version
 
 ```
 <!-- [[[end]]] -->
-
+```
 ## Desktop shortcuts
 
 Desktop shortcuts can be created for a VM, the shortcuts are saved in
@@ -839,7 +859,7 @@ which Quickemu sizes to 2048x1152. Without the `--screen` option,
 Quickemu would have used the 1920x1080 monitor which results in a window
 size of 1664x936.
 
-The '--screenpct' is an optional integer value between 25 \<= pct \<
+The '--screenpct' is an optional interger value between 25 \<= pct \<
 100 which will override system default screen sizes. The VM size will be
 'pct' of the chosen screen. **If --fullscreen is chosen screen will be
 fullsize instead of being scaled down by --screenpct value.**
