@@ -1276,26 +1276,19 @@ function get_centos-stream() {
 }
 
 function get_cereus() {
+    local EDITION="${1:-}"
     local HASH=""
+    local DATE=""
     local ISO=""
-    local URL=""
+    local URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/${EDITION}"
+
+    DATE=$(wget -q -O- https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/base/SHA256SUM | grep 'x86_64-base' | rev | cut -d'-' -f1 | rev | cut -d'.' -f1-3)
+    ISO="cereus-beta-live-x86_64-${EDITION}-${DATE}.iso"
     case ${EDITION} in
-      base)
-        ISO="cereus-beta-live-x86_64-xfce-2023.02.17.iso"
-        URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/base"
-        HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f2)
-        ;;
-      lxqt)
-        ISO="cereus-beta-live-x86_64-lxqt-2023.02.17.iso"
-        URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/lxqt"
-        HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f4)
-        ;;
-      xfce)
-        ISO="cereus-beta-live-x86_64-xfce-2023.02.17.iso"
-        URL="https://sourceforge.net/projects/cereus-linux/files/isos/beta/latest/xfce"
-        HASH=$(wget -q -O- ${URL}/SHA256 | grep "${ISO}" | cut -d' ' -f4)
-        ;;
+      base) HASH=$(wget -q -O- "${URL}/SHA256SUM" | grep "${ISO}" | cut -d' ' -f1);;
+      *) HASH=$(wget -q -O- "${URL}/SHA256" | grep "${ISO}" | cut -d' ' -f1);;
     esac
+
     echo "${URL}/${ISO} ${HASH}"
 }
 
