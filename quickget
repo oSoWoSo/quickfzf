@@ -398,6 +398,10 @@ function releases_bunsenlabs() {
     echo latest
 }
 
+function releases_bunsenlabs() {
+    echo latest
+}
+
 function releases_cachyos() {
     echo 230813
 }
