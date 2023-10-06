@@ -236,6 +236,7 @@ function os_support() {
     kubuntu \
     lite \
     lmde \
+    lubuntu \
     mageia \
     manjaro \
     mint \
@@ -244,7 +245,6 @@ function os_support() {
     netboot \
     netbsd \
     nixos \
-    lubuntu \
     macos \
     openbsd \
     openindiana \
