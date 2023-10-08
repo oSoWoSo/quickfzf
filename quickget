@@ -933,6 +933,14 @@ function editions_solus() {
     echo Budgie GNOME MATE Plasma
 }
 
+function releases_sparkylinux() {
+    echo 7.1 2023.07
+}
+
+function editions_sparkylinux() {
+    echo lxqt mate xfce kde minimalgui minimalcli gameover multimedia rescue
+}
+
 function releases_spiral() {
 	echo latest
 }
@@ -2512,6 +2520,23 @@ function get_solus() {
 
     HASH=$(wget -q -O- "${URL}/${ISO}.sha256sum" | cut -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_sparkylinux() {
+    local EDITION="${1:-}"
+    local HASH=""
+    local ISO=""
+    local URL=""
+
+    ISO="sparkylinux-${RELEASE}-x86_64-${EDITION}.iso"
+    case ${EDITION} in
+      minimalcli) URL="https://sourceforge.net/projects/sparkylinux/files/cli";;
+      minimalgui) URL="https://sourceforge.net/projects/sparkylinux/files/base";;
+      *)   URL="https://sourceforge.net/projects/sparkylinux/files/${EDITION}";;
+    esac
+
+    HASH=$(wget -q -O- ${URL}/${ISO}.allsums.txt | head -2 | grep 'iso' | cut -d' ' -f1)
+    echo "${URL}/${ISO}" "${HASH}"
 }
 
 function get_spiral() {
