@@ -207,6 +207,7 @@ function os_support() {
     biglinux \
     blendos \
     bodhi \
+    bunsenlabs \
     cachyos \
     centos-stream \
     cereus \
@@ -368,6 +369,10 @@ function releases_bodhi() {
 
 function editions_bodhi() {
     echo standard hwe s76
+}
+
+function releases_bunsenlabs() {
+    echo latest
 }
 
 function releases_cachyos() {
@@ -1326,6 +1331,14 @@ function get_bodhi() {
       *) ISO="bodhi-${RELEASE}-64-${EDITION}.iso";;
     esac
     HASH=$(wget -q -O- "${URL}/${ISO}.sha256" | cut -d' ' -f1)
+    echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_bunsenlabs() {
+    local HASH=""
+    local ISO="beryllium-1-amd64.hybrid.iso"
+    local URL="https://ddl.bunsenlabs.org/ddl"
+    HASH=$(wget -q -O- "${URL}/release.sha256.txt" | head -1 | cut -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
 }
 
