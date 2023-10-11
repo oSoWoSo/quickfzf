@@ -611,7 +611,7 @@ function releases_mint(){
 }
 
 function editions_mint(){
-    echo cinnamon mate xfce
+    echo cinnamon mate xfce edge
 }
 
 function releases_miyo() {
@@ -1894,9 +1894,13 @@ function get_manjaro() {
 function get_mint() {
     local EDITION="${1:-}"
     local HASH=""
-    local ISO="linuxmint-${RELEASE}-${EDITION}-64bit.iso"
+    local ISO=""
     local URL="https://mirror.bytemark.co.uk/linuxmint/stable/${RELEASE}"
 
+    case ${EDITION} in
+      edge) ISO="linuxmint-${RELEASE}-cinnamon-64bit-edge.iso";;
+      *) ISO="linuxmint-${RELEASE}-${EDITION}-64bit.iso";;
+    esac
     HASH=$(wget -q -O- "${URL}/sha256sum.txt" | grep "${ISO}" | cut -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
 }
@@ -2840,6 +2844,15 @@ if [ -n "${2}" ]; then
             if [[ ${RELEASE} = "33"  &&  ${EDITION} = "i3"  ]] || [[  ${RELEASE} = "34"  &&  ${EDITION} = "Cinnamon"   ]] ; then
                 echo "ERROR! Unsupported combination"
                 echo "       Fedora 33 i3 and Fedora 34 Cinnamon are not available, please choose another Release or Edition"
+                exit 1;
+            fi
+        fi
+
+        # Handle linux mint edge
+        if [[ $OS == linuxmint ]] ; then
+            if [[ ! ${RELEASE} = "21.2"  &&  ${EDITION} = "edge"  ]] ; then
+                echo "ERROR! Unsupported combination"
+                echo "       Linux Mint edge started from version 21.2, please choose another Release or Edition"
                 exit 1;
             fi
         fi
