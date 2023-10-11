@@ -593,14 +593,8 @@ function editions_mageia(){
     echo Plasma GNOME Xfce
 }
 
-function releases_manjaro() {
-    echo xfce \
-    gnome \
-    kde \
-    budgie \
-    cinnamon \
-    i3 \
-    mate
+function releases_manjaro(){
+    echo xfce gnome plasma budgie cinnamon i3 mate sway
 }
 
 function editions_manjaro(){
@@ -1888,15 +1882,13 @@ function get_manjaro() {
     esac
 
     [[ ${RELEASE} != "sway" ]] && MANIFEST="$(wget -qO- https://gitlab.manjaro.org/web/iso-info/-/raw/master/file-info.json)"
-
     [[ ${EDITION} == "minimal" && ${TYPE} != "sway" ]] && EDITION=".minimal" || EDITION=""
-    
     if [[ ${RELEASE} != "sway" ]]; then 
-        URL="$(echo ${MANIFEST} | jq -r .${TYPE}.${RELEASE}${EDITION}.image)"
+        URL=$(echo ${MANIFEST} | jq -r .${TYPE}.${RELEASE}${EDITION}.image)
     else
-        URL="echo ${MANIFEST} | jq -r '.[] | select(.name|test("^manjaro-sway-.*[.]iso$")) | select(.name|contains("unstable")|not) | .url'"
+        URL=$(echo ${MANIFEST} | jq -r '.[] | select(.name|test("^manjaro-sway-.*[.]iso$")) | select(.name|contains("unstable")|not) | .url')
     fi
-    
+
     HASH=$(wget -qO- "${URL}.sha512" | cut -d' ' -f1)
     echo "${URL} ${HASH}"
 }
