@@ -213,7 +213,8 @@ function os_support() {
     alma \
     alpine \
     android \
-    arch \
+    antix \
+    archlinux \
     archcraft \
     arco \
     antix \
@@ -340,6 +341,10 @@ function releases_antix() {
 
 function editions_antix() {
 	echo net-sysv core-sysv base-sysv full-sysv net-runit core-runit base-runit full-runit
+}
+
+function releases_archlinux() {
+    echo latest
 }
 
 function releases_archcraft() {
@@ -1348,7 +1353,7 @@ function get_antix() {
     echo "${URL}/${ISO} ${HASH}"
 }
 
-function get_arch() {
+function get_archlinux() {
     local HASH=""
     local ISO=""
     local URL="https://mirror.rackspace.com/archlinux"
