@@ -709,7 +709,13 @@ function releases_rebornos() {
     echo latest
 }
 
-function releases_rocky() {
+function get_rebornos() {
+    local ISO=$(wget -q -O- "https://meta.cdn.soulharsh007.dev/RebornOS-ISO?format=json" | jq -r ".url")
+    local HASH=$(wget -q -O- "https://meta.cdn.soulharsh007.dev/RebornOS-ISO?format=json" | jq -r ".md5")
+    echo "${ISO} ${HASH}"
+}
+
+function releases_rockylinux() {
     echo 8.3 8.4 8.5 8.6 8.7 9.0 9.1
 }
 
