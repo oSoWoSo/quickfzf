@@ -1,6 +1,6 @@
 ---
 author: Martin Wimpress
-date: October 1, 2023
+date: October 17, 2023
 footer: quickget
 header: Quickget User Manual
 section: 1
@@ -104,7 +104,7 @@ with your preferred flavour.
 -   `batocera` (Batocera)
 -   `biglinux` (BigLinux)
 -   `blendos` (BlendOS)
--   `bodhi` (Bodhi Linux)
+-   `bunsenlabs` (Bunsenlabs)
 -   `cachyos` (CachyOS)
 -   `centos-stream` (CentOS Stream)
 -   `cereus` (Cereus Linux)
@@ -119,8 +119,6 @@ with your preferred flavour.
 -   `fedora` (Fedora)
 -   `freebsd` (FreeBSD)
 -   `freedos` (FreeDOS)
--   `fvoid` (F-Void)
--   `gabeeos` (gabeeOS Linux)
 -   `garuda` (Garuda Linux)
 -   `gentoo` (Gentoo)
 -   `ghostbsd` (GhostBSD)
@@ -143,6 +141,7 @@ with your preferred flavour.
 -   `openindiana` (OpenIndiana)
 -   `opensuse` (openSUSE)
 -   `oraclelinux` (Oracle Linux)
+-   `peppermint` (PeppermintOS)
 -   `popos` (Pop!\_OS)
 -   `reactos` (ReactOS)
 -   `rebornos` (RebornOS)
@@ -153,7 +152,7 @@ with your preferred flavour.
 -   `slitaz` (SliTaz GNU/Linux)
 -   `solus` (Solus)
 -   `tails` (Tails)
--   `tinycore` (Tiny Core Linux)
+-   `trisquel` (Trisquel)
 -   `truenas-core` (TrueNAS Core)
 -   `truenas-scale` (TrueNAS Scale)
 -   `tuxedoos` (TuxedoOS)

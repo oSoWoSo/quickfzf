@@ -1,6 +1,6 @@
 ---
 author: Martin Wimpress
-date: October 1, 2023
+date: October 17, 2023
 footer: quickemu
 header: Quickemu User Manual
 section: 1
@@ -30,11 +30,16 @@ You can also pass optional parameters
 **--braille**
 :   Enable braille support. Requires SDL.
 
-**--delete**
+**--delete-disk**
 :   Delete the disk image.
 
 **--display**
-:   Select display backend. 'sdl' (default), 'gtk', 'none' or 'spice'
+:   Select display backend. 'sdl' (default), 'gtk', 'none', 'spice' or
+    'spice-app'
+
+**--sound-card**
+:   Select virtual audio emulation. 'intel-hda' (default), 'ac97'
+    (solaris default), 'es1370', 'sb16' (freedos default) or 'none'
 
 **--fullscreen**
 :   Starts VM in full screen mode (Ctl+Alt+f to exit)
@@ -272,7 +277,7 @@ with your preferred flavour.
 -   `batocera` (Batocera)
 -   `biglinux` (BigLinux)
 -   `blendos` (BlendOS)
--   `bodhi` (Bodhi Linux)
+-   `bunsenlabs` (Bunsenlabs)
 -   `cachyos` (CachyOS)
 -   `centos-stream` (CentOS Stream)
 -   `cereus` (Cereus Linux)
@@ -287,8 +292,6 @@ with your preferred flavour.
 -   `fedora` (Fedora)
 -   `freebsd` (FreeBSD)
 -   `freedos` (FreeDOS)
--   `fvoid` (F-Void)
--   `gabeeos` (gabeeOS Linux)
 -   `garuda` (Garuda Linux)
 -   `gentoo` (Gentoo)
 -   `ghostbsd` (GhostBSD)
@@ -311,6 +314,7 @@ with your preferred flavour.
 -   `openindiana` (OpenIndiana)
 -   `opensuse` (openSUSE)
 -   `oraclelinux` (Oracle Linux)
+-   `peppermint` (PeppermintOS)
 -   `popos` (Pop!\_OS)
 -   `reactos` (ReactOS)
 -   `rebornos` (RebornOS)
@@ -321,7 +325,7 @@ with your preferred flavour.
 -   `slitaz` (SliTaz GNU/Linux)
 -   `solus` (Solus)
 -   `tails` (Tails)
--   `tinycore` (Tiny Core Linux)
+-   `trisquel` (Trisquel)
 -   `truenas-core` (TrueNAS Core)
 -   `truenas-scale` (TrueNAS Scale)
 -   `tuxedoos` (TuxedoOS)
@@ -644,8 +648,8 @@ which Quickemu sizes to 2048x1152. Without the `--screen` option,
 Quickemu would have used the 1920x1080 monitor which results in a window
 size of 1664x936.
 
-The '--screenpct' is an optional integer value between 25 \<= pct \<
-100 which will override system default screen sizes. The VM size will be
+The '--screenpct' is an optional integer value between 25 \<= pct \< 100
+which will override system default screen sizes. The VM size will be
 'pct' of the chosen screen. **If --fullscreen is chosen screen will be
 fullsize instead of being scaled down by --screenpct value.**
 

@@ -249,6 +249,7 @@ with your preferred flavour.
 -   `biglinux` (BigLinux)
 -   `blendos` (BlendOS)
 -   `bodhi` (Bodhi Linux)
+-   `bunsenlabs` (Bunsenlabs)
 -   `cachyos` (CachyOS)
 -   `centos-stream` (CentOS Stream)
 -   `cereus` (Cereus Linux)
@@ -287,6 +288,7 @@ with your preferred flavour.
 -   `openindiana` (OpenIndiana)
 -   `opensuse` (openSUSE)
 -   `oraclelinux` (Oracle Linux)
+-   `peppermint` (PeppermintOS)
 -   `popos` (Pop!\_OS)
 -   `reactos` (ReactOS)
 -   `rebornos` (RebornOS)
@@ -298,6 +300,7 @@ with your preferred flavour.
 -   `solus` (Solus)
 -   `tails` (Tails)
 -   `tinycore` (Tiny Core Linux)
+-   `trisquel` (Trisquel)
 -   `truenas-core` (TrueNAS Core)
 -   `truenas-scale` (TrueNAS Scale)
 -   `tuxedoos` (TuxedoOS)
@@ -859,8 +862,8 @@ which Quickemu sizes to 2048x1152. Without the `--screen` option,
 Quickemu would have used the 1920x1080 monitor which results in a window
 size of 1664x936.
 
-The '--screenpct' is an optional integer value between 25 \<= pct \<
-100 which will override system default screen sizes. The VM size will be
+The '--screenpct' is an optional integer value between 25 \<= pct \< 100
+which will override system default screen sizes. The VM size will be
 'pct' of the chosen screen. **If --fullscreen is chosen screen will be
 fullsize instead of being scaled down by --screenpct value.**
 
