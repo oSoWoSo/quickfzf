@@ -90,7 +90,7 @@ function pretty_name() {
     pureos)             PRETTY_NAME="PureOS";;
     reactos)            PRETTY_NAME="ReactOS";;
     rebornos)           PRETTY_NAME="RebornOS";;
-    rocky)              PRETTY_NAME="Rocky Linux";;
+    rockylinux)         PRETTY_NAME="Rocky Linux";;
     slitaz)             PRETTY_NAME="SliTaz GNU/Linux";;
     spiral)             PRETTY_NAME="SpiralLinux";;
     tinycore)           PRETTY_NAME="Tiny Core Linux";;
@@ -1782,7 +1782,7 @@ function get_haiku() {
 
 function get_holoiso() {
     local HASH=""
-    local ISO="HoloISO_${RELEASE}_ux_changes-20230626_66f7c74061_bootchoice_fixes-1-x86-64.iso.iso"
+    local ISO="HoloISO_${RELEASE}_ux_changes-20230626_66f7c74061_bootchoice_fixes-1-x86_64.iso"
     local URL="http://holoiso.itsvixano.me"
 
     HASH=$(wget -q -O- "${URL}/${ISO}.sha256sum" | cut -d' ' -f1)
