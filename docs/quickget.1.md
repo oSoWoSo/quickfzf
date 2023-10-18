@@ -1,6 +1,6 @@
 ---
 author: Martin Wimpress
-date: October 17, 2023
+date: October 18, 2023
 footer: quickget
 header: Quickget User Manual
 section: 1
@@ -104,6 +104,7 @@ with your preferred flavour.
 -   `batocera` (Batocera)
 -   `biglinux` (BigLinux)
 -   `blendos` (BlendOS)
+-   `bodhi` (Bodhi)
 -   `bunsenlabs` (Bunsenlabs)
 -   `cachyos` (CachyOS)
 -   `centos-stream` (CentOS Stream)

@@ -146,11 +146,11 @@ sudo apt install quickgui
 
 ## Arch
 
-Quickemu is available from the AUR (Arch user repository), and can be installed via any AUR helper.
-Assuming your AUR helper is yay,
-Run the following command:
+Quickemu is available from the AUR (Arch user repository), and can be
+installed via any AUR helper. Assuming your AUR helper is yay, Run the
+following command:
 
-```bash
+``` bash
 yay -Sy quickemu
 ```
 
