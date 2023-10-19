@@ -593,6 +593,30 @@ function editions_arcolinux() {
     echo large small
 }
 
+function releases_artixlinux() {
+    echo stable
+}
+
+function editions_artixlinux() {
+    echo base-dinit base-openrc base-runit base-s6 cinnamon-dinit cinnamon-openrc cinnamon-runit cinnamon-s6 lxde-dinit lxde-openrc lxde-runit lxde-s6 lxqt-dinit lxqt-openrc lxqt-runit lxqt-s6 mate-dinit mate-openrc mate-runit mate-s6 plasma-dinit plasma-openrc plasma-runit plasma-s6 xfce-dinit xfce-openrc xfce-runit xfce-s6 community-gtk-openrc community-qt-openrc
+}
+
+function releases_athenaos() {
+    echo 23.06.23
+}
+
+function releases_batocera() {
+  echo latest
+}
+
+function releases_bazzite() {
+    echo $(wget -q -O- "https://api.github.com/repos/ublue-os/bazzite/releases" | grep 'download_url' | grep 'sum' | cut -d '/' -f8 | cut -d'v' -f2 | tr '\n' ' ')
+}
+
+function releases_biglinux() {
+    echo kde
+}
+
 function releases_blendos() {
 
 # Pull the rss feed
@@ -1818,22 +1842,21 @@ function get_blendos() {
       echo "${URL} ${HASH}"
 }
 
-function get_vanillaos() {
-  # maybe use github api and dynamism for R2.0 but for 22.10 just
-  # hit their CDN
-  #
-  # https://cdn.vanillaos.org/assets/ISO/22.10-r8/VanillaOS-22.10-all.20230226.md5.txt
-  # https://cdn.vanillaos.org/assets/ISO/22.10-r8/VanillaOS-22.10-all.20230226.sha256.txt
-    local HASH=$(curl -s "https://cdn.vanillaos.org/assets/ISO/22.10-r8/VanillaOS-22.10-all.20230226.sha256.txt" | cut -d' ' -f1)
-    local URL="https://cdn.vanillaos.org/assets/ISO/22.10-r8/VanillaOS-22.10-all.20230226.iso"
-    echo "${URL} ${HASH}"
-}
-
 function get_batocera() {
     local HASH=""
     local URL="https://mirrors.o2switch.fr/batocera/x86_64/stable/last"
     local ISO="$(curl -sl ${URL}/ | grep -e 'batocera.*img.gz'|cut -d\" -f2)"
      echo "${URL}/${ISO} ${HASH}"
+}
+
+function get_bazzite() {
+    local HASH=""
+    local ISO=""
+    local URL="https://github.com/ublue-os/bazzite/releases/download/v${RELEASE}"
+
+    ISO=$(wget -q -O- "https://api.github.com/repos/ublue-os/bazzite/releases" | grep 'download_url' | grep 'sum' | cut -d '"' -f4 | cut -d'.' -f1-5 | grep "${RELEASE}" | cut -d'/' -f9)
+    HASH=$(wget -q -O- "${URL}/${ISO}.sha256sum" | grep 'SHA256' | cut -d' ' -f4)
+    echo "${URL}/${ISO} ${HASH}"
 }
 
 function get_bodhi() {
