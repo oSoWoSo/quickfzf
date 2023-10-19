@@ -1,6 +1,6 @@
 ---
 author: Martin Wimpress
-date: October 18, 2023
+date: October 19, 2023
 footer: quickget
 header: Quickget User Manual
 section: 1
@@ -96,6 +96,7 @@ with your preferred flavour.
 -   `alma` (Alma Linux)
 -   `alpine` (Alpine Linux)
 -   `android` (Android x86)
+-   `antix` (Antix)
 -   `archcraft` (Archcraft)
 -   `archlinux` (Arch Linux)
 -   `arcolinux` (Arco Linux)
@@ -144,6 +145,7 @@ with your preferred flavour.
 -   `oraclelinux` (Oracle Linux)
 -   `peppermint` (PeppermintOS)
 -   `popos` (Pop!\_OS)
+-   `porteus` (Porteus)
 -   `reactos` (ReactOS)
 -   `rebornos` (RebornOS)
 -   `rockylinux` (Rocky Linux)
@@ -152,7 +154,9 @@ with your preferred flavour.
 -   `slax` (Slax)
 -   `slitaz` (SliTaz GNU/Linux)
 -   `solus` (Solus)
+-   `spiral` (Spiral)
 -   `tails` (Tails)
+-   `tinycore` (Tiny Core Linux)
 -   `trisquel` (Trisquel)
 -   `truenas-core` (TrueNAS Core)
 -   `truenas-scale` (TrueNAS Scale)
