@@ -275,7 +275,7 @@ function os_support() {
     pureos \
     reactos \
     rebornos \
-    rocky \
+    rockylinux \
     siduction \
     slackware \
     slax \
@@ -756,7 +756,7 @@ function releases_rockylinux() {
     echo 8.3 8.4 8.5 8.6 8.7 9.0 9.1
 }
 
-function editions_rocky() {
+function editions_rockylinux() {
     echo minimal dvd boot
 }
 
@@ -2234,7 +2234,7 @@ function get_rebornos() {
    echo "${ISO} ${HASH}"
 }
 
-function get_rocky() {
+function get_rockylinux() {
     local EDITION="${1:-}"
     if [[ "${RELEASE}" =~ ^8. ]] && [[ "${EDITION}" == "dvd" ]]
     then
