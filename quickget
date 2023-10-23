@@ -702,7 +702,7 @@ function releases_opensuse(){
     echo 15.0 15.1 15.2 15.3 15.4 microos tumbleweed
 }
 
-function releases_oracle() {
+function releases_oraclelinux() {
     echo 7.7 7.8 7.9 8.4 8.5 8.6 9.0
 }
 
@@ -2135,7 +2135,7 @@ function get_opensuse() {
     echo "${URL}/${ISO} ${HASH}"
 }
 
-function get_oracle() {
+function get_oraclelinux() {
     local HASH=""
     local ISO=""
     local VER_MAJ=${RELEASE::1}
