@@ -217,14 +217,18 @@ tui_advanced_menu() {
 default VMs config
 edit VM config
 quickemu custom command
-add distro to quickget
-test distro sources" | fzf --height 10% --layout=reverse --info=inline --header-lines=1)
+quickget add distro
+quickget test ISOs URLs
+quickget show ISOs URLs
+open distro homepage" | fzf --height 10% --layout=reverse --info=inline --header-lines=1)
 	case $advance in
 		'default VMs config' ) tui_edit_default_VMs_config;;
 		'edit VM config' ) tui_edit_VM_config;;
 		'quickemu custom command' ) tui_custom_quickemu_command;;
-		'add distro to quickget' ) quickget_add_distro;;
-		'test distro sources' ) quickget_test_download_ISOs;;
+		'quickget add distro' ) quickget_add_distro;;
+		'quickget test ISOs URLs' ) quickget_test_download_ISOs;;
+		'quickget show ISOs URLs' ) quickget_show_isos_urls;;
+		'open distro homepage' ) quickget_open_distro_homepage;;
 	esac
 }
 tui_what_to_do() {
