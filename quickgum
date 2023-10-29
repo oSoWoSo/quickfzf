@@ -1,0 +1,19 @@
+#!/usr/bin/bash
+
+gum_style() {
+   "$content"
+}
+
+header1=$(gum style --padding "0 1" --border double --border-foreground 212 "$progname v$version
+Simple TUI for quickemu")
+header2=$(gum style --padding "0 1" --border double --border-foreground 57 "quickemu:ss
+editor: xx")
+header3=$(gum style --padding "0 1" --border double --border-foreground 255 "VMs:
+alpine
+void
+debian")
+header4=$(gum style --padding "0 1" --border double --border-foreground 240 "Workdir:")
+
+header1_2=$(gum join "$header1" "$header2")
+header3_4=$(gum join "$header3" "$header4")
+gum join --align center --vertical "$header1_2" "$header3_4"
