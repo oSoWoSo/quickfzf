@@ -10,7 +10,6 @@ tui_define_variables() {
 	#EDITOR='nano'
 	configdir="$HOME/.config/$progname"
 	vms=(*.conf)
-	TMP="/tmp/$progname"
 	# Set traps to catch the signals and exit gracefully
 	trap 'exit' INT
 	trap 'exit' EXIT
@@ -23,6 +22,12 @@ tui_define_variables() {
 		echo 'You are missing fzf...' && exit 3
 	fi
 	qcommand="quickemu < ${configdir}/command -vm"
+	if command -v termux-info >/dev/null 2>&1; then
+      echo "Running in termux!"
+		  TMP="$(pwd)/tmp"
+	else
+      TMP="/tmp/$progname"
+	fi
 }
 
 tui_display_header() {
