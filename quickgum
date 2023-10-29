@@ -1,19 +1,314 @@
 #!/usr/bin/bash
 
-gum_style() {
-   "$content"
+# Author: zenobit
+# Description: Uses gum to provide a simple TUI for quickemu and quickget
+# License MIT
+
+define_variables() {
+    progname="${progname:="${0##*/}"}"
+    version='0.33'
+    #EDITOR='nano'
+    configdir="$HOME/.config/$progname"
+    vms=(*.conf)
+    # Set traps to catch the signals and exit gracefully
+    trap 'exit' INT
+    trap 'exit' EXIT
+    if ! command -v quickemu >/dev/null 2>&1; then
+        echo 'You are missing quickemu...' && exit 1
+    fi
+    QUICKGET=$(command -v quickget)
+    if ! command -v gum >/dev/null 2>&1; then
+        echo 'You are missing gum...' && exit 1
+    fi
+    qcommand="quickemu < ${configdir}/command -vm"
+    if command -v termux-info >/dev/null 2>&1; then
+        echo "Running in termux!"
+        TMP="$(pwd)/tmp"
+    else
+        TMP="/tmp/$progname"
+    fi
 }
 
-header1=$(gum style --padding "0 1" --border double --border-foreground 212 "$progname v$version
-Simple TUI for quickemu")
-header2=$(gum style --padding "0 1" --border double --border-foreground 57 "quickemu:ss
-editor: xx")
-header3=$(gum style --padding "0 1" --border double --border-foreground 255 "VMs:
-alpine
-void
-debian")
-header4=$(gum style --padding "0 1" --border double --border-foreground 240 "Workdir:")
+show_editor() {
+        if [ -z "$EDITOR" ]; then
+        echo 'editor: Not set!'
+    else
+        echo "editor: $EDITOR"
+    fi
+}
 
-header1_2=$(gum join "$header1" "$header2")
-header3_4=$(gum join "$header3" "$header4")
-gum join --align center --vertical "$header1_2" "$header3_4"
+show_vms() {
+    if [ ${#vms[@]} -eq 0 ]; then
+        echo 'No VMs found.'
+        exit 1
+    else
+        printf '%s\n' "${vms[@]%.*}"
+    fi
+}
+
+show_custom() {
+    if [ -f "${configdir}/command" ]; then
+        printf '\ncustom command:\n quickemu %s\n' "$(cat "${configdir}/command")"
+    fi
+    if [ -f "${configdir}/vm" ]; then
+        printf '\nVMs config:\n%s' "$(cat "${configdir}/vm")"
+    fi
+}
+
+show_headers() {
+    header1=$(gum style --padding "0 1" --border double --border-foreground 212 "     $progname v$version
+Simple TUI for quickemu")
+    header2=$(gum style --padding "0 1" --border double --border-foreground 57 "quickemu v$(quickemu --version)
+$(show_editor)")
+    header3=$(gum style --padding "0 1" --border double --border-foreground 255 "ready VMs:
+$(show_vms)")
+    header4=$(gum style --padding "0 1" --border double --border-foreground 240 "workdir:
+ $(pwd)
+$(show_custom)")
+
+    header1_2=$(gum join "$header1" "$header2")
+    header3_4=$(gum join "$header4" "$header3")
+    gum join --align center --vertical "$header1_2" "$header3_4"
+    #printf 'Press CTRL+c anytime to kill %s' "$progname"
+}
+
+gum_choose_os() {
+    os=$("$QUICKGET" | sed 1d | cut -d':' -f2 | grep -o '[^ ]*' | gum filter --header='Choose Operating System')
+    choices=$("$QUICKGET" "$os" | sed 1d)
+}
+
+gum_choose_release() {
+    release=$(echo "$choices" | grep 'Releases' | cut -d':' -f2 | grep -o '[^ ]*' | gum filter --header='Choose release' --sort)
+}
+
+gum_choose_edition() {
+    edition=$(echo "$choices" | grep 'Editions' | cut -d':' -f2 | grep -o '[^ ]*' | gum filter --header='Choose edition' --sort)
+}
+
+gum_choose_VM() {
+    chosen=$(printf '%s\n' "${vms[@]%.*}" | gum filter --height +7 --header='Choose VM to run')
+}
+
+menu_advanced() {
+    advance=$(printf "set default config for VMs
+edit VM config
+custom quickemu command
+add new distro
+test ISOs download
+show ISOs URLs" | gum filter --height +6)
+    case $advance in
+        'set default config for VMs' ) edit_default_VMs_config;;
+        'edit VM config' ) edit_VM_config;;
+        'custom quickemu command' ) custom_quickemu_command;;
+        'add new distro' ) add_new_distro;;
+        'test ISOs download' ) test_ISOs_download;;
+        'show ISOs URLs' ) show_ISOs_urls;;
+    esac
+}
+
+edit_default_VMs_config() {
+    printf 'For example:\ncpu_cores="2"\nram="4G"\n'
+    ${EDITOR} ${configdir}/vm
+}
+
+edit_VM_config() {
+    ${EDITOR} $(find *.conf | gum filter --header='Choose config to edit' --height 10)
+}
+
+custom_quickemu_command() {
+    custom=$(echo "edit delete"| grep -o '[^ ]*' | gum choose --header='Edit or delete custom command?')
+    if [ "$custom" = "edit" ]; then
+        quickemu
+        printf '\nEnter quickemu custom command:\n For example:--public-dir ~/Downloads\n:'
+        read -r command
+        mkdir -p "$configdir"
+        echo "$command" > "${configdir}/command"
+    elif [ "$custom" = "delete" ]; then
+        rm "${configdir}/command"
+    fi
+}
+
+tui_run() {
+    define_variables
+    show_headers
+    menu_main
+}
+
+run_VM() {
+    printf '\n Starting %s...\n\n' "$chosen"
+    if [ -f "${configdir}/command" ]; then
+        quickemu < "${configdir}/command" -vm "$chosen".conf
+    else
+        quickemu -vm "$chosen".conf
+    fi
+}
+
+create_VM() {
+    gum_choose_os
+    if [ -z "$os" ]; then exit 100
+    elif [ "$(echo "$choices" | wc -l)" = 1 ]; then
+        gum_choose_release
+        printf '\n Trying to download %s %s...\n\n' "$os" "$release"
+        "$QUICKGET" "$os" "$release"
+        cat "${configdir}/vm" >> $(ls -t | head -n1)
+    else
+        gum_choose_release
+        gum_choose_edition
+        printf '\n Trying to download %s %s %s...\n\n' "$os" "$release" "$edition"
+        "$QUICKGET" "$os" "$release" "$edition"
+        echo "${configdir}/vm" >> ./"$(ls -t | head -n1)"
+    fi
+    menu_main
+}
+
+add_new_distro() {
+    echo "for now with yad only" #TODO
+    yad --form --field="Pretty name" "" --field="Name" "" --field="Releases" "" --field="Editions" "" --field="URL" "" --field="ISO" "" --field="Checksum file" "" > "${TMP}/template"
+    PRETTY_NAME="$(cat "${TMP}/template" | cut -d'|' -f1)"
+    NAME="$("${TMP}/template" > cut -d'|' -f2)"
+    RELEASES="$(cat "${TMP}/template" | cut -d'|' -f3)"
+    EDITIONS="$(cat "${TMP}/template" | cut -d'|' -f4)"
+    URL="$(cat "${TMP}/template" | cut -d'|' -f5)"
+    ISO="$(cat "${TMP}/template" | cut -d'|' -f6)"
+    CHECKSUM_FILE="$(cat "${TMP}/template" | cut -d'|' -f7)"
+    cat <<EOF > "${TMP}/template"
+#32
+
+$NAME)           PRETTY_NAME="$PRETTY_NAME";;
+
+#line 184+
+
+$NAME \\
+
+#line 262+
+
+function releases_$NAME() {
+    echo $RELEASES
+}
+
+function editions_$NAME() {
+    echo $EDITIONS
+}
+
+#line 1052+
+
+function get_$NAME() {
+    local EDITION="\${1:-}"
+    local HASH=""
+    local ISO="$ISO"
+    local URL="$URL"
+    HASH="\$(wget -q -O- \${URL}/\${CHECKSUM_FILE} | grep (\${ISO} | cut -d' ' -f4)"
+    echo "\${URL}/\${ISO}" "\${HASH}"
+}
+
+EOF
+    diff "${TMP}/template" "quickget"
+}
+
+create_desktop_entry() {
+    cat <<EOF > "${DESKTOP_FILE}"
+[Desktop Entry]
+Version=$version
+Type=$type
+Name=$name
+GenericName=$progname
+Comment=$comment
+Exec=$execmd
+Icon=$icon
+Terminal=$terminal
+X-MultipleArgs=$args
+Type=$type
+Categories=$categories
+StartupNotify=$notify
+MimeType=$mime
+Keywords=$keyword
+
+EOF
+}
+
+test_ISOs_download() {
+    rm -r "${TMP}"
+    mkdir -p "$TMP" && cd "$TMP"
+    touch "${TMP}/test"
+    "$QUICKGET" | sed 1d | cut -d':' -f2 | grep -o '[^ ]*' > supported
+    while read -r get_name; do
+        echo "Trying $get_name..."
+        mkdir -p "${TMP}/_distros/$get_name" && cd "${TMP}/_distros/$get_name"
+        releases=$("$QUICKGET" "$get_name" | grep 'Releases' | cut -d':' -f2 | sed 's/^ //' | sed 's/ *$//')
+        echo "$releases" > releases
+        editions=$("$QUICKGET" "$get_name" | grep 'Editions' | cut -d':' -f2 | sed 's/^ //' | sed 's/ *$//')
+        echo "$editions" > editions
+        if [ -z "$editions" ]; then
+            for release in $releases; do
+                echo "$get_name" >> "${TMP}/test"
+                timeout 5 "$QUICKGET" -t "$get_name" "${release}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+            done
+        else
+            while read -r release; do
+                for edition in $editions; do
+                    echo "$get_name" >> "${TMP}/test"
+                    timeout 5 "$QUICKGET" -t "$get_name" "${release}" "${edition}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+                done
+            done < releases
+        fi
+        cd "$TMP"
+    done < supported
+    printf "\nDone"
+}
+
+show_ISOs_urls(){
+    rm -r "${TMP}"
+    mkdir -p "$TMP" && cd "$TMP"
+    touch "${TMP}/test"
+    "$QUICKGET" | sed 1d | cut -d':' -f2 | grep -o '[^ ]*' > supported
+    while read -r get_name; do
+        echo "Trying $get_name..."
+        mkdir -p "${TMP}/_distros/$get_name" && cd "${TMP}/_distros/$get_name"
+        releases=$("$QUICKGET" "$get_name" | grep 'Releases' | cut -d':' -f2 | sed 's/^ //' | sed 's/ *$//')
+        echo "$releases" > releases
+        editions=$("$QUICKGET" "$get_name" | grep 'Editions' | cut -d':' -f2 | sed 's/^ //' | sed 's/ *$//')
+        echo "$editions" > editions
+        if [ -z "$editions" ]; then
+            for release in $releases; do
+                echo "$get_name" >> "${TMP}/test"
+                timeout 5 "$QUICKGET" -s "$get_name" "${release}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+            done
+        else
+            while read -r release; do
+                for edition in $editions; do
+                    echo "$get_name" >> "${TMP}/test"
+                    timeout 5 "$QUICKGET" -s "$get_name" "${release}" "${edition}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+                done
+            done < releases
+        fi
+        cd "$TMP"
+    done < supported
+    printf "\nDone"
+}
+
+open_distro_homepage(){
+    gum_choose_os
+    "$QUICKGET" -o "${os}"
+}
+
+menu_main() {
+    start=$(printf "run VM
+create new VM
+open distro homepage
+advanced & settings" | gum choose)
+    case $start in
+        'create new VM' ) create_VM;;
+        'advanced & settings' ) menu_advanced;;
+        'run VM' ) gum_choose_VM
+            run_VM
+            ;;
+        'open distro homepage' ) open_distro_homepage;;
+    esac
+}
+
+while true
+do
+    clear
+    tui_run
+    exit 0
+done
