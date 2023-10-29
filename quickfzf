@@ -30,6 +30,27 @@ tui_define_variables() {
 	fi
 }
 
+gum_display_header() {
+	printf 'Simple TUI for quickemu\n%s: v.%s\nquickemu: v.%s\n' "$progname" "$version" "$(quickemu --version)"
+	if [ -z "$EDITOR" ]; then
+		echo 'editor: Not set! edit configs will not work!'
+	else
+		echo "editor: $EDITOR"
+	fi
+	printf 'Workdir:\n %s\n' "$(pwd)"
+	if [ -f "${configdir}/command" ]; then
+		printf '\ncustom command:\n quickemu %s\n' "$(cat "${configdir}/command")"
+	fi
+	if [ -f "${configdir}/vm" ]; then
+		printf '\nVMs config:\n-------------\n%s\n' "$(cat "${configdir}/vm")"
+	fi
+	printf '\nPrepared VMs:\n-------------\n'
+}
+
+gum_choose_os() {
+    OS=$("$QUICKGET" | sed 1d | cut -d':' -f2 | grep -o '[^ ]*' | gum filter --header='Choose Operating System')
+}
+
 tui_display_header() {
 	printf 'Simple TUI for quickemu\n%s: v.%s\nquickemu: v.%s\n' "$progname" "$version" "$(quickemu --version)"
 	if [ -z "$EDITOR" ]; then
@@ -62,7 +83,7 @@ tui_action_prompt_fzf() {
 	start=$(printf "Do you want to...
 run VM
 create new VM
-advance settings" | fzf --height 10% --layout=reverse --info=inline --header-lines=1)
+advance settings" | gum filter)
 	case $start in
 		c|'create new VM' ) todo='create';;
 		a|'advance settings' ) todo='advanced';;
