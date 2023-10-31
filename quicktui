@@ -21,6 +21,7 @@ define_variables() {
         echo 'You are missing gum...' && exit 1
     fi
     qcommand="quickemu < ${configdir}/command -vm"
+    # just for development
     if command -v termux-info >/dev/null 2>&1; then
         echo "Running in termux!"
         TMP="$(pwd)/tmp"
@@ -69,11 +70,10 @@ $(show_custom)")
     header1_2=$(gum join "$header1" "$header2")
     header3_4=$(gum join "$header4" "$header3")
     gum join --align center --vertical "$header1_2" "$header3_4"
-    #printf 'Press CTRL+c anytime to kill %s' "$progname"
 }
 
 gum_choose_os() {
-    os=$("$QUICKGET" | sed 1d | cut -d':' -f2 | grep -o '[^ ]*' | gum filter --header='Choose Operating System')
+    os=$(gum filter --header='Choose Operating System' < $TMP/supported)
     choices=$("$QUICKGET" "$os" | sed 1d)
 }
 
@@ -115,6 +115,7 @@ custom_quickemu_command() {
 
 tui_run() {
     define_variables
+    generate_if_needed
     show_headers
     menu_main
 }
@@ -134,14 +135,13 @@ create_VM() {
     elif [ "$(echo "$choices" | wc -l)" = 1 ]; then
         gum_choose_release
         gum spin --spinner="globe" --show-output --title="Downloading $os $release" -- "$QUICKGET" "$os" "$release"
-        cat "${configdir}/vm" >> $(ls -t | head -n1)
+        cat "${configdir}/vm" >> "$os-$release.conf"
     else
         gum_choose_release
         gum_choose_edition
         gum spin --spinner globe --show-output --title="Downloading $os $release $edition" -- "$QUICKGET" "$os" "$release" "$edition"
-        echo "${configdir}/vm" >> ./"$(ls -t | head -n1)"
+        echo "${configdir}/vm" >> "$os-$release-$edition.conf"
     fi
-    menu_main
 }
 
 add_new_distro() {
@@ -283,7 +283,6 @@ show_ISOs_urls(){
 
 generate_supported(){
     echo "Extracting OS Editions and Releases..."
-    rm -r "${TMP}"
     mkdir -p "${TMP}/distro"
     "$QUICKGET" | sed 1d | cut -d':' -f2 | grep -o '[^ ]*' > "${TMP}/supported"
     while read -r get_name; do
@@ -302,7 +301,6 @@ menu_main() {
 create new VM
 open distro homepage
 advanced & settings
-regenerate supported
 EXIT $progname" | gum filter --height 6)
     case $start in
         'create new VM' ) create_VM;;
@@ -311,7 +309,6 @@ EXIT $progname" | gum filter --height 6)
             run_VM
             ;;
         'open distro homepage' ) open_distro_homepage;;
-        'regenerate supported' ) generate_supported;;
         "EXIT $progname" ) exit 0;;
     esac
 }
@@ -323,6 +320,7 @@ custom quickemu command
 add new distro
 test ISOs download
 show ISOs URLs
+regenerate supported
 EXIT $progname" | gum filter --height 7)
     case $advance in
         'set default config for VMs' ) edit_default_VMs_config;;
@@ -331,8 +329,15 @@ EXIT $progname" | gum filter --height 7)
         'add new distro' ) add_new_distro;;
         'test ISOs download' ) test_ISOs_download;;
         'show ISOs URLs' ) show_ISOs_urls;;
+        'regenerate supported' ) generate_supported;;
         "EXIT $progname" ) exit 0;;
     esac
+}
+
+generate_if_needed() {
+    if [ ! -z "${TMP}/supported" ]; then
+        generate_supported
+    fi
 }
 
 while true
