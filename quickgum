@@ -86,25 +86,10 @@ gum_choose_edition() {
 }
 
 gum_choose_VM() {
-    chosen=$(printf '%s\n' "${vms[@]%.*}" | gum filter --height +7 --header='Choose VM to run')
+    chosen=$(printf '%s\n' "${vms[@]%.*}" | gum filter --height $("${vms[@]%.*}" | wc -l) --header='Choose VM to run')
 }
 
-menu_advanced() {
-    advance=$(printf "set default config for VMs
-edit VM config
-custom quickemu command
-add new distro
-test ISOs download
-show ISOs URLs" | gum filter --height +6)
-    case $advance in
-        'set default config for VMs' ) edit_default_VMs_config;;
-        'edit VM config' ) edit_VM_config;;
-        'custom quickemu command' ) custom_quickemu_command;;
-        'add new distro' ) add_new_distro;;
-        'test ISOs download' ) test_ISOs_download;;
-        'show ISOs URLs' ) show_ISOs_urls;;
-    esac
-}
+
 
 edit_default_VMs_config() {
     printf 'For example:\ncpu_cores="2"\nram="4G"\n'
@@ -148,14 +133,12 @@ create_VM() {
     if [ -z "$os" ]; then exit 100
     elif [ "$(echo "$choices" | wc -l)" = 1 ]; then
         gum_choose_release
-        printf '\n Trying to download %s %s...\n\n' "$os" "$release"
-        "$QUICKGET" "$os" "$release"
+        gum spin --spinner="globe" --show-output --title="Downloading $os $release" -- "$QUICKGET" "$os" "$release"
         cat "${configdir}/vm" >> $(ls -t | head -n1)
     else
         gum_choose_release
         gum_choose_edition
-        printf '\n Trying to download %s %s %s...\n\n' "$os" "$release" "$edition"
-        "$QUICKGET" "$os" "$release" "$edition"
+        gum spin --spinner globe --show-output --title="Downloading $os $release $edition" -- "$QUICKGET" "$os" "$release" "$edition"
         echo "${configdir}/vm" >> ./"$(ls -t | head -n1)"
     fi
     menu_main
@@ -253,13 +236,13 @@ test_ISOs_download() {
         if [ -z "$editions" ]; then
             for release in $releases; do
                 echo "$get_name" >> "${TMP}/test"
-                timeout 5 "$QUICKGET" -t "$get_name" "${release}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+                timeout 5 "$QUICKGET" -t "$get_name" "${release}" >> "${TMP}/test" #&& $(killall zsync >> /dev/null)
             done
         else
             while read -r release; do
                 for edition in $editions; do
                     echo "$get_name" >> "${TMP}/test"
-                    timeout 5 "$QUICKGET" -t "$get_name" "${release}" "${edition}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+                    timeout 5 "$QUICKGET" -t "$get_name" "${release}" "${edition}" >> "${TMP}/test" #&& $(killall zsync >> /dev/null)
                 done
             done < releases
         fi
@@ -283,19 +266,30 @@ show_ISOs_urls(){
         if [ -z "$editions" ]; then
             for release in $releases; do
                 echo "$get_name" >> "${TMP}/test"
-                timeout 5 "$QUICKGET" -s "$get_name" "${release}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+                timeout 5 "$QUICKGET" -s "$get_name" "${release}" >> "${TMP}/test" #&& $(killall zsync >> /dev/null)
             done
         else
             while read -r release; do
                 for edition in $editions; do
                     echo "$get_name" >> "${TMP}/test"
-                    timeout 5 "$QUICKGET" -s "$get_name" "${release}" "${edition}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+                    timeout 5 "$QUICKGET" -s "$get_name" "${release}" "${edition}" >> "${TMP}/test" #&& $(killall zsync >> /dev/null)
                 done
             done < releases
         fi
         cd "$TMP"
     done < supported
     printf "\nDone"
+}
+
+generate_supported(){
+    echo "Extracting OS Editions and Releases..."
+    rm -r "${TMP}"
+    mkdir -p "${TMP}/distro"
+    "$QUICKGET" | sed 1d | cut -d':' -f2 | grep -o '[^ ]*' > "${TMP}/supported"
+    while read -r get_name; do
+        supported=$(gum spin --spinner="globe" --title="$get_name" -- "$QUICKGET" "$get_name" | sed 1d)
+        echo "$supported" > "${TMP}/distro/${get_name}"
+    done < "${TMP}/supported"
 }
 
 open_distro_homepage(){
@@ -307,7 +301,9 @@ menu_main() {
     start=$(printf "run VM
 create new VM
 open distro homepage
-advanced & settings" | gum choose)
+advanced & settings
+regenerate supported
+EXIT $progname" | gum filter --height 6)
     case $start in
         'create new VM' ) create_VM;;
         'advanced & settings' ) menu_advanced;;
@@ -315,6 +311,27 @@ advanced & settings" | gum choose)
             run_VM
             ;;
         'open distro homepage' ) open_distro_homepage;;
+        'regenerate supported' ) generate_supported;;
+        "EXIT $progname" ) exit 0;;
+    esac
+}
+
+menu_advanced() {
+    advance=$(printf "set default config for VMs
+edit VM config
+custom quickemu command
+add new distro
+test ISOs download
+show ISOs URLs
+EXIT $progname" | gum filter --height 7)
+    case $advance in
+        'set default config for VMs' ) edit_default_VMs_config;;
+        'edit VM config' ) edit_VM_config;;
+        'custom quickemu command' ) custom_quickemu_command;;
+        'add new distro' ) add_new_distro;;
+        'test ISOs download' ) test_ISOs_download;;
+        'show ISOs URLs' ) show_ISOs_urls;;
+        "EXIT $progname" ) exit 0;;
     esac
 }
 
@@ -322,5 +339,5 @@ while true
 do
     clear
     tui_run
-    exit 0
+    #exit 0
 done
