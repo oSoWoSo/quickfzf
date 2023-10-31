@@ -56,13 +56,13 @@ show_custom() {
 }
 
 show_headers() {
-    header1=$(gum style --padding "0 1" --border double --border-foreground 212 "     $progname v$version
+    header1=$(gum style --padding "0 1" --border double --border-foreground $(( $RANDOM % 255 + 1 )) "     $progname v$version
 Simple TUI for quickemu")
-    header2=$(gum style --padding "0 1" --border double --border-foreground 57 "quickemu v$(quickemu --version)
+    header2=$(gum style --padding "0 1" --border double --border-foreground $(( $RANDOM % 255 + 1 )) "quickemu v$(quickemu --version)
 $(show_editor)")
-    header3=$(gum style --padding "0 1" --border double --border-foreground 255 "ready VMs:
+    header3=$(gum style --padding "0 1" --border double --border-foreground $(( $RANDOM % 255 + 1 )) "ready VMs:
 $(show_vms)")
-    header4=$(gum style --padding "0 1" --border double --border-foreground 240 "workdir:
+    header4=$(gum style --padding "0 1" --border double --border-foreground $(( $RANDOM % 255 + 1 )) "workdir:
  $(pwd)
 $(show_custom)")
 
