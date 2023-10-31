@@ -162,43 +162,55 @@ create_VM() {
 }
 
 add_new_distro() {
-    echo "for now with yad only" #TODO
-    yad --form --field="Pretty name" "" --field="Name" "" --field="Releases" "" --field="Editions" "" --field="URL" "" --field="ISO" "" --field="Checksum file" "" > "${TMP}/template"
-    PRETTY_NAME="$(cat "${TMP}/template" | cut -d'|' -f1)"
-    NAME="$("${TMP}/template" > cut -d'|' -f2)"
-    RELEASES="$(cat "${TMP}/template" | cut -d'|' -f3)"
-    EDITIONS="$(cat "${TMP}/template" | cut -d'|' -f4)"
-    URL="$(cat "${TMP}/template" | cut -d'|' -f5)"
-    ISO="$(cat "${TMP}/template" | cut -d'|' -f6)"
-    CHECKSUM_FILE="$(cat "${TMP}/template" | cut -d'|' -f7)"
+    mkdir -p "$TMP"
+    echo "add new OS, all lowercase"
+    NAME="$(gum input --header="NAME" --placeholder="arch")"
+    echo "add a pretty name for new OS *only if the catch all is not suitable*"
+    PRETTY_NAME="$(gum input --header="PRETTY_NAME" --placeholder="Arch Linux")"
+    echo "add a homepage for new OS"
+    HOMEPAGE="$(gum input --header="HOMEPAGE" --placeholder="https://voidlinux.org/")"
+    echo "current supported release versions"
+    RELEASES="$(gum input --header="RELEASES" --placeholder="8 9")"
+    echo "the editions if new OS has multiple flavours/editions"
+    EDITIONS="$(gum input --header="EDITIONS" --placeholder="kde gnome")"
+    echo "base URL for ISO download"
+    URL="$(gum input --header="URL" --placeholder="https://ddl.bunsenlabs.org/ddl")"
+    echo "Name of ISO"
+    ISO="$(gum input --header="ISO" --placeholder="GhostBSD-${RELEASE}-XFCE.iso")"
+    echo "name of hash file "
+    CHECKSUM="$(gum input --header="CHECKSUM" --placeholder='${ISO}.sha256sum')"
     cat <<EOF > "${TMP}/template"
-#32
+#line 58+
 
 $NAME)           PRETTY_NAME="$PRETTY_NAME";;
 
-#line 184+
+#line 207+
 
 $NAME \\
 
-#line 262+
+#line 292+
+
+        $NAME)              HOMEPAGE=$HOMEPAGE;;
+
+#line 374+
 
 function releases_$NAME() {
-    echo $RELEASES
+echo $RELEASES
 }
 
 function editions_$NAME() {
-    echo $EDITIONS
+echo $EDITIONS
 }
 
-#line 1052+
+#line 1176+
 
 function get_$NAME() {
-    local EDITION="\${1:-}"
-    local HASH=""
-    local ISO="$ISO"
-    local URL="$URL"
-    HASH="\$(wget -q -O- \${URL}/\${CHECKSUM_FILE} | grep (\${ISO} | cut -d' ' -f4)"
-    echo "\${URL}/\${ISO}" "\${HASH}"
+local EDITION="\${1:-}"
+local HASH=""
+local ISO="$ISO"
+local URL="$URL"
+HASH="\$(wget -q -O- \${URL}/\${CHECKSUM_FILE} | grep (\${ISO} | cut -d' ' -f4)"
+echo "\${URL}/\${ISO}" "\${HASH}"
 }
 
 EOF
