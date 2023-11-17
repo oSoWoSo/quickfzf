@@ -661,6 +661,8 @@ function releases_garuda() {
 
 function editions_garuda() {
     echo cinnamon dr460nized dr460nized-gaming gnome i3 kde-git kde-lite lxqt-kwin mate qtile sway wayfire xfce
+    #URL="https://mirrors.fossho.st/garuda/iso/latest/garuda/"
+    #echo $(wget -q -O - ${URL} | grep '^<a href' | sed -e 's/^.*="//' -e 's/\/.*//')
 }
 
 function releases_gentoo() {
@@ -1404,22 +1406,22 @@ function get_antix() {
     esac
 
     case ${EDITION} in
-      net-sysv)  ISO="antiX-${RELEASE}-net_x64-net.iso";;
-      core-sysv) ISO="antiX-${RELEASE}_x64-core.iso";;
-      base-sysv) ISO="antiX-${RELEASE}_x64-base.iso";;
-      full-sysv) ISO="antiX-${RELEASE}_x64-full.iso";;
-      net-runit)  ISO="antiX-${RELEASE}-runit-net_x64-net.iso"
-                  URL="${URL_runit}"
-      ;;
-      core-runit) ISO="antiX-${RELEASE}-runit_x64-core.iso"
-                  URL="${URL_runit}"
-      ;;
-      base-runit) ISO="antiX-${RELEASE}-runit_x64-base.iso"
-                  URL="${URL_runit}"
-      ;;
-      full-runit) ISO="antiX-${RELEASE}-runit_x64-full.iso"
-                  URL="${URL_runit}"
-      ;;
+        net-sysv) ISO="antiX-${RELEASE}-net_x64-net.iso";;
+        core-sysv) ISO="antiX-${RELEASE}_x64-core.iso";;
+        base-sysv) ISO="antiX-${RELEASE}_x64-base.iso";;
+        full-sysv) ISO="antiX-${RELEASE}_x64-full.iso";;
+        net-runit) ISO="antiX-${RELEASE}-runit-net_x64-net.iso"
+                   URL="${URL_runit}"
+                   ;;
+        core-runit) ISO="antiX-${RELEASE}-runit_x64-core.iso"
+                    URL="${URL_runit}"
+                    ;;
+        base-runit) ISO="antiX-${RELEASE}-runit_x64-base.iso"
+                    URL="${URL_runit}"
+                    ;;
+        full-runit) ISO="antiX-${RELEASE}-runit_x64-full.iso"
+                    URL="${URL_runit}"
+                    ;;
     esac
 
     HASH=$(wget -q -O- ${URL}/README.txt | grep "${ISO}" | cut -d' ' -f1 | head -1)
@@ -1486,9 +1488,10 @@ function get_bazzite() {
     local HASH=""
     local ISO=""
     local URL="https://github.com/ublue-os/bazzite/releases/download/v${RELEASE}"
+
     ISO=$(wget -q -O- "https://api.github.com/repos/ublue-os/bazzite/releases" | grep 'download_url' | grep 'sum' | cut -d '"' -f4 | cut -d'.' -f1-5 | grep "${RELEASE}" | cut -d'/' -f9)
     HASH=$(wget -q -O- "${URL}/${ISO}.sha256sum" | grep 'SHA256' | cut -d' ' -f4)
-    echo "${URL}/${ISO} ${HASH}"
+     echo "${URL}/${ISO} ${HASH}"
 }
 
 function get_biglinux() {
@@ -2363,6 +2366,7 @@ function get_tuxedoos() {
 }
 
 function get_ubuntu-server() {
+
     local HASH=""
     local ISO=""
     local URL=""
@@ -2372,6 +2376,7 @@ function get_ubuntu-server() {
     else
         URL="https://releases.ubuntu.com/${RELEASE}"
     fi
+
     if wget -q --spider "${URL}/SHA256SUMS"; then
         DATA=$(wget -qO- "${URL}/SHA256SUMS" | grep 'live-server' | grep amd64 | grep iso)
         ISO=$(cut -d'*' -f2 <<<${DATA})
@@ -2381,6 +2386,7 @@ function get_ubuntu-server() {
         ISO=$(cut -d' ' -f3 <<<${DATA})
         HASH=$(cut -d' ' -f1 <<<${DATA})
     fi
+
     if [ -z $ISO ] || [ -z $HASH ]; then
         echo "$(pretty_name $OS) ${RELEASE} is currently unavailable. Please select other OS/Release combination"
         exit 1
@@ -2873,6 +2879,7 @@ handle_curl_error() {
                     ;;
             esac
     esac
+
     return 1
 }
 
