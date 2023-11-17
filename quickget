@@ -657,6 +657,22 @@ function editions_centos-stream() {
     echo dvd1 boot
 }
 
+function releases_cereus() {
+    echo latest
+}
+
+function editions_cereus() {
+    echo base lxqt xfce
+}
+
+function releases_chimera() {
+    echo latest
+}
+
+function editions_chimera() {
+    echo base gnome
+}
+
 function releases_debian() {
     DEBCURRENT=$(wget -q https://cdimage.debian.org/debian-cd/ -O- |grep '\.[0-9]/'|cut -d\> -f9|cut -d\/ -f1)
     local DEBOLD=$(wget -q https://cdimage.debian.org/cdimage/archive/ -O- |grep -e '>[1-9][0-9]\.'|grep -v 'live' | cut -d\> -f9|cut -d\/ -f1 )
@@ -801,7 +817,7 @@ function releases_kolibrios() {
 }
 
 function releases_linuxlite() {
-	echo 6.0 6.2 6.4 6.6
+    echo 6.0 6.2 6.4 6.6
 }
 
 function releases_linuxmint(){
@@ -968,11 +984,11 @@ function editions_sparkylinux() {
 }
 
 function releases_spiral() {
-	echo latest
+    echo latest
 }
 
 function editions_spiral() {
-	echo Plasma XFCE Mate LXQt Gnome Budgie Cinnamon Builder
+    echo Plasma XFCE Mate LXQt Gnome Budgie Cinnamon Builder
 }
 
 function releases_tails() {
@@ -1151,13 +1167,13 @@ function web_get() {
       exit 1
     fi
 
-	# Test mode for ISO
-	if [ "${show_iso_url}" == 'on' ]; then
-	    echo "${URL}"
-	    exit 0
+    # Test mode for ISO
+    if [ "${show_iso_url}" == 'on' ]; then
+        echo "${URL}"
+        exit 0
     elif [ "${test_iso_url}" == 'on' ]; then
-	    wget --spider "${URL}"
-	    exit 0
+        wget --spider "${URL}"
+        exit 0
     elif command -v aria2c &>/dev/null; then
         if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${DIR}" -o "${FILE}"; then
           echo #Necessary as aria2c in suppressed mode does not have new lines
@@ -1177,13 +1193,13 @@ function zsync_get() {
     local OUT=""
     local URL="${1}"
 
-	# Test mode for ISO
-	if [ "${show_iso_url}" == 'on' ]; then
-	    echo "${URL}"
-	    exit 0
+    # Test mode for ISO
+    if [ "${show_iso_url}" == 'on' ]; then
+        echo "${URL}"
+        exit 0
     elif [ "${test_iso_url}" == 'on' ]; then
-	    wget --spider "${URL}"
-	    exit 0
+        wget --spider "${URL}"
+        exit 0
     elif command -v zsync &>/dev/null; then
         if [ -n "${3}" ]; then
             OUT="${3}"
@@ -2506,6 +2522,26 @@ function get_porteus() {
     echo "${URL}/${ISO} ${HASH}"
 }
 
+function get_pureos() {
+    local EDITION="${1:-}"
+    local HASH=""
+    local ISO=""
+    local URL=""
+
+    case ${RELEASE} in
+      9)
+        URL="https://downloads.puri.sm/9/live/${EDITION}/2020-08-06"
+        ISO="pureos-${RELEASE}-${EDITION}-live_20200806-amd64.hybrid.iso"
+        HASH=$(wget -q -O- "${URL}/checksums.sha256sum" | grep "${ISO}" | cut -d' ' -f1)
+        ;;
+      10)
+        URL="https://downloads.puri.sm/10/${EDITION}/2023-06-14"
+        ISO="pureos-${RELEASE}-${EDITION}-live-20230614_amd64.iso"
+        HASH=$(wget -q -O- "${URL}/pureos-${RELEASE}-${EDITION}-live-20230614_amd64.checksums_sha256.txt" | head -1 | cut -d' ' -f1)
+    esac
+    echo "${URL}/${ISO} ${HASH}"
+}
+
 function get_reactos() {
     local HASH=""
     local URL=""
@@ -2582,13 +2618,13 @@ function get_sparkylinux() {
 }
 
 function get_spiral() {
-	local EDITION="${1:-}"
-	local HASH=""
-	local ISO="SpiralLinux_${EDITION}_12.231005_x86-64.iso"
-	local URL="https://sourceforge.net/projects/spirallinux/files/12.231005"
+    local EDITION="${1:-}"
+    local HASH=""
+    local ISO="SpiralLinux_${EDITION}_12.231005_x86-64.iso"
+    local URL="https://sourceforge.net/projects/spirallinux/files/12.231005"
 
-	HASH=$(wget -q -O- 'https://sourceforge.net/projects/spirallinux/rss?path=/' | grep "${ISO}" | grep 'md5' | cut -d'<' -f3 | cut -d'>' -f2)
-	echo "${URL}/${ISO}" "${HASH}"
+    HASH=$(wget -q -O- 'https://sourceforge.net/projects/spirallinux/rss?path=/' | grep "${ISO}" | grep 'md5' | cut -d'<' -f3 | cut -d'>' -f2)
+    echo "${URL}/${ISO}" "${HASH}"
 }
 
 function get_tails() {
