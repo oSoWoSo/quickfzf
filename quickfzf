@@ -198,13 +198,13 @@ quickget_test_download_ISOs() {
 		if [ -z "$editions" ]; then
 			for release in $releases; do
 				echo "$get_name" >> "${TMP}/test"
-				timeout 3 "$QUICKGET" -t "$get_name" "${release}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+				"$QUICKGET" -t "$get_name" "${release}" >> "${TMP}/test"
 			done
 		else
 			while read -r release; do
 				for edition in $editions; do
 					echo "$get_name" >> "${TMP}/test"
-					timeout 3 "$QUICKGET" -t "$get_name" "${release}" "${edition}" >> "${TMP}/test" && $(killall zsync >> /dev/null)
+					"$QUICKGET" -t "$get_name" "${release}" "${edition}" >> "${TMP}/test"
 				done
 			done < releases
 		fi
