@@ -769,7 +769,11 @@ function vm_boot() {
 
     # Try and coerce the display resolution for Linux guests only.
     if [ "${guest_os}" == "linux" ]; then
-        VIDEO="${VIDEO},xres=${X_RES},yres=${Y_RES}"
+        if [ -n "${WIDTH}" ] && [ -n "${HEIGHT}" ]; then
+            VIDEO="${VIDEO},xres=${WIDTH},yres=${HEIGHT}"
+        else
+            VIDEO="${VIDEO},xres=${X_RES},yres=${Y_RES}"
+        fi
     fi
 
     # Allocate VRAM to VGA devices
@@ -1496,6 +1500,8 @@ secureboot="off"
 tpm="off"
 usb_devices=()
 viewer="spicy"
+width=""
+height=""
 ssh_port=""
 spice_port=""
 public_dir=""
@@ -1538,6 +1544,8 @@ VMDIR=""
 VMNAME=""
 VMPATH=""
 VIEWER=""
+WIDTH=""
+HEIGHT=""
 SSH_PORT=""
 SPICE_PORT=""
 MONITOR=""
@@ -1655,6 +1663,14 @@ else
         -viewer|--viewer)
             VIEWER="${2}"
             shift
+            shift;;
+        -width|--width)
+            WIDTH="${2}"
+            shift;
+            shift;;
+        -height|--height)
+            HEIGHT="${2}"
+            shift;
             shift;;
         -ssh-port|--ssh-port)
             SSH_PORT="${2}"
@@ -1788,6 +1804,11 @@ if [ -n "${VM}" ] && [ -e "${VM}" ]; then
         VIEWER="${viewer}"
     fi
     viewer_param_check
+
+    if [ -z "${WIDTH}" ] || [ -z "${HEIGHT}" ] ; then
+        WIDTH="${width}"
+        HEIGHT="${height}"
+    fi
 
     # Set the default 3D acceleration.
     if [ -z "${gl}" ]; then
