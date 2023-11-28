@@ -238,6 +238,7 @@ function os_support() {
     lmde \
     mageia \
     manjaro \
+    minix \
     mxlinux \
     netboot \
     netbsd \
@@ -329,6 +330,7 @@ function os_homepages(){
         nixos)             HOMEPAGE="https://nixos.org/";;
         lubuntu)           HOMEPAGE="https://lubuntu.me/";;
         macos)             HOMEPAGE="https://www.apple.com/macos/";;
+        minix)             HOMEPAGE="https://www.minix3.org/";;
         openbsd)           HOMEPAGE="https://www.openbsd.org/";;
         openindiana)       HOMEPAGE="https://www.openindiana.org/";;
         opensuse)          HOMEPAGE="https://www.opensuse.org/";;
@@ -638,6 +640,10 @@ function releases_manjaro() {
     i3 \
     mate \
     sway
+}
+
+function releases_minix() {
+    echo 3.3.0 3.2.1 3.2.0 3.1.7 3.1.6 3.1.5
 }
 
 function releases_netboot() {
@@ -1739,6 +1745,21 @@ function get_manjaro() {
     echo "${URL} ${HASH}"
 }
 
+function get_minix() {
+    local HASH=""
+    local ISO=""
+    local URL="http://download.minix3.org/iso"
+    case ${RELEASE} in
+        3.1.5) ISO="minix_R3.1.5-r5612.iso.bz2";HASH="";;
+        3.1.6) ISO="minix_R3.1.6-r6084.iso.bz2";HASH="";;
+        3.1.7) ISO="minix_R3.1.7-r7256.iso.gz";HASH="";;
+        3.2.0) ISO="minix_R3.2.0-116fcea.iso.bz2";HASH="";;
+        3.2.1) ISO="minix_R3.2.1.iso.bz2";HASH="4c91ba7822cfa441d27755a7e7c4711d";;
+        3.3.0) ISO="minix_R3.3.0-588a35b.iso.bz2";HASH="3234ffcebfb2a28069cf3def41c95dec";;
+    esac
+    echo "${URL}/${ISO} ${HASH}"
+}
+
 function get_mxlinux() {
     local EDITION="${1:-}"
     local HASH=""
@@ -2682,7 +2703,10 @@ create_vm() {
         gzip -d "${VM_PATH}/${ISO}"
         ISO="${ISO/.gz/}"
     fi
-
+    if [[ ${OS} == "minix" ]] && [[ ${ISO} =~ ".bz2" ]]; then
+        bzip2 -d "${VM_PATH}/${ISO}"
+        ISO="${ISO/.bz2/}"
+    fi
     #  Could be other OS iso files compressed with bzip2 or gzip
     #  but for now we'll keep this to know cases
     if [[ ${OS} == "dragonflybsd" ]] && [[ ${ISO} =~ ".bz2" ]]; then
