@@ -104,6 +104,7 @@ function pretty_name() {
     ubuntustudio)       PRETTY_NAME="Ubuntu Studio";;
     ubuntu-unity)       PRETTY_NAME="Ubuntu Unity";;
     vanillaos)          PRETTY_NAME="Vanilla OS";;
+    visopsys)           PRETTY_NAME="Visopsys";;
     void)               PRETTY_NAME="Void Linux";;
     vxlinux)            PRETTY_NAME="VX Linux";;
     xerolinux)          PRETTY_NAME="XeroLinux";;
@@ -273,6 +274,7 @@ function os_support() {
     ubuntu-unity \
     vanillaos \
     void \
+    visopsys \
     vxlinux \
     windows \
     xerolinux \
@@ -357,6 +359,7 @@ function os_homepages(){
         ubuntustudio)      HOMEPAGE="https://ubuntustudio.org/";;
         ubuntu-unity)      HOMEPAGE="https://ubuntuunity.org/";;
         vanillaos)         HOMEPAGE="https://vanillaos.org/";;
+        visopsys)          HOMEPAGE="https://visopsys.org/";;
         void)              HOMEPAGE="https://voidlinux.org/";;
         vxlinux)           HOMEPAGE="https://vxlinux.org/";;
         windows)           HOMEPAGE="https://www.microsoft.com/en-us/windows/";;
@@ -843,6 +846,10 @@ function releases_ubuntu-server() {
 
 function releases_vanillaos() {
     echo 22.10
+}
+
+function releases_visopsys() {
+echo latest
 }
 
 function releases_void() {
@@ -2113,6 +2120,14 @@ function get_ubuntu() {
     fi
 }
 
+function get_visopsys() {
+    local HASH="3b9290bc88370e595c9da052501c17129ba6eefe2ff19c72de314f003062a58a"
+    local ISO="visopsys-0.92-x86-iso.zip"
+    local URL="https://visopsys.org/files/visopsys"
+
+    echo "${URL}/${ISO}" "${HASH}"
+}
+
 function get_void() {
     local DATE=""
     local EDITION="${1:-}"
@@ -2693,6 +2708,11 @@ create_vm() {
     if [ ${OS} == "reactos" ] && [[ $ISO =~ ".zip" ]]; then
         unzip ${VM_PATH}/${ISO} -d ${VM_PATH}
         ISO=$(ls ${VM_PATH} | grep -i '.iso' | grep -v '.zip')
+    fi
+
+    if [ ${OS} == "visopsys" ] && [[ $ISO =~ ".zip" ]]; then
+        unzip ${VM_PATH}/${ISO} -d ${VM_PATH}
+        ISO="${ISO/.zip/}"
     fi
 
     make_vm_config "${ISO}"
