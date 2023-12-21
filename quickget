@@ -3401,14 +3401,19 @@ else
     os_support
     echo "
         You can also use this arguments:
-        Only show ISO download URL
-            --show-iso-url / -u {distro} {release} [edition]
-        Test if ISO is available
-            --test-iso-url / -t {distro} {release} [edition]
-        Open distro homepage
-            --open-distro-homepage / -o {distro}
         Only show distro homepage link
             --show-distro-homepage / -s {distro}"
+    exit 1
+else
+    echo "ERROR! You must specify an operating system."
+    echo -n " - Operating Systems: "
+    os_support
+    echo "
+You can also use these arguments
+--show-iso-url / -s <distro> <release> <edition> : Show ISO download link
+--test-iso-url / -t <distro> <release> <edition> : Test if ISO is available
+--open-distro-homepage / -o <distro>             : Open distro homepage
+--show-distro-homepage / -s <distro>             : Show distro homepage link"
     exit 1
 fi
 
