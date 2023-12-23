@@ -5,7 +5,7 @@ export LC_ALL=C
 #
 #    1. Update os_support() - add new OS, all lowercase
 #    2. Update pretty_name() - add a pretty name for new OS *only if the catch all is not suitable*
-#    3. Update os_homepages() - add a homepage for new OS
+#    3. Update os_homepage() - add a homepage for new OS
 #    4. Create a releases_newos() generator (required) outputs the current supported release versions
 #    5. Create a editions_newos() generator (optional) outputs the editions if new OS has multiple flavours/editions
 #    6. Update make_vm_config() - add any *required* new OS tweaks
@@ -296,7 +296,7 @@ function os_support() {
     zorin
 }
 
-function os_homepages(){
+function os_homepage(){
     local SIMPLE_NAME=""
     local HOMEPAGE=""
     SIMPLE_NAME="${1}"
@@ -2853,11 +2853,11 @@ if [ -n "${2}" ]; then
     fi
 else
     if [ "${open_distro_homepage}" == 'on' ]; then
-        HOMEPAGE=$(os_homepages ${OS})
+        HOMEPAGE=$(os_homepage ${OS})
         open_url "${HOMEPAGE}" && exit 0
     fi
     if [ "${show_distro_homepage}" == 'on' ]; then
-        HOMEPAGE=$(os_homepages ${OS})
+        HOMEPAGE=$(os_homepage ${OS})
         echo "${HOMEPAGE}" && exit 0
     fi
     echo "ERROR! You must specify a release."
