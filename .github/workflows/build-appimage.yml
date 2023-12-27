@@ -45,7 +45,7 @@ jobs:
         for PACKAGE in ${PACKAGES}; do \
           echo " * Install ${PACKAGE}"; \
           apt-get -y download ${PACKAGE}; \
-          dpkg --root=${PACKAGE}*.deb ./app; \
+          dpkg --root="${{github.workspace}}/app" -i ${PACKAGE}*.deb; \
           rm -rf ${PACKAGE}*.deb; \
         done
 
