@@ -34,8 +34,8 @@ jobs:
       run:  |
         echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
         sudo apt-get -y update
-        sudo apt-get -y install locales
-        sudo sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+        #sudo apt-get -y install locales
+        #sudo sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
         apt-get -y install\
           graphicsmagick-imagemagick-compat \
           wget \
