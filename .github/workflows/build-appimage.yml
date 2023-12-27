@@ -39,7 +39,7 @@ jobs:
           wget \
           desktop-file-utils \
           binutils \
-          glib-compile-schemas
+          libglib2.0-bin
 
 
     - name: Prepare
