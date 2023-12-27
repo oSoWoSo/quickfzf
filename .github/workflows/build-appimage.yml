@@ -37,7 +37,6 @@ jobs:
         sudo apt-get -y update
         sudo apt-get -y install locales
         sudo sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
-        sudo apt-get -y install qemu bash coreutils ovmf grep jq lsb-base procps python3 genisoimage usbutils util-linux sed spice-client-gtk libtss2-tcti-swtpm0 wget xdg-user-dirs zsync unzip
 
     - name: Install packages
       working-directory: ${{github.workspace}}
@@ -46,10 +45,16 @@ jobs:
         for PACKAGE in ${PACKAGES}; do \
           echo " * Install ${PACKAGE}"; \
           apt-get -y download ${PACKAGE}; \
-          dpkg-deb --extract ${PACKAGE}*.deb ./app; \
+          dpkg --root=${PACKAGE}*.deb ./app; \
           rm -rf ${PACKAGE}*.deb; \
         done
 
+
+    - name: Install packages
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: |
+        find .
 
     # - name: Build AppImage dir
     #   working-directory: ${{github.workspace}}/build/app
@@ -90,4 +95,5 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.APPIMAGE_NAME }}
-        path: "${{github.workspace}}/build/${{ env.APPIMAGE_NAME }}"
+        path: "${{github.workspace}}/app"
+        #path: "${{github.workspace}}/build/${{ env.APPIMAGE_NAME }}"
