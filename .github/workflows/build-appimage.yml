@@ -54,7 +54,7 @@ jobs:
     - name: Build AppImage
       working-directory: ${{github.workspace}}/AppImageBuild
       run: |
-        ../appimage/pkg2appimage.sh ../appimage/quickemu.yaml
+        ../appimage/pkg2appimage ../appimage/quickemu.yaml
 
 
     - name: Upload artifact
