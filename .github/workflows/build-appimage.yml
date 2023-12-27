@@ -19,8 +19,8 @@ jobs:
         echo "RELEASE_DATE=$(date +%Y.%m.%d_%H.%M.%S)" >> ${GITHUB_ENV}
         echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-        [[ "${GITHUB_REF_TYPE}"  = "tag" ]] && echo APPIMAGE_NAME="quickemu-${GITHUB_REF_NAME:1}-x86_64.AppImage" >> $GITHUB_ENV
-        [[ "${GITHUB_REF_TYPE}" != "tag" ]] && echo APPIMAGE_NAME="quickemu-$(date +%Y.%m.%d_%H.%M.%S)-x86_64.AppImage" >> $GITHUB_ENV
+        [[ "${GITHUB_REF_TYPE}"  = "tag" ]] && echo VERSION="${GITHUB_REF_NAME:1}" >> $GITHUB_ENV
+        [[ "${GITHUB_REF_TYPE}" != "tag" ]] && echo VERSION="$(date +%Y.%m.%d_%H.%M.%S)" >> $GITHUB_ENV
 
         echo "==============================="
         export
@@ -49,7 +49,7 @@ jobs:
         mkdir -p ${{github.workspace}}/AppImageBuild
         cp .github/logo.png ${{github.workspace}}/AppImageBuild/logo.png
         cp quickemu ${{github.workspace}}/AppImageBuild/quickemu.sh
-
+        echo $VERSION > ${{github.workspace}}/AppImageBuild/VERSION
 
     - name: Build AppImage
       working-directory: ${{github.workspace}}/AppImageBuild

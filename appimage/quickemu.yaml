@@ -28,6 +28,7 @@ ingredients:
 script:
   - cp ../../quickemu.sh usr/bin
   - cp ../../logo.png    quickemu.png
+  - cp ../../VERSION     ../VERSION
 
   - cat > quickemu.desktop <<\EOF
   - [Desktop Entry]
