@@ -1,0 +1,40 @@
+app: quickemu
+
+ingredients:
+  dist: focal
+  sources:
+    - deb http://us.archive.ubuntu.com/ubuntu/ focal main universe
+
+  packages:
+    - qemu
+    - bash
+    - coreutils
+    - ovmf
+    - grep
+    - jq
+    - lsb-base
+    - procps
+    - python3
+    - genisoimage
+    - usbutils
+    - util-linux
+    - sed
+    - spice-client-gtk
+    - wget
+    - xdg-user-dirs
+    - zsync
+    - unzip
+
+script:
+  - cp ../../quickemu.sh usr/bin
+  - cp ../../logo.png    quickemu.png
+
+  - cat > quickemu.desktop <<\EOF
+  - [Desktop Entry]
+  - Type=Application
+  - Terminal=true
+  - Name=quickemu
+  - Exec=quickemu.sh
+  - Categories=Development;
+  - Icon=quickemu
+  - EOF

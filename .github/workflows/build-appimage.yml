@@ -8,7 +8,6 @@ env:
   LANG: en_US.UTF-8
   LS_ALL: en_US.UTF-8
   LANGUAGE: en_US:en
-  PACKAGES: qemu bash coreutils ovmf grep jq lsb-base procps python3 genisoimage usbutils util-linux sed spice-client-gtk libtss2-tcti-swtpm0 wget xdg-user-dirs zsync unzip
 
 jobs:
   build:
@@ -37,63 +36,37 @@ jobs:
         sudo apt-get -y update
         sudo apt-get -y install locales
         sudo sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+        apt-get -y install\
+          graphicsmagick-imagemagick-compat \
+          wget \
+          desktop-file-utils \
+          binutils \
+          glib-compile-schemas
 
     - name: Install packages
       working-directory: ${{github.workspace}}
       shell: bash
       run: |
-        for PACKAGE in ${PACKAGES}; do \
-          echo " * Install ${PACKAGE}"; \
-          apt-get -y download ${PACKAGE}; \
-          dpkg --root="${{github.workspace}}/app" -i ${PACKAGE}*.deb; \
-          rm -rf ${PACKAGE}*.deb; \
-        done
+        apt-get -y intall fakechroot
+        fakechroot fakeroot chroot ./app apt-get install
 
-
-    - name: Install packages
+    - name: Prepare
       working-directory: ${{github.workspace}}
       shell: bash
       run: |
-        find .
+        mkdir -p ${{github.workspace}}/AppImageBuild
+        cp .github/logo.png ${{github.workspace}}/AppImageBuild/logo.png
+        cp quickemu ${{github.workspace}}/AppImageBuild/quickemu.sh
 
-    # - name: Build AppImage dir
-    #   working-directory: ${{github.workspace}}/build/app
-    #   run: |
-    #     for PACKAGE in ${PACKAGES}; do echo " * Install ${PACKAGE}"; apt-get -y download ${PACKAGE}; dpkg-deb --extract ${PACKAGE}*.deb  c=$(which "$prog"); dest=${src#/}; cp -f "${src}" "usr/bin/"; done
 
-    #     cp -f "" "usr/bin/"; done
-
-    #     echo "==============================="
-    #     export PATH=~/tools/appimage/usr/bin:$PATH
-    #     export LD_LIBRARY_PATH=~/tools/appimage/usr/lib
-    #     echo "= Create symlinks ============="
-    #     ln -sf usr/bin/flacon AppRun
-    #     ln -sf usr/share/icons/hicolor/128x128/apps/flacon.png .
-    #     ln -sf ./flacon.png  ./.DirIcon
-    #     ln -sf usr/share/applications/flacon.desktop .
-    #     echo "= Add programs ================"
-    #     for prog in ${PROGRAMS}; do echo " * Copy ${prog}"; src=$(which "$prog"); dest=${src#/}; cp -f "${src}" "usr/bin/"; done
-    #     echo "= Build image ================="
-    #     linuxdeploy --verbosity=3  --plugin qt --appdir "${{github.workspace}}/build/app"
-
-    # - name: Check AppImage dir
-    #   run: |
-    #     /bin/bash ~/tools/appdir-lint.sh ${{github.workspace}}/build/app
-
-    # - name: Check external programs
-    #   working-directory: ${{github.workspace}}
-    #   run: |
-    #     scripts/check-extprograms.sh . ${{github.workspace}}/build/app/usr/bin
-
-    # - name: Build AppImage file
-    #   working-directory: ${{github.workspace}}/build/app
-    #   run: |
-    #     appimagetool "${{github.workspace}}/build/app" "${{github.workspace}}/build/${{ env.APPIMAGE_NAME }}"
+    - name: Build AppImage
+      working-directory: ${{github.workspace}}/AppImageBuild
+      run: |
+        ../appimage/pkg2appimage.sh ../appimage/quickemu.yaml
 
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.APPIMAGE_NAME }}
-        path: "${{github.workspace}}/app"
-        #path: "${{github.workspace}}/build/${{ env.APPIMAGE_NAME }}"
+        path: "${{github.workspace}}/AppImageBuild/"
