@@ -1,4 +1,5 @@
 app: quickemu
+union: true
 
 ingredients:
   dist: jammy
