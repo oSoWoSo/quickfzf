@@ -41,7 +41,8 @@ jobs:
           binutils \
           libglib2.0-bin \
           libfile-mimeinfo-perl
-
+        sudo add-apt-repository universe
+        sudo apt install libfuse2
 
     - name: Prepare
       working-directory: ${{github.workspace}}
