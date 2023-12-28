@@ -9,6 +9,7 @@ ingredients:
   packages:
     - qemu
     - qemu-system-x86
+    - qemu-system-gui
     - bash
     - coreutils
     - ovmf
