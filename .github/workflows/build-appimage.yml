@@ -49,7 +49,8 @@ jobs:
         mkdir -p ${{github.workspace}}/AppImageBuild
         cp .github/logo.png ${{github.workspace}}/AppImageBuild/logo.png
         cp quickemu ${{github.workspace}}/AppImageBuild/quickemu.sh
-        echo $VERSION > ${{github.workspace}}/AppImageBuild/VERSION
+        sed -n 's/.* VERSION="\(.*\)"/\1/p' quickemu > ${{github.workspace}}/AppImageBuild/VERSION
+
 
     - name: Build AppImage
       working-directory: ${{github.workspace}}/AppImageBuild

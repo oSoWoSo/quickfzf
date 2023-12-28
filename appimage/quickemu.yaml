@@ -24,6 +24,7 @@ ingredients:
     - xdg-user-dirs
     - zsync
     - unzip
+    - libslirp0
 
 script:
   - cp ../../quickemu.sh usr/bin
