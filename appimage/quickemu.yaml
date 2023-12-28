@@ -7,9 +7,6 @@ ingredients:
     - deb http://us.archive.ubuntu.com/ubuntu/ jammy main universe
 
   packages:
-    - qemu
-    - qemu-system-x86
-    - qemu-system-gui
     - bash
     - coreutils
     - ovmf
