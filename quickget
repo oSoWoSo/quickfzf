@@ -2974,11 +2974,11 @@ else
     os_support
     echo "
 You can also use these arguments
---show-iso-url / -u <distro> <release> <edition> : Show ISO download URL
---test-iso-url / -t <distro> <release> <edition> : Test if ISO is available
---download-iso / -d <distro> <release> <edition> : Download ISO
---open-distro-homepage / -o <distro>             : Open distro homepage
---show-distro-homepage / -s <distro>             : Show distro homepage link"
+--show-iso-url / -u <os> <release> <edition> : Show ISO download URL
+--test-iso-url / -t <os> <release> <edition> : Test if ISO is available
+--download-iso / -d <os> <release> <edition> : Download ISO
+--open-distro-homepage / -o <os>             : Open distro homepage
+--show-distro-homepage / -s <os>             : Show distro homepage link"
     exit 1
 fi
 
