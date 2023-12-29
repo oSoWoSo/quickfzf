@@ -538,6 +538,15 @@ quickemu --vm windows-11.conf
     -   Username: `Quickemu`
     -   Password: `quickemu`
 
+### Regional versions
+
+By default `quickget` will download the *"English International"* release (*"English (United States)"* for server releases),
+but you can optionally specify one of the supported languages: For example:
+
+``` bash
+quickget windows 11 "Chinese (Traditional)"
+```
+
 The default Windows 11 configuration looks like this:
 
 ``` bash
