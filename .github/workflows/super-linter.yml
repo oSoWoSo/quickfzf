@@ -19,12 +19,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           # Full git history is needed to get a proper list of changed files within `super-linter`
-          fetch-depth: 0
+          fetch-depth: 3
 
       - name: Lint Code Base
         uses: github/super-linter/slim@v4
         env:
-          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_ALL_CODEBASE: true
           VALIDATE_BASH: true
           DEFAULT_BRANCH: "new-master"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
