@@ -7,8 +7,8 @@
 name: Lint Code Base
 
 on:  # yamllint disable-line rule:truthy
-  push:
   pull_request:
+  push:
 jobs:
   run-lint:
     runs-on: ubuntu-latest
