@@ -8,7 +8,7 @@ name: Lint Code Base
 
 on:  # yamllint disable-line rule:truthy
   push:
-    branches: all
+    branches: [ "new-master" ]
   pull_request:
     branches: [ "new-master" ]
 jobs:
