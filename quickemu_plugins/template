@@ -1,0 +1,46 @@
+#!/usr/bin/bash
+#
+#   This template identifies the functions required to supported by each OS
+
+function get() {
+    #   This function must return two values the URL to be downloaded and 
+    #   the associated hash value
+    echo get function
+    echo "url" "hash"
+}
+
+function releases() {
+    #   This funciton returns supported OS releases for the OS
+    echo releases function
+    echo release1 release2 ...
+}
+
+function editions() {
+    #   This frunctions returns supported OS editions for the OS 
+    #   Editions have different meanings for different OS's
+    echo editions
+    echo edition1 edition2
+}
+
+function pretty_name() {
+    #   This funcction returns an expanded OS name for pretty printing
+    echo pretty_print
+    echo "Pretty OS Name"
+}
+
+function homepage() {
+    #   This function returns the OS's home page URL
+    echo homepage
+    echo "OS Home page URL"
+}
+
+#function make_vm_config() {
+#    #   This function creates the vm_config file and can be used to 
+#    #   replace the default one in the quickget
+#}
+
+function validate_release() {
+    #   This vunction valiates that the supplied relese is one of the 
+    #   valid releases
+    :
+}
