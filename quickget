@@ -15,12 +15,13 @@ function main() {
     PLUGINS="${BASE_DIR}/quickemu_plugins"
 
     # Set defaults for arguments
-    test_iso_url=false
-    show_iso_url=false
-    open_distro_homepage=false
-    testing=false
-    use_color=auto
-    colors_set=false
+    declare -A DISTRO_INFO
+    TEST_ISO_URL=false
+    SHOW_ISO_URL=false
+    OPEN_DISTRO_HOME_PAGE=false
+    TESTING=false
+    USE_COLOR=auto
+    COLORS_SET=false
 
     while (( "${#}" )); do
         case "${1}" in
@@ -37,21 +38,21 @@ function main() {
                 exit 0
                 ;;
             --test-iso-url|-t)
-                test_iso_url=true
+                TEST_ISO_URL=true
                 shift
                 ;;
             --show-iso-url|-s)
-                show_iso_url=true
+                SHOW_ISO_URL=true
                 shift
                 ;;
             --open-distro-homepage|-o)
-                open_distro_homepage=true
+                OPEN_DISTRO_HOME_PAGE=true
                 shift
                 ;;
             --color)
-                use_color="${2}"
+                USE_COLOR="${2}"
                 shift 2
-                case "${use_color}" in
+                case "${USE_COLOR}" in
                     on|off|auto) : ;;
                     *)
                         error "valid values are [on|off|auto]"
@@ -59,11 +60,11 @@ function main() {
                 esac
                 ;;
             --test)
-                testing=true
+                TESTING=true
                 shift
                 ;;
             --*|-*) # unsupported flags
-                error "Unsuppotred flag ${1}" 
+                error "Unsuppotred flag ${1}"
                 shift
                 usage
                 ;;
@@ -77,15 +78,18 @@ function main() {
     # set positional arguments in their proper place
     eval set -- "${PARAMS}"
 
-    [ -z "${1}" ] && OS="" || OS="${1,,}"   
-    [ -z "${2}" ] && RELEASE="" || RELEASE="${2,,}" 
-    [ -z "${3}" ] && EDITIONS="" || EDITIONS="${3,,}"
+    [ -z "${1}" ] && OS="" || OS="${1,,}"
+    [ -z "${2}" ] && RELEASE="" || RELEASE="${2,,}"
+    [ -z "${3}" ] && EDITION="" || EDITION="${3,,}"
 
-    [[ ${testing} == true ]] && testing
+    [[ ${TESTING} == true ]] && testing
 
     if [ -z "${OS}" ]; then
         error "You must supply a distribution and release at a minimum"
-        exit 1
+        printf "Valid OS's:\n"
+        supported_oses
+        printf "\n"
+        usage
     elif ! valid_os "${OS}"; then
         error "${OS} is not a valid os please resubmit with valid os"
         printf "Valid OS's:\n"
@@ -93,9 +97,55 @@ function main() {
         printf "\n"
         usage
     else            # shellcheck disable=SC1090
-        source "${PLUGINS}/${OS}".plug
+        source "${PLUGINS}/${OS}".plug          # get OS specific version of functions
+
+        if [ -z "${RELEASE}" ]; then
+            if editions_required; then
+                error "You must specify a release and an edition for ${OS}:"
+                printf "\t- Releases: %s\n" "$(releases)"
+                printf "\t- Editions: %s\n" "$(editions)"
+                printf "\n"
+                usage
+            else
+                error "You must specify a release for %s ${OS}:"
+                printf "\t- Releases: %s\n" "$(releases)"
+                printf "\n"
+                usage
+            fi
+        else
+            if release_valid; then
+                if edition_valid; then
+                    :
+                else
+                    error "You must specify one of the valid release edition combinations for ${OS}"
+                    printf "\t- Releases: %s\n" "$(releases)"
+                    printf "\t- Editions: %s\n" "$(editions)"
+                    printf "\n"
+                    usage
+                fi
+                :
+            else
+                error "You must specify one of the valid release edition combinations for ${OS}"
+                printf "\t- Releases: %s\n" "$(releases)"
+                printf "\t- Editions: %s\n" "$(editions)"
+                printf "\n"
+                usage
+            fi
+        fi
     fi
-    
+
+    if ${OPEN_DISTRO_HOME_PAGE}; then
+        open_url "$(homepage)"
+    elif ${SHOW_ISO_URL}; then
+        show_iso_url
+        exit 0
+    elif ${TEST_ISO_URL}; then
+        test_iso_url
+        exit 0
+    else
+        :
+    fi
+
 }
 
 #
@@ -109,8 +159,11 @@ function cleanup() {
 }
 
 function error() {
-    if ! ${colors_set}; then
+    if ! ${COLORS_SET}; then
+        set +x
         set_colors
+        set -x
+        COLORS_SET=true
     fi
 
     printf "%sERROR: %s%s\n" "${fred}" "${reset}" "${*}"
@@ -127,23 +180,28 @@ function list_json {
     echo list_json
 }
 
+function open_url() {
+    local url=${1}
+    xdg-open "${url}" || sensible-brownser "${url}" || x-www-browser "${url}" || gnome-open "${url}";
+}
+
 function set_colors() {
     if [[ $(tput colors) -ge 8 ]]; then
 #    if tput setaf 1 &> /dev/null; then      # Are colors supported
         tput sgr0
-        if [[ "${use_color}" == "auto" ]]; then
+        if [[ "${USE_COLOR}" == "auto" ]]; then
             if [[ -t 1 ]] && [[ -t 2 ]]; then
-                use_color="on"
+                USE_COLOR="on"
             else
-                use_color="off"
+                USE_COLOR="off"
             fi
         fi
     else
-        use_color="off"                     # color not supported
+        USE_COLOR="off"                     # color not supported
     fi
 
     # shellcheck disable=SC2034
-    if [[ "${use_color}" == "on" ]]; then
+    if [[ "${USE_COLOR}" == "on" ]]; then
         bold=$(tput bold)       ; dim=$(tput dim)
         smul=$(tput smul)       ; rmul=$(tput rmul)
         smso=$(tput smso)       ; rmso=$(tput rmso)
@@ -176,6 +234,11 @@ function set_colors() {
     fi
 }
 
+function show_iso_url() {
+    get "${EDITION}"
+    echo "${DISTRO_INFO['url']}/${DISTRO_INFO['iso']}"
+}
+
 function supported_oses() {
     (
         cd "${PLUGINS}" || ( echo "${PLUGINS} not found"; exit )
@@ -185,6 +248,10 @@ function supported_oses() {
             |   column -x
     )
     return 0
+}
+
+function test_iso_url() {
+    wget --spider $(show_iso_url)
 }
 
 function usage() {
@@ -205,13 +272,13 @@ function valid_os() {
 
 function testing() {
     printf "================================\n"
-    printf "test_iso_url         : %s\n" "${test_iso_url}"
-    printf "show_iso_url         : %s\n" "${show_iso_url}"
-    printf "open_distro_homepage : %s\n" "${open_distro_homepage}"
-    printf "testing              : %s\n" "${testing}"
+    printf "TEST_ISO_URL         : %s\n" "${TEST_ISO_URL}"
+    printf "SHOW_ISO_URL         : %s\n" "${SHOW_ISO_URL}"
+    printf "OPEN_DISTRO_HOME_PAGE : %s\n" "${OPEN_DISTRO_HOME_PAGE}"
+    printf "TESTING              : %s\n" "${TESTING}"
     printf "OS                   : %s\n" "${OS}"
     printf "RELEASE              : %s\n" "${RELEASE}"
-    printf "EDITIONS             : %s\n" "${EDITIONS}"
+    printf "EDITION              : %s\n" "${EDITION}"
     printf "================================\n"
 }
 
