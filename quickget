@@ -4140,21 +4140,21 @@ if [ -n "${2}" ]; then
         EDITION=${EDITIONS[0]}
         if [ -n "${3}" ]; then
             EDITION="${3}"
-                if [[ ! " ${EDITIONS[*]} " =~ " ${EDITION} " ]]; then
-        echo -e "ERROR! ${EDITION} is not a supported $(pretty_name "${OS}") edition."
-        echo -n ' - Editions: '
-        for EDITION in "${EDITIONS[@]}"; do
-            echo -n "${EDITION} "
-        done
-        echo ''
-        exit 1
+            if [[ ! " ${EDITIONS[*]} " =~ " ${EDITION} " ]]; then
+                echo -e "ERROR! ${EDITION} is not a supported $(pretty_name "${OS}") edition."
+                echo -n ' - Editions: '
+                for EDITION in "${EDITIONS[@]}"; do
+                    echo -n "${EDITION} "
+                done
+                echo ''
+                exit 1
+            fi
+        else
+            echo -en "ERROR! You must specify an edition.\n - Editions: "
+            #TODO ERROR here
+            "editions_${OS}"
+            exit 1
         fi
-    else
-        echo -en "ERROR! You must specify an edition.\n - Editions: "
-        #TODO ERROR here
-        "editions_${OS}"
-        exit 1
-    fi
 
         # Handle odd missing dietpi combinations
         if [[ $OS == dietpi ]] ; then
@@ -4165,95 +4165,96 @@ if [ -n "${2}" ]; then
             fi
         fi
 
-    # Handle odd missing Fedora combinations
-    if [[ $OS == fedora ]] ; then
-        if [[ ${RELEASE} = "33" && ${EDITION} = "i3" ]] || [[ ${RELEASE} = "34" && ${EDITION} = "Cinnamon" ]] || [[ "${RELEASE}" < "39" && ${EDITION} = "Onyx" ]]; then
-            echo "ERROR! Unsupported combination"
-            echo "       Fedora ${RELEASE} ${EDITION} is not available, please choose another Release or Edition"
-            exit 1;
-        fi
-    fi
-
-    # Handle missing Manjaro Sway minimal
-    if [[ $OS == manjaro ]] ; then
-        if [[ ${RELEASE} == "sway" && ${EDITION} == "minimal" ]] ; then
-            echo "ERROR! Unsupported combination"
-            echo "       Manjaro Sway does not have a minimal edition"
-            exit 1;
-        fi
-    fi
-
-    VM_PATH="${OS}-${RELEASE}-${EDITION}"
-    create_vm "$("get_${OS}" "${EDITION}")"
-    if [ "${OS}" == "macos" ]; then
-        # macOS doesn't use create_vm()
-        validate_release releases_macos
-        get_macos
-    elif [[ "${OS}" == *"ubuntu-server"* ]]; then
-        # (Comes before regular Ubuntu, or the code tries to download the desktop) #
-        # Ubuntu doesn't use create_vm()
-        validate_release releases_ubuntu-server
-        get_ubuntu-server
-    elif [[ "${OS}" == *"ubuntu"* ]]; then
-        # Ubuntu doesn't use create_vm()
-        validate_release releases_ubuntu
-        get_ubuntu
-    elif [[ "${OS}" == *"deepin"* ]]; then
-        # deepin doesn't use create_vm()
-        validate_release releases_deepin
-        get_deepin
-    elif [[ "${OS}" == "windows"* ]]; then
-        LANG="English International"
-        "languages_${OS}"
-        if [ -n "${3}" ]; then
-            LANG="${3}"
-            if [[ ! ${LANGS[*]} =~ "${LANG}" ]]; then
-                echo -e "ERROR! ${LANG} is not a supported $(pretty_name "${OS}") language:\n"
-                for LANG in "${LANGS[@]}"; do
-                    echo -n "${LANG} "
-                done
-                exit 1
+        # Handle odd missing Fedora combinations
+        if [[ $OS == fedora ]] ; then
+            if [[ ${RELEASE} = "33" && ${EDITION} = "i3" ]] || [[ ${RELEASE} = "34" && ${EDITION} = "Cinnamon" ]] || [[ "${RELEASE}" < "39" && ${EDITION} = "Onyx" ]]; then
+                echo "ERROR! Unsupported combination"
+                echo "       Fedora ${RELEASE} ${EDITION} is not available, please choose another Release or Edition"
+                exit 1;
             fi
-            VM_PATH="$(echo "${OS}-${RELEASE}-${LANG// /-}" | tr -d '()')"
         fi
-        validate_release "releases_${OS}"
-        get_windows
-    else
-        validate_release "releases_${OS}"
-        create_vm "$("get_${OS}")"
-    fi
 
-elif [ $(releases_${OS} | wc -w) -eq 1 ] && [[ ! $(type -t "editions_${OS}") == function ]]; then
-    RELEASE=$(releases_${OS})
-    VM_PATH="${OS}"
-    create_vm "$("get_${OS}")"
-else
-    echo "ERROR! You must specify a release."
-    case ${OS} in
-      *ubuntu-server*)
-        echo -n " - Releases: "
-        releases_ubuntu-server | sed -Ee 's/eol-\S+//g' # hide eol releases
-        ;;
-      *ubuntu*)
-        echo -n " - Releases: "
-        releases_ubuntu | sed -Ee 's/eol-\S+//g' # hide eol releases
-        ;;
-      *windows*)
-        echo -n " - Releases: "
-        "releases_${OS}"
-        echo -n " - Languages: "
-        "languages_${OS}" && echo "${LANGS[@]}"
-        ;;
-      *)
-      echo -n " - Releases: "
-      "releases_${OS}" | fold -s -w $(tput cols)
-        ;;
-    esac
-    if [[ $(type -t "editions_${OS}") == function ]]; then
-        echo -n " - Editions: "
-        "editions_${OS}"
+        # Handle missing Manjaro Sway minimal
+        if [[ $OS == manjaro ]] ; then
+            if [[ ${RELEASE} == "sway" && ${EDITION} == "minimal" ]] ; then
+                echo "ERROR! Unsupported combination"
+                echo "       Manjaro Sway does not have a minimal edition"
+                exit 1;
+            fi
+        fi
+
+        VM_PATH="${OS}-${RELEASE}-${EDITION}"
+        create_vm "$("get_${OS}" "${EDITION}")"
+        if [ "${OS}" == "macos" ]; then
+            # macOS doesn't use create_vm()
+            validate_release releases_macos
+            get_macos
+        elif [[ "${OS}" == *"ubuntu-server"* ]]; then
+            # (Comes before regular Ubuntu, or the code tries to download the desktop) #
+            # Ubuntu doesn't use create_vm()
+            validate_release releases_ubuntu-server
+            get_ubuntu-server
+        elif [[ "${OS}" == *"ubuntu"* ]]; then
+            # Ubuntu doesn't use create_vm()
+            validate_release releases_ubuntu
+            get_ubuntu
+        elif [[ "${OS}" == *"deepin"* ]]; then
+            # deepin doesn't use create_vm()
+            validate_release releases_deepin
+            get_deepin
+        elif [[ "${OS}" == "windows"* ]]; then
+            LANG="English International"
+            "languages_${OS}"
+            if [ -n "${3}" ]; then
+                LANG="${3}"
+                if [[ ! ${LANGS[*]} =~ "${LANG}" ]]; then
+                    echo -e "ERROR! ${LANG} is not a supported $(pretty_name "${OS}") language:\n"
+                    for LANG in "${LANGS[@]}"; do
+                        echo -n "${LANG} "
+                    done
+                    exit 1
+                fi
+                VM_PATH="$(echo "${OS}-${RELEASE}-${LANG// /-}" | tr -d '()')"
+            fi
+            validate_release "releases_${OS}"
+            get_windows
+        else
+            validate_release "releases_${OS}"
+            create_vm "$("get_${OS}")"
+        fi
+
+    elif [ $(releases_${OS} | wc -w) -eq 1 ] && [[ ! $(type -t "editions_${OS}") == function ]]; then
+        RELEASE=$(releases_${OS})
+        VM_PATH="${OS}"
+        create_vm "$("get_${OS}")"
+    else
+        echo "ERROR! You must specify a release."
+        case ${OS} in
+          *ubuntu-server*)
+            echo -n " - Releases: "
+            releases_ubuntu-server | sed -Ee 's/eol-\S+//g' # hide eol releases
+            ;;
+          *ubuntu*)
+            echo -n " - Releases: "
+            releases_ubuntu | sed -Ee 's/eol-\S+//g' # hide eol releases
+            ;;
+          *windows*)
+            echo -n " - Releases: "
+            "releases_${OS}"
+            echo -n " - Languages: "
+            "languages_${OS}" && echo "${LANGS[@]}"
+            ;;
+          *)
+          echo -n " - Releases: "
+          "releases_${OS}" | fold -s -w $(tput cols)
+            ;;
+        esac
+        if [[ $(type -t "editions_${OS}") == function ]]; then
+            echo -n " - Editions: "
+            "editions_${OS}"
+        fi
+        exit 1
     fi
-    exit 1
 fi
 
 # vim:tabstop=4:shiftwidth=4:expandtab
