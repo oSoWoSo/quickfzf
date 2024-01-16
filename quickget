@@ -1347,14 +1347,7 @@ function web_get() {
     done
 
     # Test mode for ISO
-    if [ "${show_iso_url}" == 1 ]; then
-        echo "${URL}"
-        exit 0
-    elif [ "${test_iso_url}" == 1 ]; then
-        echo -n "Testing if $(echo ${URL} | rev | cut -d'/' -f1 | rev) is available... "
-        wget -q --spider "${URL}" && echo 'Sucessfull' || echo 'ERROR!'
-        exit 0
-    elif [ "${download_iso}" == 1 ]; then
+    if [ "${download_iso}" == 1 ]; then
         DIR="$(pwd)"
     fi
 
@@ -4121,7 +4114,7 @@ case "${1}" in
     "${WHERE}/quickemu" --version
     exit 0
     ;;
- esac
+esac
 
 if [ -n "${1}" ]; then
     OS="${1,,}"
