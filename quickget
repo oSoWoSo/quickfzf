@@ -258,6 +258,124 @@ function list_csv() {
   exit 0
 }
 
+list_supported() {
+    # output OS RELEASE EDITION (usefull for straight testing...)
+    local DL=""
+    local FUNC
+    local OPTION
+    local OS
+
+    for OS in $(os_support); do
+        case ${OS} in
+          *ubuntu-server*) FUNC="ubuntu-server";;
+          *ubuntu*) FUNC="ubuntu";;
+          *) FUNC="${OS}";;
+        esac
+        for RELEASE in $("releases_${FUNC}" | sed -Ee 's/eol-\S+//g' ); do # hide eol releases
+            # If the OS has an editions_() function, use it.
+            if [[ $(type -t "editions_${OS}") == function ]]; then
+                for OPTION in $(editions_"${OS}"); do
+                    echo "${OS} ${RELEASE} ${OPTION}"
+                done
+            elif [[ "${OS}" == "windows"* ]]; then
+                "languages_${OS}"
+                for OPTION in "${LANGS[@]}"; do
+                    echo "${OS} ${RELEASE} ${OPTION}"
+                done
+            else
+                echo "${OS} ${RELEASE}"
+            fi
+        done
+    done
+    exit 0
+}
+
+list_isos() {
+    local show_iso_url="1"
+    local DIR="/dev/null"
+    local URL
+    local FUNC
+    local OPTION
+    local OS
+
+    for OS in $(os_support); do
+        case ${OS} in
+          *ubuntu-server*) FUNC="ubuntu-server";;
+          *ubuntu*) FUNC="ubuntu";;
+          *) FUNC="${OS}";;
+        esac
+        for RELEASE in $("releases_${FUNC}" | sed -Ee 's/eol-\S+//g' ); do # hide eol releases
+            # If the OS has an editions_() function, use it.
+            if [[ $(type -t "editions_${OS}") == function ]]; then
+                for OPTION in $(editions_"${OS}"); do
+                    validate_release releases_"${OS}"
+                    get_"${OS}" "${OPTION}" | cut_1
+                done
+            elif [[ "${OS}" == "windows"* ]]; then
+                "languages_${OS}"
+                for OPTION in "${LANGS[@]}"; do
+                    validate_release releases_"${OS}"
+                    get_"${OS}" "${OPTION}" | cut_1
+                done
+            else
+                validate_release releases_"${OS}"
+                get_"${OS}" "${RELEASE}" | cut_1
+            fi
+        done
+    done
+    exit 0
+}
+
+test_isos() {
+    local test_iso_url="1"
+    local DIR="/dev/null"
+    local FUNC
+    local OPTION
+    local OS
+
+    check_it() {
+        validate_release releases_"${OS}"
+        URL=$(get_"${OS}" "${OPTION}" | cut_1)
+        GOOD=$(wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
+        if [[ "${GOOD}" == "OK" ]]; then
+            echo "OK - ${OS},${RELEASE},${OPTION},${URL}"
+        else
+            echo "ERROR - ${OS},${RELEASE},${OPTION},${URL}"
+        fi
+    }
+
+    for OS in $(os_support); do
+        case ${OS} in
+          *ubuntu-server*) FUNC="ubuntu-server";;
+          *ubuntu*) FUNC="ubuntu";;
+          *) FUNC="${OS}";;
+        esac
+        for RELEASE in $("releases_${FUNC}" | sed -Ee 's/eol-\S+//g' ); do # hide eol releases
+            # If the OS has an editions_() function, use it.
+            if [[ $(type -t "editions_${OS}") == function ]]; then
+                for OPTION in $(editions_"${OS}"); do
+                    check_it
+                done
+            elif [[ "${OS}" == "windows"* ]]; then
+                "languages_${OS}"
+                for OPTION in "${LANGS[@]}"; do
+                    check_it
+                done
+            else
+                validate_release releases_"${OS}"
+                URL=$(get_"${OS}" "${RELEASE}" | cut_1)
+                GOOD=$(wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
+                if [[ "${GOOD}" == "OK" ]]; then
+                    echo "OK - ${OS},${RELEASE},,${URL}"
+                else
+                    echo "ERROR - ${OS},${RELEASE},,${URL}"
+                fi
+            fi
+        done
+    done
+    exit 0
+}
+
 function os_support() {
     echo alma \
     alpine \
@@ -896,10 +1014,10 @@ function web_get() {
     fi
 
 	# Test mode for ISO
-	if [ "${show_iso_url}" == 'on' ]; then
+	if [ "${show_iso_url}" == '1' ]; then
 	    echo "${URL}"
 	    exit 0
-    elif [ "${test_iso_url}" == 'on' ]; then
+    elif [ "${test_iso_url}" == '1' ]; then
 	    wget --spider "${URL}"
 	    exit 0
     fi
@@ -929,10 +1047,10 @@ function zsync_get() {
     local URL="${1}"
 
 	# Test mode for ISO
-	if [ "${show_iso_url}" == 'on' ]; then
+	if [ "${show_iso_url}" == '1' ]; then
 	    echo "${URL}"
 	    exit 0
-    elif [ "${test_iso_url}" == 'on' ]; then
+    elif [ "${test_iso_url}" == '1' ]; then
 	    wget --spider "${URL}"
 	    exit 0
     elif command -v zsync &>/dev/null; then
@@ -2711,6 +2829,155 @@ fi
 
 LANGS=()
 
+os_error() {
+    echo "ERROR! You must specify an operating system."
+    echo "- Supported Operating Systems:"
+    os_support | fold -s -w "$(tput cols)"
+    echo -e "\nTo see all possible arguments, use:\n   quickget -h  or  quickget --help"
+    exit 1
+}
+
+os_supported() {
+    if [[ ! "$(os_support)" =~ ${OS} ]]; then
+            echo -e "ERROR! ${OS} is not a supported OS.\n"
+    os_support | fold -s -w "$(tput cols)"
+    exit 1
+    fi
+}
+# shellcheck disable=SC2016
+function help_message() {
+    printf '                             _              _
+           __ _ _   _ _  ___║ ║ ____ _  ___║ ║_
+          / _` ║ ║ ║ ║ ║/ __║ ║/ / _` ║/ _ \ __║
+         ( (_║ ║ ║_║ ║ ║ (__║   < (_║ ║  __/ ║_      MIT
+          \__, ║\__,_║_║\___║_║\ \__, ║\___║\__║   license
+             ║_║  version: %s ║___/
+ QEMU %s --------------------------------------------------
+       > Quickly create and run optimised Windows, <
+       > macOS and Linux desktop virtual machines. <
+   homepage   -    Not Yet
+  repository  - https://github.com/quickemu-project/quickemu
+ official GUI - https://github.com/quickemu-project/quickgui
+  by Wimpy https://github.com/flexiondotorg and contributors
+ Discord - https://discord.gg/wimpy-s-world-712850672223125565
+--------------------------------------------------------------
+
+Basic Usage:
+ quickget <os> <release> [edition]
+ quickget alpine latest
+
+Advanced Usage:
+ quickget <arg> [path] <os> [re] [ed]
+ quickget -d peppermint latest devuan-xfce
+
+Posible arguments:
+ --help             (-h)                : Show this help message and exit
+ --os-info          (-i) <os>           : Show info about OS
+ --os-homepage      (-o) <os>           : Open OS homepage in default browser
+ --iso-download     (-d) <os> <re> [ed] : Just download ISO
+ --list-supported  (-ls)                : List all supported OS,releases,editions
+ --list-isos       (-li)                : List all supported ISOs
+ --test-isos       (-ti)                : Test if ISOs are available
+ --version          (-v)                : Show version and exit
+
+supported Operating Systems:\n' "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
+    os_support | fold -s -w "$(tput cols)"
+    exit 0
+}
+
+function show_os_info() {
+    local OS=""
+
+    if [ -z "${1}" ]; then
+        os_error
+        exit 1
+    fi
+
+    OS="${1}"
+    os_supported "${OS}"
+    if command -v neofetch > /dev/null; then
+        neofetch -l --ascii_distro "${OS}"
+    fi
+    echo "${OS}"
+    echo -n 'Pretty name: '
+    pretty_name "${OS}"
+    echo -n 'Based of: '
+    os_basedof "${OS}"
+
+    if [ -z "$(os_credentials "${OS}")" ]; then
+        echo 'Credentials: Unknown'
+    else
+        echo -n 'Credentials: '
+        os_credentials "${OS}"
+    fi
+
+    echo -n 'Homepage: '
+    os_homepage "${OS}"
+    echo -n 'Info: '
+    os_about "${OS}"
+
+    if [[ ! $(type -t "editions_${OS}") == function ]]; then
+        echo -n 'Releases: '
+        "releases_${OS}"
+    else
+        echo -n 'Releases: '
+        "releases_${OS}"
+        echo -n 'Editions: '
+        "editions_${OS}"
+    fi
+
+    exit 0
+}
+
+case "${1}" in
+  '-h'|'--help')
+    help_message
+    ;;
+  '-lc'|'list'|'list_csv')
+    list_csv
+    ;;
+  '-lj'|'list_json')
+    list_json
+    ;;
+  '-ls'|'--list-supported')
+    list_supported
+    ;;
+  '-li'|'--list-isos')
+    list_isos
+    ;;
+  '-ti'|'--test-isos')
+    test_isos
+    ;;
+  '-d'|'--iso-download')
+    download_iso=1
+    if [ -n "$4" ]; then
+        set -- "$2" "$3" "$4"
+    elif [ -n "$3" ]; then
+        set -- "$2" "$3"
+    else
+        set -- "$2"
+    fi
+    ;;
+  '-i'|'--os-info')
+    show_os_info "${2}" | fold -s -w "$(tput cols)"
+    exit 0
+    ;;
+  '-o'|'--os-homepage')
+    OS="${2}"
+    if [ -z "$(os_homepage "${OS}")" ]; then
+        os_error
+    else
+        open_url "$(os_homepage "${OS}")"
+        exit 0
+    fi
+    ;;
+  '-v'|'--version'|'-version'|'version')
+    WHERE=$(dirname "${BASH_SOURCE[0]}")
+    "${WHERE}/quickemu" --version
+    exit 0
+    ;;
+esac
+
 if [ -n "${1}" ]; then
     OS="${1,,}"
     if [ "${OS}" == "list" ] || [ "${OS}" == "list_csv" ]; then
@@ -2810,7 +3077,7 @@ if [ -n "${2}" ]; then
         create_vm "$("get_${OS}")"
     fi
 else
-    if [ "${open_distro_homepage}" == 'on' ]; then
+    if [ "${open_distro_homepage}" == '1' ]; then
         HOMEPAGE=$(os_homepages "${OS}")
         open_url "${HOMEPAGE}" && exit 0
     fi
