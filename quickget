@@ -2980,35 +2980,16 @@ esac
 
 if [ -n "${1}" ]; then
     OS="${1,,}"
-    if [ "${OS}" == "list" ] || [ "${OS}" == "list_csv" ]; then
-        list_csv
-    elif [ "${OS}" == "list_json" ]; then
-        list_json
-    elif [ "${OS}" == "--version" ] || [ "${OS}" == "-version" ] || [ "${OS}" == "version" ]; then
-        WHERE=$(dirname "${BASH_SOURCE[0]}")
-        "${WHERE}/quickemu" --version
-        exit 0
-    fi
+    case "${OS}" in
+    '-i'|'--os-info'|'-o'|'--os-homepage'|'-d'|'--iso-download')
+        os_error
+        ;;
+    esac
 else
-    echo "ERROR! You must specify an operating system."
-    echo -n " - Operating Systems: "
-    os_support
-    echo "
-        You can also use this arguments:
-        Only show ISO download URL
-            --show-iso-url / -s {distro} {release} [edition]
-        Test if ISO is available
-            --test-iso-url / -t {distro} {release} [edition]
-        Open distro homepage
-            --open-distro-homepage / -o {distro}"
-    exit 1
+    os_error
 fi
 
-if [[ ! $(os_support) =~ ${OS} ]]; then
-    echo -e "ERROR! ${OS} is not a supported OS.\n"
-    os_support
-    exit 1
-fi
+os_supported
 
 if [ -n "${2}" ]; then
     RELEASE="${2,,}"
@@ -3021,15 +3002,22 @@ if [ -n "${2}" ]; then
         if [ -n "${3}" ]; then
             EDITION="${3}"
             if [[ ! ${EDITIONS[*]} =~ ${EDITION} ]]; then
-                echo -e "ERROR! ${EDITION} is not a supported $(pretty_name "${OS}") edition:\n"
+                echo -e "ERROR! ${EDITION} is not a supported $(pretty_name "${OS}") edition."
+                echo -n ' - Editions: '
                 for EDITION in "${EDITIONS[@]}"; do
-                  echo -n "${EDITION} "
+                    echo -n "${EDITION} "
                 done
+                echo ''
                 exit 1
             fi
+        else
+            echo -en "ERROR! You must specify an edition.\n - Editions: "
+            #TODO ERROR here
+            editions_"${OS}"
+            exit 1
         fi
 
-        # Handle odd missing fedora cominations
+        # Handle odd missing Fedora combinations
         if [[ $OS == fedora ]] ; then
             if [[ ${RELEASE} = "33" && ${EDITION} = "i3" ]] || [[ ${RELEASE} = "34" && ${EDITION} = "Cinnamon" ]] || [[ ${RELEASE} -lt "39" && ${EDITION} = "Onyx" ]]; then
                 echo "ERROR! Unsupported combination"
@@ -3038,7 +3026,7 @@ if [ -n "${2}" ]; then
             fi
         fi
 
-        # Handle missing Mangaro Sway minimal
+        # Handle missing Manjaro Sway minimal
         if [[ $OS == manjaro ]] ; then
             if [[ ${RELEASE} == "sway" && ${EDITION} == "minimal" ]] ; then
                 echo "ERROR! Unsupported combination"
@@ -3047,9 +3035,8 @@ if [ -n "${2}" ]; then
             fi
         fi
 
-
         VM_PATH="${OS}-${RELEASE}-${EDITION}"
-        validate_release "releases_${OS}"
+        #validate_release "releases_${OS}"
         create_vm "$("get_${OS}" "${EDITION}")"
     elif [ "${OS}" == "macos" ]; then
         # macOS doesn't use create_vm()
@@ -3068,19 +3055,31 @@ if [ -n "${2}" ]; then
         # deepin doesn't use create_vm()
         validate_release releases_deepin
         get_deepin
-    elif [ "${OS}" == "windows" ]; then
-        # Windows doesn't use create_vm()
-        validate_release releases_windows
+    elif [[ "${OS}" == "windows"* ]]; then
+        LANG="English International"
+        "languages_${OS}"
+        if [ -n "${3}" ]; then
+            LANG="${3}"
+            if [[ ! ${LANGS[*]} =~ ${LANG} ]]; then
+                echo -e "ERROR! ${LANG} is not a supported $(pretty_name "${OS}") language:\n"
+                for LANG in "${LANGS[@]}"; do
+                    echo -n "${LANG} "
+                done
+                exit 1
+            fi
+            VM_PATH="$(echo "${OS}-${RELEASE}-${LANG// /-}" | tr -d '()')"
+        fi
+        validate_release "releases_${OS}"
         get_windows
     else
         validate_release "releases_${OS}"
         create_vm "$("get_${OS}")"
     fi
+elif [ "$(releases_"${OS}" | wc -w)" -eq 1 ] && [[ ! $(type -t "editions_${OS}") == function ]]; then
+    RELEASE=$(releases_"${OS}")
+    VM_PATH="${OS}"
+    create_vm "$("get_${OS}")"
 else
-    if [ "${open_distro_homepage}" == '1' ]; then
-        HOMEPAGE=$(os_homepages "${OS}")
-        open_url "${HOMEPAGE}" && exit 0
-    fi
     echo "ERROR! You must specify a release."
     case ${OS} in
       *ubuntu-server*)
@@ -3091,13 +3090,18 @@ else
         echo -n " - Releases: "
         releases_ubuntu | sed -Ee 's/eol-\S+//g' # hide eol releases
         ;;
-
-      *)
+      *windows*)
         echo -n " - Releases: "
-        releases_"${OS}"
+        "releases_${OS}"
+        echo -n " - Languages: "
+        "languages_${OS}" && echo "${LANGS[@]}"
+        ;;
+      *)
+      echo -n " - Releases: "
+      releases_"${OS}" | fold -s -w "$(tput cols)"
         if [[ $(type -t "editions_${OS}") == function ]]; then
           echo -n " - Editions: "
-          editions_"${OS}"
+          editions_"${OS}" | fold -s -w "$(tput cols)"
         fi
         ;;
     esac
