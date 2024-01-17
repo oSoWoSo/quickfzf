@@ -1,0 +1,29 @@
+--- # This is a basic workflow to help you get started with Actions
+run-name: Test all ISOs ${{ inputs.deploy_target }} by @${{ github.actor }}
+name: Test if all ISOs are available
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  ISOs-availability-test:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Testing ISO links
+        run: |
+          echo "               ISOs availability test:"
+          ./quickget -ti
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: Saving list
+          path: |
+            ISOs.list
