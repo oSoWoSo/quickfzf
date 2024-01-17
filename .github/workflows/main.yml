@@ -31,4 +31,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Prerequisites
         run: |
+          echo 'List of supported OS with releases and editions:'
+          ./quickget -ls
+          echo 'List of all supported ISOs:'
+          ./quickget -li
+          echo 'ISOs testing:'
           ./quickget -ti
