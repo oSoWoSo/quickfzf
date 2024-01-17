@@ -1,0 +1,53 @@
+--- # This is a basic workflow to help you get started with Actions
+
+name: quickget test
+
+on:
+  push:
+    paths:
+      - "quickget"
+    branches: ["**"] #'!master' # excludes master
+  pull_request:
+    branches: ["**"] # matches every branch
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  supported:
+    name: List supported
+    runs-on: self-hosted
+
+    steps:
+      - name: List supported Operating Systems
+        run: |
+          echo "               Supported:"
+          ./quickget -ls > supported.list
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: supported.list
+          path: |
+            supported.list
+
+  links:
+    name: List ISO links
+    runs-on: self-hosted
+    steps:
+      - name: List ISO links
+        run: |
+          echo "               ISOs:"
+          ./quickget -li > ISOs.list
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: ISOs.list
+          path: |
+            ISOs.list
