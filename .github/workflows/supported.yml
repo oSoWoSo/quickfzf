@@ -5,10 +5,10 @@ name: List supported
 on:
   push:
     paths:
-      - 'quickget'
-    branches: ['**'] #'!master' # excludes master
+      - "quickget"
+    branches: ["**"] #'!master' # excludes master
   pull_request:
-    branches: ['**'] # matches every branch
+    branches: ["**"] # matches every branch
 
   workflow_dispatch:
 
