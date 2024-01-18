@@ -17,9 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-stable:
+  list-supported:
     runs-on: self-hosted
-
     steps:
       - uses: actions/checkout@v3
       - name: Prerequisites
@@ -34,3 +33,20 @@ jobs:
           name: Supported OS with releases and editions
           path: |
             supported.list
+
+  list-ISOs:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prerequisites
+        run: |
+          echo "               ISOs:"
+          ./quickget -li > ISOs.list
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: Supported OS with releases and editions
+          path: |
+            ISOs.list
