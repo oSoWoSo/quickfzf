@@ -25,10 +25,10 @@ jobs:
       - name: List supported Operating Systems
         run: |
           echo "               Supported:"
-          ./quickget -ls > supported.list
+          ./quickget -ls | tee supported.list
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.2.0
         if: success() || failure()
         with:
           name: supported.list
@@ -42,10 +42,10 @@ jobs:
       - name: List ISO links
         run: |
           echo "               ISOs:"
-          ./quickget -li > ISOs.list
+          ./quickget -li | tee ISOs.list
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.2.0
         if: success() || failure()
         with:
           name: ISOs.list
