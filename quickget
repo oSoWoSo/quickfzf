@@ -12,16 +12,18 @@ function main() {
 
     PARAMS=""
     BASE_DIR="${BASH_SOURCE[0]%%/*}"
-    PLUGINS="${BASE_DIR}/quickemu_plugins"
+    PLUGINS="${BASE_DIR}/quickget_plugins"
 
     # Set defaults for arguments
-    declare -A DISTRO_INFO
+    declare -A DISTRO_INFO # This get set in get_distro_info then made readonly
     TEST_ISO_URL=false
     SHOW_ISO_URL=false
     OPEN_DISTRO_HOME_PAGE=false
     TESTING=false
     USE_COLOR=auto
     COLORS_SET=false
+
+    set_colors
 
     while (( "${#}" )); do
         case "${1}" in
@@ -75,12 +77,16 @@ function main() {
         esac
     done
 
+    readonly TEST_ISO_URL SHOW_ISO_URL OPEN_DISTRO_HOME_PAGE USE_COLOR
+
     # set positional arguments in their proper place
     eval set -- "${PARAMS}"
 
     [ -z "${1}" ] && OS="" || OS="${1,,}"
     [ -z "${2}" ] && RELEASE="" || RELEASE="${2,,}"
     [ -z "${3}" ] && EDITION="" || EDITION="${3,,}"
+
+    readonly OS RELEASE EDITION
 
     [[ ${TESTING} == true ]] && testing
 
@@ -100,30 +106,26 @@ function main() {
         source "${PLUGINS}/${OS}".plug          # get OS specific version of functions
 
         if [ -z "${RELEASE}" ]; then
-            if editions_required; then
-                error "You must specify a release and an edition for ${OS}:"
-                printf "\t- Releases: %s\n" "$(releases)"
-                printf "\t- Editions: %s\n" "$(editions)"
-                printf "\n"
-                usage
-            else
-                error "You must specify a release for %s ${OS}:"
-                printf "\t- Releases: %s\n" "$(releases)"
-                printf "\n"
-                usage
-            fi
+            error "You must specify a release and an edition for ${OS}:"
+            printf "\t- Releases: %s\n" "$(releases)"
+            printf "\t- Editions: %s\n" "$(editions)"
+            printf "\n"
+            usage
         else
             if release_valid; then
-                if edition_valid; then
-                    :
+                if editions_required; then
+                    if edition_valid; then
+                        VM_PATH="${OS}-${RELEASE}-${EDITION}"
+                    else
+                        error "You must specify one of the valid release edition combinations for ${OS}"
+                        printf "\t- Releases: %s\n" "$(releases)"
+                        printf "\t- Editions: %s\n" "$(editions)"
+                        printf "\n"
+                        usage
+                    fi
                 else
-                    error "You must specify one of the valid release edition combinations for ${OS}"
-                    printf "\t- Releases: %s\n" "$(releases)"
-                    printf "\t- Editions: %s\n" "$(editions)"
-                    printf "\n"
-                    usage
+                    VM_PATH="${OS}-${RELEASE}"
                 fi
-                :
             else
                 error "You must specify one of the valid release edition combinations for ${OS}"
                 printf "\t- Releases: %s\n" "$(releases)"
@@ -134,8 +136,12 @@ function main() {
         fi
     fi
 
+    get_distro_info "${EDITION}"
+    readonly DISTRO_INFO        # DISTRO_INFO has now been set lock it up
+
     if ${OPEN_DISTRO_HOME_PAGE}; then
         open_url "$(homepage)"
+        exit 0
     elif ${SHOW_ISO_URL}; then
         show_iso_url
         exit 0
@@ -145,6 +151,8 @@ function main() {
     else
         :
     fi
+
+    create_vm
 
 }
 
@@ -158,15 +166,108 @@ function cleanup() {
     fi
 }
 
+function check_hash() {
+    case "${#DISTRO_INFO['hash']}" in
+        32) hash_algo=md5sum;;
+        40) hash_algo=sha1sum;;
+        64) hash_algo=sha256sum;;
+        128) hash_algo=sha512sum;;
+        *) warning "Can't guess hash algorithm, not checking ${OS} hash";;
+    esac
+
+    printf "Checking %s with %s... " "${DISTRO_INFO['iso']}" "${hash_algo}"
+
+    if ! echo "${DISTRO_INFO['hash']} ${VM_PATH}/${DISTRO_INFO['iso']}" | ${hash_algo} --check --status; then
+        error "${DISTRO_INFO['iso']} doesn't match ${DISTRO_INFO['hash']}"
+    else
+        printf " %sGood%s\n" "${fgreen}" "${reset}"
+    fi
+}
+
+function create_vm() {
+    if [ -d "${VM_PATH}" ]; then
+        error "%s already exists exiting:\n" ${VM_PATH}
+        usage
+    else
+        mkdir -p "${VM_PATH}"
+    fi
+
+    get_file "${DISTRO_INFO['url']}/${DISTRO_INFO['iso']}" "${VM_PATH}"
+
+    check_hash "${DISTRO_INFO['url']}"/"${DISTRO_INFO['iso']}" "${DISTRO_INFO['so
+    hash']}"
+
+    make_vm_config "${DISTRO_INFO['iso']}"
+}
+
+function default_vm_config() {
+    {
+        printf "#!%s --vm\n" "$(which quickemu)"
+        printf "guest_os=\"%s\"\n" "${OS}"
+        printf "disk_img=\"%s/disk.qcow2\"\n" ${VM_PATH}
+        printf "iso=\"%s\"\n" "${VM_PATH}/${DISTRO_INFO['iso']}"
+        printf "disk_size=\"32G\"\n"
+    } > "${VM_PATH}.conf"
+
+    printf "\nTo start your %s virtual machine run:\n" pretty_name
+    printf "\tquickemu --vm %s\n\n" "${VM_PATH}.conf"
+}
+
+function warning() {
+    if ! ${COLORS_SET}; then
+        COLORS_SET=true
+    fi
+
+    printf "%sWARNING: %s%s\n" "${fyellow}" "${reset}" "${*}"
+}
+
 function error() {
     if ! ${COLORS_SET}; then
-        set +x
-        set_colors
-        set -x
         COLORS_SET=true
     fi
 
     printf "%sERROR: %s%s\n" "${fred}" "${reset}" "${*}"
+}
+
+function edition_valid() {
+    #   This function valiates that the supplied edition is one of the
+    #   valid releases
+    for value in $(editions); do
+        [[ "${EDITION}" == "${value}" ]] && return 0
+    done
+    return 1
+}
+
+function release_valid() {
+    #   This function valiates that the supplied relese is one of the
+    #   valid releases
+    for value in $(editions); do
+        [[ "${EDITION}" == "${value}" ]] && return 0
+    done
+    return 1
+}
+
+function get_file() {
+    local url=${1}
+    local dir=${2}
+    local file=${3}
+
+    if [ -z "${file}" ]; then
+        file="${url##*/}"
+    fi
+
+    if command -v aria2c &>/dev/null; then
+        echo aria2c
+        if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${url}" --dir "${dir}" -o "${file}"; then
+          echo #Necessary as aria2c in suppressed mode does not have new lines
+          error "Failed to download ${URL} with aria2c. Try running 'quickget' again."
+          exit 1
+        fi
+        echo #Necessary as aria2c in suppressed mode does not have new lines
+    elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${url}" -O "${dir}/${file}"; then
+        error "Failed to download ${URL} with wget. Try running 'quickget' again."
+        exit 1
+    fi
 }
 
 function list_csv() {
@@ -235,7 +336,6 @@ function set_colors() {
 }
 
 function show_iso_url() {
-    get "${EDITION}"
     echo "${DISTRO_INFO['url']}/${DISTRO_INFO['iso']}"
 }
 
@@ -251,7 +351,7 @@ function supported_oses() {
 }
 
 function test_iso_url() {
-    wget --spider $(show_iso_url)
+    wget --spider "$(show_iso_url)"
 }
 
 function usage() {
@@ -260,10 +360,10 @@ function usage() {
 }
 
 function valid_os() {
-    local OS=${1}
+    local os=${1}
     # shellcheck disable=SC1090
-    if [ -e "${BASE_DIR}/quickemu_plugins/${OS}.plug" ]; then
-        source  "${PLUGINS}/${OS}.plug"
+    if [ -e "${PLUGINS}/${os}.plug" ]; then
+        source  "${PLUGINS}/${os}.plug"
         return 0
     else
         return 1
