@@ -3,9 +3,9 @@
 #   This template identifies the functions required to supported by each OS
 
 #function create_vm() {
-#    This function can be used to over rid the standard function in quickget
-#    if you distribution requires something special. Windows and Mac are examples
-#    that will need to provide this function
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples
+#    #    that will need to provide this function
 #}
 
 function get_distro_info() {
@@ -21,9 +21,9 @@ function get_distro_info() {
 }
 
 #function get_file() {
-#    This function can be used to over rid the standard function in quickget
-#    if you distribution requires something special. Windows and Mac are examples
-#    that will need to provide this function
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples
+#    #    that will need to provide this function
 #}
 
 function releases() {

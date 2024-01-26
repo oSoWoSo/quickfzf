@@ -11,9 +11,21 @@
 function get_distro_info() {
     #   This function Sets the global DISTRO_INFO associtive array with url, iso , and hash
     #   You WILL HAVE to change this functiion for your distro
-    DISTRO_INFO['url']="https://repo.almalinux.org/almalinux/${RELEASE}/isos/x86_64"
-    DISTRO_INFO['iso']="AlmaLinux-${RELEASE}-latest-x86_64-${EDITION}.iso"
-    DISTRO_INFO['hash']="$(wget -q -O- "${DISTRO_INFO['url']}"/CHECKSUM | grep \("${DISTRO_INFO['iso']}"\) | cut -d' ' -f4)"
+    local json_all=""
+    local json_rel=""
+
+    json_all=$(wget -q -O- "https://www.fosshub.com/Android-x86-old.html" | grep "var settings =" | cut -d'=' -f2-)
+    json_rel=$(echo "${json_all}" | jq --arg ver "${OS}-${EDITION}-${RELEASE}" 'first(.pool.f[] | select((.n | startswith($ver)) and (.n | endswith(".iso"))))')
+    DISTRO_INFO['url']="https://mirrors.gigenet.com/OSDN/android-x86"
+    DISTRO_INFO['iso']=$(echo "${json_rel}" | jq -r .n)
+    DISTRO_INFO['hash']=$(echo "${json_rel}" | jq -r .hash.sha256)
+    # Traverse the directories to find the .iso location
+    for DIR in $(wget -4 -q -O- "${DISTRO_INFO['url']}" | grep -o -E '[0-9]{5}' | sort -ur); do
+        if wget -4 -q -O- "${DISTRO_INFO['url']}/${DIR}" | grep "${DISTRO_INFO['iso']}" &>/dev/null; then
+            DISTRO_INFO['url']="${DISTRO_INFO['url']}/${DIR}"
+            break
+        fi
+    done
 }
 
 #function get_file() {
@@ -25,14 +37,14 @@ function get_distro_info() {
 function releases() {
     #   This funciton returns supported OS releases for the OS
     #   You WILL HAVE to change this functiion for your distro
-    echo 8 9
+    echo 7.1 8.1 9.0
 }
 
 function editions() {
     #   This frunctions returns supported OS editions for the OS
     #   Editions have different meanings for different OS's
     #   You WILL HAVE to change this functiion for your distro
-    echo boot minimal dvd
+    echo x86 x86_64
 }
 
 function editions_required() {
@@ -43,7 +55,7 @@ function editions_required() {
 function pretty_name() {
     #   This funcction returns an expanded OS name for pretty printing
     #   You WILL HAVE to change this functiion for your distro
-    echo "Alma Linux"
+    echo "Android Linux"
 }
 
 function homepage() {

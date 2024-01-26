@@ -11,9 +11,15 @@
 function get_distro_info() {
     #   This function Sets the global DISTRO_INFO associtive array with url, iso , and hash
     #   You WILL HAVE to change this functiion for your distro
-    DISTRO_INFO['url']="https://repo.almalinux.org/almalinux/${RELEASE}/isos/x86_64"
-    DISTRO_INFO['iso']="AlmaLinux-${RELEASE}-latest-x86_64-${EDITION}.iso"
-    DISTRO_INFO['hash']="$(wget -q -O- "${DISTRO_INFO['url']}"/CHECKSUM | grep \("${DISTRO_INFO['iso']}"\) | cut -d' ' -f4)"
+    local version
+
+    case ${RELEASE} in
+      latest) DISTRO_INFO['url']="https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64";;
+      *) DISTRO_INFO['url']="https://dl-cdn.alpinelinux.org/alpine/v${RELEASE}/releases/x86_64";;
+    esac
+    version=$(wget -qO- "${DISTRO_INFO['url']}/latest-releases.yaml" | awk '/"Xen"/{found=0} {if(found) print} /"Virtual"/{found=1}' | grep 'version:' | awk '{print $2}')
+    DISTRO_INFO['iso']="alpine-virt-${version}-x86_64.iso"
+    DISTRO_INFO['hash']=$(wget -qO- "${DISTRO_INFO['url']}/latest-releases.yaml" | awk '/"Xen"/{found=0} {if(found) print} /"Virtual"/{found=1}' | grep 'sha256:' | awk '{print $2}')
 }
 
 #function get_file() {
@@ -25,31 +31,31 @@ function get_distro_info() {
 function releases() {
     #   This funciton returns supported OS releases for the OS
     #   You WILL HAVE to change this functiion for your distro
-    echo 8 9
+    echo 3.12 3.13 3.14 3.15 3.16 3.17 3.18 latest
 }
 
 function editions() {
     #   This frunctions returns supported OS editions for the OS
     #   Editions have different meanings for different OS's
     #   You WILL HAVE to change this functiion for your distro
-    echo boot minimal dvd
+    echo ""
 }
 
 function editions_required() {
     #   You WILL HAVE to change this functiion for your distro
-    return 0        # Returning 0 means editions requuuuuire and 1 is not required
+    return 1        # Returning 0 means editions requuuuuire and 1 is not required
 }
 
 function pretty_name() {
     #   This funcction returns an expanded OS name for pretty printing
     #   You WILL HAVE to change this functiion for your distro
-    echo "Alma Linux"
+    echo "Alpine Linux"
 }
 
 function homepage() {
     #   This function returns the OS's home page URL
     #   You WILL HAVE to change this functiion for your distro
-    echo "https://almalinux.org/"
+    echo "https://alpinelinux.org/"
 }
 
 function make_vm_config() {

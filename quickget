@@ -108,7 +108,9 @@ function main() {
         if [ -z "${RELEASE}" ]; then
             error "You must specify a release and an edition for ${OS}:"
             printf "\t- Releases: %s\n" "$(releases)"
-            printf "\t- Editions: %s\n" "$(editions)"
+            if editions_required; then
+                printf "\t- Editions: %s\n" "$(editions)"
+            fi
             printf "\n"
             usage
         else
@@ -129,7 +131,9 @@ function main() {
             else
                 error "You must specify one of the valid release edition combinations for ${OS}"
                 printf "\t- Releases: %s\n" "$(releases)"
-                printf "\t- Editions: %s\n" "$(editions)"
+                if editions_required; then
+                    printf "\t- Editions: %s\n" "$(editions)"
+                fi
                 printf "\n"
                 usage
             fi
@@ -241,8 +245,8 @@ function edition_valid() {
 function release_valid() {
     #   This function valiates that the supplied relese is one of the
     #   valid releases
-    for value in $(editions); do
-        [[ "${EDITION}" == "${value}" ]] && return 0
+    for value in $(releases); do
+        [[ "${RELEASE}" == "${value}" ]] && return 0
     done
     return 1
 }
