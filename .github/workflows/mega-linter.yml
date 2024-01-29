@@ -1,6 +1,6 @@
 --- # Megalinter
 
-name: Linting
+name: Lint
 
 # Trigger mega-linter at every push. Action will also be visible from
 # Pull Requests to main
@@ -38,7 +38,7 @@ concurrency:
 
 jobs:
   megalinter:
-    name: Linting code...
+    name: Linting
     runs-on: ubuntu-latest
 
     # Give the default GITHUB_TOKEN write permission to commit and push, comment
@@ -181,4 +181,4 @@ jobs:
             }}
           commit_message: "[MegaLinter] Apply linters fixes"
           commit_user_name: megalinter-bot
-          commit_user_email: zenobit@disroot.org
+          commit_user_email: mega@linter.bot

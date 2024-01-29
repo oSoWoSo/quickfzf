@@ -3,8 +3,29 @@
 
 APPLY_FIXES: all
 # ENABLE: # If you use ENABLE variable, all other languages/formats/tooling formats will be disabled by default
-# ENABLE_LINTERS: # If you use ENABLE_LINTERS variable, all other linters will be disabled by default
-#DISABLE:
+ENABLE_LINTERS: # If you use ENABLE_LINTERS variable, all other linters will be disabled by default
+  - BASH_SHELLCHECK
+  - BASH_SHFMT
+  - GROOVY_NPM_GROOVY_LINT
+  - MAKEFILE_CHECKMAKE
+  - ENV_DOTENV_LINTER
+  - JSON_JSONLINT
+  - JSON_ESLINT_PLUGIN_JSONC
+  - JSON_V8R
+  - JSON_PRETTIER
+  - XML_XMLLINT
+  - YAML_PRETTIER
+  - YAML_YAMLLINT
+  - YAML_V8R
+  - COPYPASTE_JSCPD
+  - REPOSITORY_GIT_DIFF
+  - REPOSITORY_GITLEAKS
+  - REPOSITORY_GRYPE
+  - REPOSITORY_SECRETLINT
+  - REPOSITORY_TRIVY
+  - REPOSITORY_TRIVY_SBOM
+  - REPOSITORY_TRUFFLEHOG
+# DISABLE:
 # - CLOUDFORMATION
 # - COPYPASTE # Uncomment to disable checks of excessive copy-pastes
 # - CSS
@@ -12,28 +33,30 @@ APPLY_FIXES: all
 # - SPELL # Uncomment to disable checks of spelling mistakes
 # - JAVASCRIPT
 # - TEKTON
-#DISABLE_LINTERS:
+# DISABLE_LINTERS:
 # - JSON_PRETTIER
 # - REPOSITORY_GITLEAKS
 # - REPOSITORY_KICS
 # - SPELL_PROSELINT
 # - SPELL_MISSPELL
 # - SPELL_VALE
-#DISABLE_ERRORS_LINTERS:
+# DISABLE_ERRORS_LINTERS:
 # - PYTHON_BANDIT
 # - PYTHON_PYRIGHT
 # - REPOSITORY_DEVSKIM
 # - REPOSITORY_GRYPE
 # - REPOSITORY_SEMGREP
 # - REPOSITORY_TRUFFLEHOG
-PRINT_ALL_FILES: false
-BASH_FILTER_REGEX_INCLUDE: "quickget|quickemu"
+PRINT_ALL_FILES: true
 FILTER_REGEX_EXCLUDE: '(\.automation/test|\.automation/generated|\.venv|\.github/workflows|docs/javascripts|docs/overrides|docs/json-schemas|flavors|clj-kondo|TEMPLATES)'
 JSON_JSONLINT_FILTER_REGEX_EXCLUDE: '(\.vscode/)'
 YAML_YAMLLINT_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml)'
 YAML_PRETTIER_FILTER_REGEX_EXCLUDE: '(templates/\.mega-linter\.yml|mkdocs\.yml)'
 YAML_V8R_FILTER_REGEX_EXCLUDE: '(descriptors|templates/\.mega-linter\.yml|\.codecov\.yml)'
+BASH_FILTER_REGEX_INCLUDE: "quickget|quickemu"
 BASH_FILTER_REGEX_EXCLUDE: "(lib)"
+BASH_SHELLCHECK_FILE_EXTENSIONS: [""]
+BASH_SHFMT_FILE_EXTENSIONS: [""]
 MARKDOWN_FILTER_REGEX_EXCLUDE: '(license\.md|docs/licenses)'
 MARKDOWN_MARKDOWN_LINK_CHECK_DISABLE_ERRORS: true
 SPELL_VALE_FILE_EXTENSIONS:
@@ -45,12 +68,14 @@ REPOSITORY_TRIVY_ARGUMENTS:
   - ".automation/test"
   - "--skip-dirs"
   - ".venv"
+CONSOLE_REPORTER: true
+OUTPUT_DETAIL: detailed
 SHOW_ELAPSED_TIME: true
-FLAVOR_SUGGESTIONS: false
+FLAVOR_SUGGESTIONS: true
 EMAIL_REPORTER: false
-FILEIO_REPORTER: false
+FILEIO_REPORTER: true
 JSON_REPORTER: true
-GITHUB_STATUS_REPORTER: false
+GITHUB_STATUS_REPORTER: true
 PLUGINS:
   - https://raw.githubusercontent.com/oxsecurity/megalinter/main/.automation/test/mega-linter-plugin-test/test.megalinter-descriptor.yml
 PRE_COMMANDS:
