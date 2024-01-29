@@ -1,5 +1,4 @@
 #!/usr/bin/bash
-
 export LC_ALL="C"
 
 function main() {
@@ -142,6 +141,9 @@ function main() {
 
     get_distro_info "${EDITION}"
     readonly DISTRO_INFO        # DISTRO_INFO has now been set lock it up
+    for key in "${!DISTRO_INFO[@]}"; do
+        printf "%-5s: %s\n" "${key}" "${DISTRO_INFO["${key}"]}"
+    done
 
     if ${OPEN_DISTRO_HOME_PAGE}; then
         open_url "$(homepage)"
@@ -171,6 +173,7 @@ function cleanup() {
 }
 
 function check_hash() {
+    set -x
     case "${#DISTRO_INFO['hash']}" in
         32) hash_algo=md5sum;;
         40) hash_algo=sha1sum;;
@@ -181,11 +184,12 @@ function check_hash() {
 
     printf "Checking %s with %s... " "${DISTRO_INFO['iso']}" "${hash_algo}"
 
-    if ! echo "${DISTRO_INFO['hash']} ${VM_PATH}/${DISTRO_INFO['iso']}" | ${hash_algo} --check --status; then
+    if ! echo "${DISTRO_INFO['hash']} ${VM_PATH}/${DISTRO_INFO['iso']##*/}" | ${hash_algo} --check --status; then
         error "${DISTRO_INFO['iso']} doesn't match ${DISTRO_INFO['hash']}"
     else
         printf " %sGood%s\n" "${fgreen}" "${reset}"
     fi
+    set +x
 }
 
 function create_vm() {
