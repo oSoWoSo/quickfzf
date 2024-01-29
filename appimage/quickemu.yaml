@@ -1,0 +1,42 @@
+app: quickemu
+union: true
+
+ingredients:
+  dist: jammy
+  sources:
+    - deb http://us.archive.ubuntu.com/ubuntu/ jammy main universe
+
+  packages:
+    - bash
+    - coreutils
+    - ovmf
+    - grep
+    - jq
+    - lsb-base
+    - procps
+    - python3
+    - genisoimage
+    - usbutils
+    - util-linux
+    - sed
+    - spice-client-gtk
+    - wget
+    - xdg-user-dirs
+    - zsync
+    - unzip
+
+
+script:
+  - cp ../../quickemu.sh usr/bin
+  - cp ../../logo.png    quickemu.png
+  - cp ../../VERSION     ../VERSION
+
+  - cat > quickemu.desktop <<\EOF
+  - [Desktop Entry]
+  - Type=Application
+  - Terminal=true
+  - Name=quickemu
+  - Exec=quickemu.sh
+  - Categories=Development;
+  - Icon=quickemu
+  - EOF

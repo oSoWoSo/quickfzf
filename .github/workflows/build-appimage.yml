@@ -1,0 +1,74 @@
+name: Build AppImage
+
+on: [push]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  LANG: en_US.UTF-8
+  LS_ALL: en_US.UTF-8
+  LANGUAGE: en_US:en
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Set env
+      run: |
+        echo "RELEASE_DATE=$(date +%Y.%m.%d_%H.%M.%S)" >> ${GITHUB_ENV}
+        echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+        [[ "${GITHUB_REF_TYPE}"  = "tag" ]] && echo VERSION="${GITHUB_REF_NAME:1}" >> $GITHUB_ENV
+        [[ "${GITHUB_REF_TYPE}" != "tag" ]] && echo VERSION="$(date +%Y.%m.%d_%H.%M.%S)" >> $GITHUB_ENV
+
+        echo "==============================="
+        export
+        echo "-------------------------------"
+        cat $GITHUB_ENV
+        echo "==============================="
+
+    - uses: actions/checkout@v3
+
+    - name: Install packages
+      run:  |
+        echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
+        sudo apt-get -y update
+        sudo apt-get -y install\
+          graphicsmagick-imagemagick-compat \
+          wget \
+          desktop-file-utils \
+          binutils \
+          libglib2.0-bin \
+          libfile-mimeinfo-perl
+        sudo add-apt-repository universe
+        sudo apt install libfuse2
+
+    - name: Prepare
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: |
+        mkdir -p ${{github.workspace}}/AppImageBuild
+        cp .github/logo.png ${{github.workspace}}/AppImageBuild/logo.png
+        cp quickemu ${{github.workspace}}/AppImageBuild/quickemu.sh
+        sed -n 's/.* VERSION="\(.*\)"/\1/p' quickemu > ${{github.workspace}}/AppImageBuild/VERSION
+
+
+    - name: Build AppImage
+      working-directory: ${{github.workspace}}/AppImageBuild
+      run: |
+        ../appimage/pkg2appimage ../appimage/quickemu.yaml
+        find out/*.AppImage -printf "ARTIFACT_NAME=%f\n" >> $GITHUB_ENV
+
+
+    - name: Check AppImage dir
+      working-directory: ${{github.workspace}}/AppImageBuild
+      run: |
+        /bin/bash ../appimage/appdir-lint quickemu/quickemu.AppDir/
+
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{env.ARTIFACT_NAME}}
+        path: "${{github.workspace}}/AppImageBuild/out/*.AppImage"
