@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  supported:
+  job1:
     name: List supported
     runs-on: self-hosted
 
@@ -35,7 +35,7 @@ jobs:
           path: |
             supported.list
 
-  links:
+  job2:
     name: List ISO links
     runs-on: self-hosted
     steps:
