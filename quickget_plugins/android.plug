@@ -9,23 +9,26 @@
 #}
 
 function get_distro_info() {
-    #   This function Sets the global DISTRO_INFO associtive array with url, iso , and hash
+    #   This function returns an associative array with keys "url", "iso", and "hash"
     #   You WILL HAVE to change this functiion for your distro
+    declare -A distro_info
     local json_all=""
     local json_rel=""
 
     json_all=$(wget -q -O- "https://www.fosshub.com/Android-x86-old.html" | grep "var settings =" | cut -d'=' -f2-)
     json_rel=$(echo "${json_all}" | jq --arg ver "${OS}-${EDITION}-${RELEASE}" 'first(.pool.f[] | select((.n | startswith($ver)) and (.n | endswith(".iso"))))')
-    DISTRO_INFO['url']="https://mirrors.gigenet.com/OSDN/android-x86"
-    DISTRO_INFO['iso']=$(echo "${json_rel}" | jq -r .n)
-    DISTRO_INFO['hash']=$(echo "${json_rel}" | jq -r .hash.sha256)
+    distro_info['url']="https://mirrors.gigenet.com/OSDN/android-x86"
+    distro_info['iso']=$(echo "${json_rel}" | jq -r .n)
+    distro_info['hash']=$(echo "${json_rel}" | jq -r .hash.sha256)
     # Traverse the directories to find the .iso location
-    for DIR in $(wget -4 -q -O- "${DISTRO_INFO['url']}" | grep -o -E '[0-9]{5}' | sort -ur); do
-        if wget -4 -q -O- "${DISTRO_INFO['url']}/${DIR}" | grep "${DISTRO_INFO['iso']}" &>/dev/null; then
-            DISTRO_INFO['url']="${DISTRO_INFO['url']}/${DIR}"
+    for DIR in $(wget -4 -q -O- "${distro_info['url']}" | grep -o -E '[0-9]{5}' | sort -ur); do
+        if wget -4 -q -O- "${distro_info['url']}/${DIR}" | grep "${distro_info['iso']}" &>/dev/null; then
+            distro_info['url']="${distro_info['url']}/${DIR}"
             break
         fi
     done
+
+    echo "${distro_info[@]@k}"
 }
 
 #function get_file() {
@@ -41,10 +44,20 @@ function releases() {
 }
 
 function editions() {
-    #   This frunctions returns supported OS editions for the OS
+    #   This frunctions returns sn associative array with releases as the key
+    #   and a "!" seperated string of valid editions for the specific release.
+    #   While quite often editions are the same for all releases it is not always
+    #   the case.
     #   Editions have different meanings for different OS's
     #   You WILL HAVE to change this functiion for your distro
-    echo x86 x86_64
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]="x86!x86_64"
+    done
+
+    echo "${editions[@]@k}"
 }
 
 function editions_required() {

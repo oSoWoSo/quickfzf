@@ -104,46 +104,65 @@ function main() {
     else            # shellcheck disable=SC1090
         source "${PLUGINS}/${OS}".plug          # get OS specific version of functions
 
+        declare -r -A EDITIONS="($(editions))"
+
         if [ -z "${RELEASE}" ]; then
             error "You must specify a release and an edition for ${OS}:"
-            printf "\t- Releases: %s\n" "$(releases)"
             if editions_required; then
-                printf "\t- Editions: %s\n" "$(editions)"
+                release_editions
+            else
+                printf "%-15s | %s\n" "Releases" "$(releases)"
             fi
-            printf "\n"
             usage
         else
             if release_valid; then
                 if editions_required; then
+                    if [ -z "${EDITION}" ];then
+                        error "You must specify one of the valid release edition combinations for ${OS}"
+                        release_editions
+                        usage
+                    else
+                        if edition_valid; then
+                            VM_PATH="${OS}-${RELEASE}-${EDITION}"
+                        else
+                            error "You must specify one of the valid release edition combinations for ${OS}"
+                            release_editions
+                            usage
+                        fi
+                    fi
                     if edition_valid; then
                         VM_PATH="${OS}-${RELEASE}-${EDITION}"
                     else
                         error "You must specify one of the valid release edition combinations for ${OS}"
-                        printf "\t- Releases: %s\n" "$(releases)"
-                        printf "\t- Editions: %s\n" "$(editions)"
-                        printf "\n"
+                        release_editions
                         usage
                     fi
                 else
-                    VM_PATH="${OS}-${RELEASE}"
+                    if [ -n "${EDITION}" ]; then
+                        error "Edition is not aloud you must specify only a vlaid release ${OS}"
+                        release_editions
+                        usage
+                    else
+                        VM_PATH="${OS}-${RELEASE}"
+                    fi
                 fi
             else
                 error "You must specify one of the valid release edition combinations for ${OS}"
-                printf "\t- Releases: %s\n" "$(releases)"
                 if editions_required; then
-                    printf "\t- Editions: %s\n" "$(editions)"
+                    release_editions
+                else
+                    printf "\t- Releases: %s\n" "$(releases)"
                 fi
-                printf "\n"
                 usage
             fi
         fi
     fi
 
-    get_distro_info "${EDITION}"
-    readonly DISTRO_INFO        # DISTRO_INFO has now been set lock it up
+    declare -r -A DISTRO_INFO="($(get_distro_info "${EDITION}"))"
+    #readonly DISTRO_INFO        # DISTRO_INFO has now been set lock it up
     for key in "${!DISTRO_INFO[@]}"; do
         printf "%-5s: %s\n" "${key}" "${DISTRO_INFO["${key}"]}"
-    done
+    done | sort
 
     if ${OPEN_DISTRO_HOME_PAGE}; then
         open_url "$(homepage)"
@@ -213,7 +232,7 @@ function default_vm_config() {
         printf "#!%s --vm\n" "$(which quickemu)"
         printf "guest_os=\"%s\"\n" "${OS}"
         printf "disk_img=\"%s/disk.qcow2\"\n" ${VM_PATH}
-        printf "iso=\"%s\"\n" "${VM_PATH}/${DISTRO_INFO['iso']}"
+        printf "iso=\"%s\"\n" "${VM_PATH}/${DISTRO_INFO['iso']##*/}"
         printf "disk_size=\"32G\"\n"
     } > "${VM_PATH}.conf"
 
@@ -240,10 +259,7 @@ function error() {
 function edition_valid() {
     #   This function valiates that the supplied edition is one of the
     #   valid releases
-    for value in $(editions); do
-        [[ "${EDITION}" == "${value}" ]] && return 0
-    done
-    return 1
+    [[ "${EDITIONS["${RELEASE}"]}" == *"${EDITION}"* ]] && return 0 || return 1
 }
 
 function release_valid() {
@@ -292,6 +308,13 @@ function list_json {
 function open_url() {
     local url=${1}
     xdg-open "${url}" || sensible-brownser "${url}" || x-www-browser "${url}" || gnome-open "${url}";
+}
+
+function release_editions(){
+    printf "%-15s | %s\n" "Releases" "Editions"
+    for key in "${!EDITIONS[@]}"; do
+        printf "%-15s | %s\n" "${key}" "$(echo "${EDITIONS["${key}"]}" | tr "!" " ")"
+    done | sort
 }
 
 function set_colors() {

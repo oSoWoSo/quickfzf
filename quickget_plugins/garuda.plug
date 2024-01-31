@@ -9,15 +9,18 @@
 #}
 
 function get_distro_info() {
-    #   This function Sets the global DISTRO_INFO associtive array with url, iso , and hash
+    #   This function returns an associative array with keys "url", "iso", and "hash"
     #   You WILL HAVE to change this functiion for your distro
+    declare -A distro_info
     if [[ ${EDITION} == "hyprland" ]]; then
-        DISTRO_INFO['url']="https://iso.builds.garudalinux.org/iso/latest/community"
+        distro_info['url']="https://iso.builds.garudalinux.org/iso/latest/community"
     else
-        DISTRO_INFO['url']="https://iso.builds.garudalinux.org/iso/latest/garuda"
+        distro_info['url']="https://iso.builds.garudalinux.org/iso/latest/garuda"
     fi
-    DISTRO_INFO['iso']="${EDITION}/latest.iso"
-    DISTRO_INFO['hash']="$(wget -q -O- "${DISTRO_INFO['url']}/${DISTRO_INFO['iso']}.sha256" | cut -d' ' -f1)"
+    distro_info['iso']="${EDITION}/latest.iso"
+    distro_info['hash']="$(wget -q -O- "${distro_info['url']}/${distro_info['iso']}.sha256" | cut -d' ' -f1)"
+
+    echo "${distro_info[@]@k}"
 }
 
 #function get_file() {
@@ -36,7 +39,14 @@ function editions() {
     #   This frunctions returns supported OS editions for the OS
     #   Editions have different meanings for different OS's
     #   You WILL HAVE to change this functiion for your distro
-    echo cinnamon dr460nized dr460nized-gaming gnome i3 kde-git kde-lite lxqt-kwin mate qtile sway wayfire xfce hyprland
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]="cinnamon!dr460nized!dr460nized-gaming!gnome!i3!kde-git!kde-lite!lxqt-kwin!mate!qtile!sway!wayfire!xfce!hyprland"
+    done
+
+    echo "${editions[@]@k}"
 }
 
 function editions_required() {

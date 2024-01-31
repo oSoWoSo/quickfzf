@@ -9,11 +9,14 @@
 #}
 
 function get_distro_info() {
-    #   This function Sets the global DISTRO_INFO associtive array with url, iso , and hash
+    #   This function returns an associative array with keys "url", "iso", and "hash"
     #   You WILL HAVE to change this functiion for your distro
-    DISTRO_INFO['url']="https://repo.almalinux.org/almalinux/${RELEASE}/isos/x86_64"
-    DISTRO_INFO['iso']="AlmaLinux-${RELEASE}-latest-x86_64-${EDITION}.iso"
-    DISTRO_INFO['hash']="$(wget -q -O- "${DISTRO_INFO['url']}"/CHECKSUM | grep \("${DISTRO_INFO['iso']}"\) | cut -d' ' -f4)"
+    declare -A distro_info
+    distro_info['url']="https://repo.almalinux.org/almalinux/${RELEASE}/isos/x86_64"
+    distro_info['iso']="AlmaLinux-${RELEASE}-latest-x86_64-${EDITION}.iso"
+    distro_info['hash']="$(wget -q -O- "${distro_info['url']}"/CHECKSUM | grep \("${distro_info['iso']}"\) | cut -d' ' -f4)"
+
+    echo "${distro_info[@]@k}"
 }
 
 #function get_file() {
@@ -29,10 +32,20 @@ function releases() {
 }
 
 function editions() {
-    #   This frunctions returns supported OS editions for the OS
+    #   This frunctions returns sn associative array with releases as the key
+    #   and a "!" seperated string of valid editions for the specific release.
+    #   While quite often editions are the same for all releases it is not always
+    #   the case.
     #   Editions have different meanings for different OS's
     #   You WILL HAVE to change this functiion for your distro
-    echo boot minimal dvd
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]="boot!minimal!dvd"
+    done
+
+    echo "${editions[@]@k}"
 }
 
 function editions_required() {

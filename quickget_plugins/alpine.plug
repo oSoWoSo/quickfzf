@@ -9,17 +9,20 @@
 #}
 
 function get_distro_info() {
-    #   This function Sets the global DISTRO_INFO associtive array with url, iso , and hash
+    #   This function returns an associative array with keys "url", "iso", and "hash"
     #   You WILL HAVE to change this functiion for your distro
+    declare -A distro_info
     local version
 
     case ${RELEASE} in
-      latest) DISTRO_INFO['url']="https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64";;
-      *) DISTRO_INFO['url']="https://dl-cdn.alpinelinux.org/alpine/v${RELEASE}/releases/x86_64";;
+      latest) distro_info['url']="https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64";;
+      *) distro_info['url']="https://dl-cdn.alpinelinux.org/alpine/v${RELEASE}/releases/x86_64";;
     esac
-    version=$(wget -qO- "${DISTRO_INFO['url']}/latest-releases.yaml" | awk '/"Xen"/{found=0} {if(found) print} /"Virtual"/{found=1}' | grep 'version:' | awk '{print $2}')
-    DISTRO_INFO['iso']="alpine-virt-${version}-x86_64.iso"
-    DISTRO_INFO['hash']=$(wget -qO- "${DISTRO_INFO['url']}/latest-releases.yaml" | awk '/"Xen"/{found=0} {if(found) print} /"Virtual"/{found=1}' | grep 'sha256:' | awk '{print $2}')
+    version=$(wget -qO- "${distro_info['url']}/latest-releases.yaml" | awk '/"Xen"/{found=0} {if(found) print} /"Virtual"/{found=1}' | grep 'version:' | awk '{print $2}')
+    distro_info['iso']="alpine-virt-${version}-x86_64.iso"
+    distro_info['hash']=$(wget -qO- "${distro_info['url']}/latest-releases.yaml" | awk '/"Xen"/{found=0} {if(found) print} /"Virtual"/{found=1}' | grep 'sha256:' | awk '{print $2}')
+
+    echo "${distro_info[@]@k}"
 }
 
 #function get_file() {
@@ -35,10 +38,20 @@ function releases() {
 }
 
 function editions() {
-    #   This frunctions returns supported OS editions for the OS
+    #   This frunctions returns sn associative array with releases as the key
+    #   and a "!" seperated string of valid editions for the specific release.
+    #   While quite often editions are the same for all releases it is not always
+    #   the case.
     #   Editions have different meanings for different OS's
     #   You WILL HAVE to change this functiion for your distro
-    echo ""
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]=""
+    done
+
+    echo "${editions[@]@k}"
 }
 
 function editions_required() {
