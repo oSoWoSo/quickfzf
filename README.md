@@ -198,6 +198,8 @@ been packaged.
 [![Packaging
 status](https://repology.org/badge/vertical-allrepos/quickemu.svg)](https://repology.org/project/quickemu/versions)
 
+![Alt](https://repobeats.axiom.co/api/embed/6a18576fed84d09db4139871ef4327fe420d2ff6.svg "Repobeats analytics image")
+
 #### Quickgui
 
 [![Packaging
