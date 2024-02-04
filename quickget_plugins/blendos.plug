@@ -1,0 +1,102 @@
+#!/usr/bin/bash #
+#   This template identifies the functions required to supported by each OS
+
+#function create_vm() {
+#    #    This function can be used to over rid the standard function in quickget
+#     #    if you distribution requires something special. Windows and Mac are examples
+#    #    that will need to provide this function
+#}
+
+function get_distro_info() {
+    #   This function returns an associative array with keys "url", "iso", and "hash"
+    #   You WILL HAVE to change this functiion for your distro
+    local release
+    release=$(grep "${EDITION} ${RELEASE}" < "${TMPDIR}"/blendos.info| cut -f1 -d " ")
+    declare -A distro_info
+    distro_info['url']="https://sourceforge.net/projects/blendos/files/ISOs"
+    distro_info['iso']="${EDITION}"/"${release}"/blendOS.iso/download
+    distro_info['hash']="$(wget -q -O- "${distro_info['url']}"/"${EDITION}"/"${release}"/update.iso.sha512sum/download \
+        | cut -d' ' -f1)"
+
+    echo "${distro_info[@]@k}"
+}
+
+#function get_file() {
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples
+#    #    that will need to provide this function
+#}
+
+function releases() {
+    #   This funciton returns supported OS releases for the OS
+    #   You WILL HAVE to change this functiion for your distro
+    #
+    #   BlendOS has more editions and releases but there's a tracker indirect and
+    #   other issues so it is easiere to ust the rss feed
+    #
+    #   The releases function is the first one   called so we are going to use
+    #   the rss feed to create tempory file(s) to be used later by other functinons.
+    wget -q -O- https://sourceforge.net/projects/blendos/rss?path=/ISOs/ \
+        | grep url \
+        | sed "s/^.*url=\"//" \
+        | sed "s/\".*//" \
+        | grep -E -v "rss|sha512|2023" > "${TMPDIR}"/blendos.rss
+
+    while read -r line ; do
+        #echo ${line}
+        release=$(echo "${line}" | cut -f 9 -d "/")
+        edition=$(echo "${line}" | cut -f 8 -d "/" )
+        printf "%s %s %s %s\n" "${release}" "${edition}" "$(date -d @"${release}" +%Y%m%d)" "${line}"
+    done < "${TMPDIR}"/blendos.rss > "${TMPDIR}"/blendos.info
+    cut -f 3 -d " " < "${TMPDIR}"/blendos.info | sort -u -r
+}
+
+function editions() {
+    #   This frunctions returns sn associative array with releases as the key
+    #   and a "!" seperated string of valid editions for the specific release.
+    #   While quite often editions are the same for all releases it is not always
+    #   the case.
+    #   Editions have different meanings for different OS's
+    #   You WILL HAVE to change this functiion for your distro
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]=$(grep "${release}" "${TMPDIR}"/blendos.info | cut -f 2 -d " " | sort -u | tr "\n" "!" | sed "s/!$//")
+    done
+
+    echo "${editions[@]@k}"
+}
+
+function editions_required() {
+    #   You WILL HAVE to change this functiion for your distro
+    return 0        # Returning 0 means editions requuuuuire and 1 is not required
+}
+
+function pretty_name() {
+    #   This funcction returns an expanded OS name for pretty printing
+    #   You WILL HAVE to change this functiion for your distro
+    echo "BlendOS"
+}
+
+function homepage() {
+    #   This function returns the OS's home page URL
+    #   You WILL HAVE to change this functiion for your distro
+    echo "https://blendos.co/"
+}
+
+function make_vm_config() {
+    #   This function creates the vm_config file and can be used to
+    #   replace the default one in the quickget
+    #   You MIGHT HAVE to change this functiion for your distro
+    default_vm_config
+
+    # Override any default settings
+    # i.e sed -i 's/^disk_size=.*/disk_size=\"80G\"/'
+
+    # Add any additional lines
+    # {
+    #     printf "fixed_iso=\"%s\"\n"   ${fixed_iso}
+    #
+    # } >> "${VM_PATH}.conf"
+}

@@ -1,0 +1,109 @@
+#!/usr/bin/bash
+#
+#   This template identifies the functions required to supported by each OS
+
+#function create_vm() {
+#    #    This function can be used to over rid the standard function in quickget
+#     #    if you distribution requires something special. Windows and Mac are examples
+#    #    that will need to provide this function
+#}
+
+function get_distro_info() {
+    #   This function returns an associative array with keys "url", "iso", and "hash"
+    #   You WILL HAVE to change this functiion for your distro
+    #set -x
+    declare -A distro_info
+    distro_info['hash']="None"
+    distro_info['url']="https://mirrors.o2switch.fr/batocera/x86_64/stable/last"
+    distro_info['iso']="$(curl -sl "${distro_info['url']}"/ | grep -e 'batocera.*img.gz'|cut -d\" -f2)"
+    #set +x
+
+    echo "${distro_info[@]@k}"
+}
+
+function get_file() {
+    local url=${1}
+    local dir=${2}
+    local file=${3}
+
+    if [ -z "${file}" ]; then
+        file="${url##*/}"
+    fi
+
+    if command -v aria2c &>/dev/null; then
+        echo aria2c
+        if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${url}" --dir "${dir}" -o "${file}"; then
+          echo #Necessary as aria2c in suppressed mode does not have new lines
+          error "Failed to download ${URL} with aria2c. Try running 'quickget' again."
+          exit 1
+        fi
+        echo #Necessary as aria2c in suppressed mode does not have new lines
+    elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${url}" -O "${dir}/${file}"; then
+        error "Failed to download ${URL} with wget. Try running 'quickget' again."
+        exit 1
+    fi
+
+    if [[ ${DISTRO_INFO['iso']} =~ .gz ]]; then
+        gzip -d "${VM_PATH}/${DISTRO_INFO['iso']}"
+        DISTRO_INFO['iso']="${DISTRO_INFO['iso']/.gz/}"
+    fi
+}
+
+function releases() {
+    #   This funciton returns supported OS releases for the OS
+    #   You WILL HAVE to change this functiion for your distro
+    echo latest
+}
+
+function editions() {
+    #   This frunctions returns sn associative array with releases as the key
+    #   and a "!" seperated string of valid editions for the specific release.
+    #   While quite often editions are the same for all releases it is not always
+    #   the case.
+    #   Editions have different meanings for different OS's
+    #   You WILL HAVE to change this functiion for your distro
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]="boot!minimal!dvd"
+    done
+
+    echo "${editions[@]@k}"
+}
+
+function editions_required() {
+    #   You WILL HAVE to change this functiion for your distro
+    return 1        # Returning 0 means editions requuuuuire and 1 is not required
+}
+
+function pretty_name() {
+    #   This funcction returns an expanded OS name for pretty printing
+    #   You WILL HAVE to change this functiion for your distro
+    echo "Batocera Linux"
+}
+
+function homepage() {
+    #   This function returns the OS's home page URL
+    #   You WILL HAVE to change this functiion for your distro
+    echo "https://batocera.org/"
+}
+
+function make_vm_config() {
+    #   This function creates the vm_config file and can be used to
+    #   replace the default one in the quickget
+    #   You MIGHT HAVE to change this functiion for your distro
+    default_vm_config
+
+    # Override any default settings
+    # i.e sed -i 's/^disk_size=.*/disk_size=\"80G\"/'
+    sed -i 's/guest_os=.*/guest_os="batocera"/' "${VM_PATH}".conf
+    sed -i 's/disk_size=.*/disk_size="8G"/' "${VM_PATH}".conf
+    sed -i 's/iso=/img=/' "${VM_PATH}".conf
+
+    # Add any additional lines
+    # {
+    #     printf "fixed_iso=\"%s\"\n"   ${fixed_iso}
+    #
+    # } >> "${VM_PATH}.conf"
+}
