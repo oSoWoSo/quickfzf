@@ -103,7 +103,7 @@ function main() {
         declare -r -A EDITIONS="($(editions))"
 
         if [ -z "${RELEASE}" ]; then
-            error "You must specify a release and an edition for ${OS}:"
+            error "You must specify a release and an edition for $(pretty_name):"
             if editions_required; then
                 release_editions
             else
@@ -114,7 +114,7 @@ function main() {
             if release_valid; then
                 if editions_required; then
                     if [ -z "${EDITION}" ];then
-                        error "You must specify one of the valid release edition combinations for ${OS}"
+                        error "You must specify one of the valid release edition combinations for $(pretty_name)"
                         release_editions
                         usage
                     else
@@ -129,7 +129,7 @@ function main() {
                     if edition_valid; then
                         VM_PATH="${OS}-${RELEASE}-${EDITION}"
                     else
-                        error "You must specify one of the valid release edition combinations for ${OS}"
+                        error "You must specify one of the valid release edition combinations for $(pretty_name)"
                         release_editions
                         usage
                     fi
@@ -143,7 +143,7 @@ function main() {
                     fi
                 fi
             else
-                error "You must specify one of the valid release edition combinations for ${OS}"
+                error "You must specify one of the valid release edition combinations for $(pretty_name)"
                 if editions_required; then
                     release_editions
                 else
