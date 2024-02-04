@@ -56,7 +56,7 @@ function editions_required() {
 function pretty_name() {
     #   This funcction returns an expanded OS name for pretty printing
     #   You WILL HAVE to change this functiion for your distro
-    echo "Bunsenlabs Linux"
+    echo "bunsenlabs Linux"
 }
 
 function homepage() {
