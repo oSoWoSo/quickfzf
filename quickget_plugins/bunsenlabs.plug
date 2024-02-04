@@ -1,16 +1,16 @@
 #!/usr/bin/bash
-#
+
 #   This template identifies the functions required to supported by each OS
 
+# Use this function to override the standard function in quickget
+# if you distribution requires something special. Windows and Mac are examples..
 #function create_vm() {
-#    #    This function can be used to over rid the standard function in quickget
-#     #    if you distribution requires something special. Windows and Mac are examples
-#    #    that will need to provide this function
+#
 #}
 
+# This function returns an associative array with keys "url", "iso", and "hash"
+# Change this function for your distro
 function get_distro_info() {
-    #   This function returns an associative array with keys "url", "iso", and "hash"
-    #   You WILL HAVE to change this functiion for your distro
     declare -A distro_info
     distro_info['url']="https://ddl.bunsenlabs.org/ddl"
     distro_info['iso']="beryllium-1-amd64.hybrid.iso"
@@ -19,25 +19,25 @@ function get_distro_info() {
     echo "${distro_info[@]@k}"
 }
 
+# Use this function to override the standard function in quickget
+# if you distribution requires something special. Windows and Mac are examples..
 #function get_file() {
-#    #    This function can be used to over rid the standard function in quickget
-#    #    if you distribution requires something special. Windows and Mac are examples
-#    #    that will need to provide this function
+#
 #}
 
+# This funciton returns supported OS releases for the OS
+# Change this function for your distro
 function releases() {
-    #   This funciton returns supported OS releases for the OS
-    #   You WILL HAVE to change this functiion for your distro
     echo latest
 }
 
+# This function returns an associative array with releases as the key
+# and a "!" separated string of valid editions for the specific release.
+# While quite often editions are the same for all releases it is not always
+# the case.
+# Editions have different meanings for different OS's
+# Change this function for your distro
 function editions() {
-    #   This frunctions returns sn associative array with releases as the key
-    #   and a "!" seperated string of valid editions for the specific release.
-    #   While quite often editions are the same for all releases it is not always
-    #   the case.
-    #   Editions have different meanings for different OS's
-    #   You WILL HAVE to change this functiion for your distro
     declare -A editions
     local release
 
@@ -48,27 +48,28 @@ function editions() {
     echo "${editions[@]@k}"
 }
 
+# Change this function for your distro
+# Returning 0 means editions are required and 1 not required
 function editions_required() {
-    #   You WILL HAVE to change this functiion for your distro
-    return 1        # Returning 0 means editions requuuuuire and 1 is not required
+    return 1
 }
 
+# This function returns an expanded OS name for pretty printing
+# Change this function for your distro
 function pretty_name() {
-    #   This funcction returns an expanded OS name for pretty printing
-    #   You WILL HAVE to change this functiion for your distro
     echo "bunsenlabs Linux"
 }
 
+# This function returns the OS's home page URL
+# Change this function for your distro
 function homepage() {
-    #   This function returns the OS's home page URL
-    #   You WILL HAVE to change this functiion for your distro
     echo "https://www.bunsenlabs.org/"
 }
 
+# This function creates the vm_config file and can be used to
+# replace the default one in the quickget
+# Change this function for your distro
 function make_vm_config() {
-    #   This function creates the vm_config file and can be used to
-    #   replace the default one in the quickget
-    #   You MIGHT HAVE to change this functiion for your distro
     default_vm_config
 
     # Override any default settings
