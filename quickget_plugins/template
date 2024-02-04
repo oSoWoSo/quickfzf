@@ -72,7 +72,7 @@ function make_vm_config() {
     default_vm_config
 
     # Override any default settings
-    # i.e sed -i 's/^disk_size=.*/disk_size=\"80G\"/'
+    # i.e sed -i 's/^disk_size=.*/disk_size=\"80G\"/' "${VM_PATH}".conf
 
     # Add any additional lines
     # {

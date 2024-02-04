@@ -12,13 +12,15 @@ function main() {
     PARAMS=""
     BASE_DIR="${BASH_SOURCE[0]%%/*}"
     PLUGINS="${BASE_DIR}/quickget_plugins"
+    TMPDIR="${HOME}/quickget-tmp"   # to be used for temp files if needed
+    mkdir -p "${TMPDIR}"
+                                    # will automaticly get deleted
 
     # Set defaults for arguments
     declare -A DISTRO_INFO # This get set in get_distro_info then made readonly
     TEST_ISO_URL=false
     SHOW_ISO_URL=false
     OPEN_DISTRO_HOME_PAGE=false
-    TESTING=false
     USE_COLOR=auto
     COLORS_SET=false
 
@@ -60,10 +62,6 @@ function main() {
                         ;;
                 esac
                 ;;
-            --test)
-                TESTING=true
-                shift
-                ;;
             --*|-*) # unsupported flags
                 error "Unsuppotred flag ${1}"
                 shift
@@ -86,8 +84,6 @@ function main() {
     [ -z "${3}" ] && EDITION="" || EDITION="${3,,}"
 
     readonly OS RELEASE EDITION
-
-    [[ ${TESTING} == true ]] && testing
 
     if [ -z "${OS}" ]; then
         error "You must supply a distribution and release at a minimum"
@@ -158,7 +154,7 @@ function main() {
         fi
     fi
 
-    declare -r -A DISTRO_INFO="($(get_distro_info "${EDITION}"))"
+    declare -A DISTRO_INFO="($(get_distro_info "${EDITION}"))"
     #readonly DISTRO_INFO        # DISTRO_INFO has now been set lock it up
     for key in "${!DISTRO_INFO[@]}"; do
         printf "%-5s: %s\n" "${key}" "${DISTRO_INFO["${key}"]}"
@@ -189,15 +185,16 @@ function cleanup() {
     if [ -n "$(jobs -p)" ]; then
         kill "$(jobs -p)"
     fi
+    rm -rf "${TMPDIR}"
 }
 
 function check_hash() {
-    set -x
     case "${#DISTRO_INFO['hash']}" in
         32) hash_algo=md5sum;;
         40) hash_algo=sha1sum;;
         64) hash_algo=sha256sum;;
         128) hash_algo=sha512sum;;
+        None) warning "Hash not provided , not checking ${OS} hash";;
         *) warning "Can't guess hash algorithm, not checking ${OS} hash";;
     esac
 
@@ -208,7 +205,6 @@ function check_hash() {
     else
         printf " %sGood%s\n" "${fgreen}" "${reset}"
     fi
-    set +x
 }
 
 function create_vm() {
@@ -230,7 +226,7 @@ function create_vm() {
 function default_vm_config() {
     {
         printf "#!%s --vm\n" "$(which quickemu)"
-        printf "guest_os=\"%s\"\n" "${OS}"
+        printf "guest_os=\"%s\"\n" "linux"
         printf "disk_img=\"%s/disk.qcow2\"\n" ${VM_PATH}
         printf "iso=\"%s\"\n" "${VM_PATH}/${DISTRO_INFO['iso']##*/}"
         printf "disk_size=\"32G\"\n"
@@ -399,18 +395,6 @@ function valid_os() {
     else
         return 1
     fi
-}
-
-function testing() {
-    printf "================================\n"
-    printf "TEST_ISO_URL         : %s\n" "${TEST_ISO_URL}"
-    printf "SHOW_ISO_URL         : %s\n" "${SHOW_ISO_URL}"
-    printf "OPEN_DISTRO_HOME_PAGE : %s\n" "${OPEN_DISTRO_HOME_PAGE}"
-    printf "TESTING              : %s\n" "${TESTING}"
-    printf "OS                   : %s\n" "${OS}"
-    printf "RELEASE              : %s\n" "${RELEASE}"
-    printf "EDITION              : %s\n" "${EDITION}"
-    printf "================================\n"
 }
 
 main "${@}"
