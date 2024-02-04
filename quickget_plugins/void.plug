@@ -2,14 +2,15 @@
 
 #   This template identifies the functions required to supported by each OS
 
+# Use this function to override the standard function in quickget
+# if you distribution requires something special. Windows and Mac are examples..
 #function create_vm() {
-#    #    Use this function to override the standard function in quickget
-#    #    if you distribution requires something special. Windows and Mac are examples..
+#
 #}
 
+# This function returns an associative array with keys "url", "iso", and "hash"
+# Change this function for your distro
 function get_distro_info() {
-    #   This function returns an associative array with keys "url", "iso", and "hash"
-    #   Change this function for your distro
     declare -A distro_info
     distro_info['url']="https://repo-default.voidlinux.org/live/current"
     distro_info['date']=$(wget -q -O- "${distro_info['url']}/sha256sum.txt" | head -n1 | cut -d'.' -f1 | cut -d'-' -f4)
@@ -24,24 +25,25 @@ function get_distro_info() {
     echo "${distro_info[@]@k}"
 }
 
+# Use this function to override the standard function in quickget
+# if you distribution requires something special. Windows and Mac are examples..
 #function get_file() {
-#    #    Use this function to override the standard function in quickget
-#    #    if you distribution requires something special. Windows and Mac are examples..
+#
 #}
 
+# This funciton returns supported OS releases for the OS
+# Change this function for your distro
 function releases() {
-    #   This funciton returns supported OS releases for the OS
-    #   Change this function for your distro
     echo current
 }
 
+# This function returns an associative array with releases as the key
+# and a "!" separated string of valid editions for the specific release.
+# While quite often editions are the same for all releases it is not always
+# the case.
+# Editions have different meanings for different OS's
+# Change this function for your distro
 function editions() {
-    #   This function returns an associative array with releases as the key
-    #   and a "!" separated string of valid editions for the specific release.
-    #   While quite often editions are the same for all releases it is not always
-    #   the case.
-    #   Editions have different meanings for different OS's
-    #   Change this function for your distro
     declare -A editions
     local release
 
@@ -52,31 +54,32 @@ function editions() {
     echo "${editions[@]@k}"
 }
 
+# Change this function for your distro
+# Returning 0 means editions are required and 1 not required
 function editions_required() {
-    #   Change this function for your distro
-    return 0        # Returning 0 means editions are required and 1 not required
+    return 0
 }
 
+# This function returns an expanded OS name for pretty printing
+# Change this function for your distro
 function pretty_name() {
-    #   This function returns an expanded OS name for pretty printing
-    #   Change this function for your distro
     echo "Void Linux"
 }
 
+# This function returns the OS's home page URL
+# Change this function for your distro
 function homepage() {
-    #   This function returns the OS's home page URL
-    #   Change this function for your distro
     echo "https://voidlinux.org/"
 }
 
+# This function creates the vm_config file and can be used to
+# replace the default one in the quickget
+# Change this function for your distro
 function make_vm_config() {
-    #   This function creates the vm_config file and can be used to
-    #   replace the default one in the quickget
-    #   Change this function for your distro
     default_vm_config
 
     # Override any default settings
-    # i.e sed -i 's/^disk_size=.*/disk_size=\"80G\"/'
+    # i.e sed -i 's/^disk_size=.*/disk_size=\"80G\"/' "${VM_PATH}".conf
 
     # Add any additional lines
     # {
