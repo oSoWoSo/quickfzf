@@ -204,11 +204,9 @@ function check_hash() {
 }
 
 function create_vm() {
-    if [ -d "${VM_PATH}" ]; then
-        error "%s already exists exiting:\n" ${VM_PATH}
-        usage
-    else
-        mkdir -p "${VM_PATH}"
+    if [ "${VM_PATH}" != "$(pwd)" ] && ! mkdir -p "${VM_PATH}" 2>/dev/null; then
+        echo "ERROR! Unable to create directory ${VM_PATH}"
+        exit 1
     fi
 
     get_file "${DISTRO_INFO['url']}/${DISTRO_INFO['iso']}" "${VM_PATH}"
@@ -227,6 +225,7 @@ function default_vm_config() {
         printf "iso=\"%s\"\n" "${VM_PATH}/${DISTRO_INFO['iso']##*/}"
         printf "disk_size=\"32G\"\n"
     } > "${VM_PATH}.conf"
+    chmod u+x "${VM_PATH}.conf"
 
     printf "\nTo start your %s virtual machine run:\n" pretty_name
     printf "\tquickemu --vm %s\n\n" "${VM_PATH}.conf"
@@ -272,15 +271,24 @@ function get_file() {
         file="${url##*/}"
     fi
 
+    while (( "$#" )); do
+        if [[ $1 == --header ]]; then
+            HEADERS+=("$1" "$2")
+            shift 2
+        else
+            shift
+        fi
+    done
+
     if command -v aria2c &>/dev/null; then
         echo aria2c
-        if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${url}" --dir "${dir}" -o "${file}"; then
+        if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${url}" --dir "${dir}" -o "${file}" "${HEADERS[@]}"; then
           echo #Necessary as aria2c in suppressed mode does not have new lines
           error "Failed to download ${URL} with aria2c. Try running 'quickget' again."
           exit 1
         fi
         echo #Necessary as aria2c in suppressed mode does not have new lines
-    elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${url}" -O "${dir}/${file}"; then
+    elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${url}" -O "${dir}/${file}" "${HEADERS[@]}"; then
         error "Failed to download ${URL} with wget. Try running 'quickget' again."
         exit 1
     fi
@@ -363,14 +371,11 @@ function show_iso_url() {
 }
 
 function supported_oses() {
-    (
-        cd "${PLUGINS}" || ( echo "${PLUGINS} not found"; exit )
-        command ls ./*.plug* \
-            | sed -e 's/*\///' -e 's/\.plug//' \
-                -e 's/\.\///' \
-            |   column -x
-    )
-    return 0
+    if [ ! -d "${PLUGINS}" ]; then
+        echo "Error: Quickget plugins not found."
+        exit 1
+    fi
+    ls "${PLUGINS}"/*.plug* | sed -e 's|.*/||' -e 's/\.plug//' | column -x
 }
 
 function test_iso_url() {
