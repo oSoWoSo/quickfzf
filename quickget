@@ -10,11 +10,8 @@ function main() {
     fi
 
     PARAMS=""
-    BASE_DIR="${BASH_SOURCE[0]%%/*}"
+    BASE_DIR="$(dirname "${0}")"
     PLUGINS="${BASE_DIR}/quickget_plugins"
-    TMPDIR="${HOME}/quickget-tmp"   # to be used for temp files if needed
-    mkdir -p "${TMPDIR}"
-                                    # will automaticly get deleted
 
     # Set defaults for arguments
     declare -A DISTRO_INFO # This get set in get_distro_info then made readonly
@@ -185,7 +182,6 @@ function cleanup() {
     if [ -n "$(jobs -p)" ]; then
         kill "$(jobs -p)"
     fi
-    rm -rf "${TMPDIR}"
 }
 
 function check_hash() {

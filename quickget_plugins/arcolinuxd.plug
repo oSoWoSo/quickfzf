@@ -14,7 +14,10 @@ function get_distro_info() {
     distro_info['url']="https://ant.seedhost.eu/arcolinux/iso"
     distro_info['iso']="${RELEASE}/arcolinuxd-${RELEASE}-x86_64.iso"
     distro_info['hash']="$(curl -s "${distro_info['url']}/${distro_info['iso']}.sha256" | cut -d' ' -f1)"
-    echo "${distro_info[@]@k}"
+    
+    for parameter in "${!distro_info[@]}"; do
+        echo "${parameter} ${distro_info[$parameter]}"
+    done
 }
 
 #function get_file() {
@@ -65,7 +68,9 @@ function editions() {
     editions['v24.01.04']=""
     editions['v24.02.01']=""
 
-    echo "${editions[@]@k}"
+    for edition in "${!editions[@]}"; do
+        echo "${edition} ${editions[$edition]}"
+    done
 }
 
 function editions_required() {

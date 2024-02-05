@@ -28,7 +28,9 @@ function get_distro_info() {
         fi
     done
 
-    echo "${distro_info[@]@k}"
+    for parameter in "${!distro_info[@]}"; do
+        echo "${parameter} ${distro_info[$parameter]}"
+    done
 }
 
 #function get_file() {
@@ -57,7 +59,9 @@ function editions() {
         editions[${release}]="x86!x86_64"
     done
 
-    echo "${editions[@]@k}"
+    for edition in "${!editions[@]}"; do
+        echo "${edition} ${editions[$edition]}"
+    done
 }
 
 function editions_required() {

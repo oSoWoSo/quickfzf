@@ -25,7 +25,9 @@ function get_distro_info() {
         ;;
     esac
 
-    echo "${distro_info[@]@k}"
+    for parameter in "${!distro_info[@]}"; do
+        echo "${parameter} ${distro_info[$parameter]}"
+    done
 }
 
 #function get_file() {
@@ -54,7 +56,9 @@ function editions() {
         editions[${release}]="boot!dvd1"
     done
 
-    echo "${editions[@]@k}"
+    for edition in "${!editions[@]}"; do
+        echo "${edition} ${editions[$edition]}"
+    done
 }
 
 function editions_required() {
