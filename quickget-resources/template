@@ -1,21 +1,25 @@
 #!/usr/bin/env bash
 
-# Instructions: 
-# 1. Set HOMEPAGE, DESCRIPTION, UNIQUE_EDITIONS, REQUIRES_EDITION, and other variables if necessary
-# 2. Modify fetch_info function to include all of the necessary information (or way to fetch it)
-
 RESOURCE_DIR="$(dirname "${0}")"
 
-# Homepage of the operating system (URL)
+# Instructions: 
+# 1. Set necessary variables below
+# 2. Modify fetch_info function to include all of the necessary information (or way to fetch it)
+
+# (REQUIRED) Homepage of the operating system (URL)
 HOMEPAGE=""
-# Brief description of the operating system
+# (OPTIONAL) Brief description of the operating system
 DESCRIPTION=""
-# Set this to 1 if the operating system has unique editions per release, 0 otherwise
+# (OPTIONAL) Set this to the friendly name of the operating system, if applicable. 
+PRETTY_NAME=""
+# Set this to 1 if the operating system has unique editions (which you will set) for each release, 0 otherwise
 UNIQUE_EDITIONS=0
 # Set this variable depending on whether or not the operating system requires an edition to be specified
 REQUIRES_EDITION=0
+# If an edition is NOT required but multiple editions ARE available, put the default edition's name here.
+DEFAULT_EDITION=""
 # If the operating system has a unique name for its editions (i.e. Windows: Languages), set it here
-EDITION_NAME="Editions"
+EDITION_NAME=""
 # Set this to 1 if your fetch_info function fetches data from the internet, 0 if it's hardcoded
 CACHE_DATA=0
 
@@ -24,18 +28,20 @@ function fetch_info() {
     # If your operating system checks for releases or editions on the internet, uncomment this
     # in order to add support for caching this information to speed up quickget.
     if [ "${1}" != "--refresh" ] && [ "${CACHE_DATA}" -eq 1 ]; then
-        fetch_from_cache && return 0
+        fetch_from_cache "${1}" && return 0
     fi
 
     # Add editions and releases here. Or, replace this with your code to fetch releases and editions.
     # Add them to the array with the += operator followed by parentheses.
     RELEASES+=()
+    # You may leave EDITIONS blank if there is only one edition.
     EDITIONS+=()
 
-    # If unique editions are required, comment out the above EDITIONS+= statement and use this template instead.
-    # declare -A EDITIONS && associative_editions=true
-    # EDITIONS['RELEASE1']=(EDITION1 EDITION2)
-    # EDITIONS['RELEASE2']=(EDITION1 EDITION2)
+    # If unique editions are required, use this template instead. 
+    # You may still put static editions (those which are present for ALL releases) in the EDITIONS array 
+    # declare -A associativeEDITIONS
+    # associativeEDITIONS['RELEASE1']="EDITION1;EDITION2;EDITION3"
+    # associativeEDITIONS['RELEASE2']="EDITION1;EDITION2;EDITION3"
 
     if [ "${CACHE_DATA}" -eq 1 ]; then
         populate_cache
@@ -44,18 +50,56 @@ function fetch_info() {
 
 
 # Everything below here should not have to be modified. Variables above are used to determine the proper behavior
-function validate_edition() {
+function validate_re() {
+    local ARCH="${2}"
     fetch_info
-    echo PLACEHOLDER
-}
+    local RELEASE="${3}"
+    local EDITION="${4}"
+    
+    # Check if release is present in the releases array
+    for REL in "${RELEASES[@]}"; do
+        if [ "${RELEASE,,}" == "${REL,,}" ]; then
+            # Handle unnecessary editions passed
+            if [ -z "${EDITIONS}" ] && [ -n "${EDITION}" ]; then
+                echo "WARNING: ${PRETTY_NAME} does not support ${EDITION_NAME,,}. Ignoring."
+                return 2
+            fi
 
-function validate_release() {
-    fetch_info
-    echo PLACEHOLDER
+            # Handle the associative array for unique editions
+            if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
+                while read -d ';' -r aEDITION; do
+                    EDITIONS+=("${aEDITION}")
+                done <<< "${associativeEDITIONS["${RELEASE}"]};"
+            fi
+
+            if [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
+                return 0
+            fi
+
+            # Loop through editions array and check if the edition is present
+            for ED in "${EDITIONS[@]}"; do
+                if [ "${EDITION,,}" == "${ED,,}" ]; then
+                    return 0
+                fi
+            done
+        fi
+    done
+
+    return 1
 }
 
 function format_re() {
-    fetch_info
+    local ARCH="${2}"
+    fetch_info "${ARCH}"
+    local RELEASE="${3}"
+    local EDITION="${4}"
+    
+    if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
+        echo PLACEHOLDER
+    else
+        echo PLACEHOLDER
+    fi
+
     echo PLACEHOLDER
 }
 
@@ -67,24 +111,32 @@ function populate_cache() {
     echo PLACEHOLDER
 }
 
+# Add OS name from the filename in the case that PRETTY_NAME is unset
+if [ -z "${PRETTY_NAME}" ]; then
+    PRETTY_NAME="$(basename "${0}" | sed 's/.os//g')"
+fi
+
+# Set default values for PRETTY_NAME and EDITION_NAME if they're unset above
+PRETTY_NAME="${PRETTY_NAME:-$(basename "${0}" | sed 's/.os//g')}"
+EDITION_NAME="${EDITION_NAME:-Editions}"
+
 case "${1}" in
     --homepage)
         echo "${HOMEPAGE}";;
-    --requires-edition)
-        # 0 = false, 1 = true
-        return "${REQUIRES_EDITION}";;
     --edition-name)
-        # Change this if editions has a custom name (or does something unique). i.e. Windows: Languages
         echo "${EDITION_NAME}";;
     --unique-editions)
-        # Return 0 if editions are the same between releases, 1 if they are different
         return "${UNIQUE_EDITIONS}";;
+    --pretty-name)
+        return "${PRETTY_NAME}";;
     --refresh)
         fetch_info --refresh;;
-    --validate-release)
-        validate_release;;
-    --validate-edition)
-        validate_edition;;
+    --validate-re)
+        validate_re "${@}";;
     --format-re)
-        format_re;;
+        format_re "${@}";;
 esac
+
+while read -d ';' -r aEDITION
+    do echo "${aEDITION}";
+done < <(echo "${associativeEDITIONS["key1"]}")
