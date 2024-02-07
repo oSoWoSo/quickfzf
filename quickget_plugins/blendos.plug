@@ -28,7 +28,7 @@ function get_distro_info() {
 #
 #}
 
-# This funciton returns supported OS releases for the OS
+# This function returns supported OS releases for the OS
 # Change this function for your distro
 function releases() {
     #   BlendOS has more editions and releases but there's a tracker indirect and

@@ -51,7 +51,7 @@ function get_file() {
     fi
 }
 
-# This funciton returns supported OS releases for the OS
+# This function returns supported OS releases for the OS
 # Change this function for your distro
 function releases() {
     echo latest

@@ -24,7 +24,7 @@ function get_distro_info() {
 #
 #}
 
-# This funciton returns supported OS releases for the OS
+# This function returns supported OS releases for the OS
 # Change this function for your distro
 function releases() {
     echo v22.01.10 v22.03.07 v22.06.07 v22.11.02 v22.12.02 v23.01.03 v23.02.02 v23.03.01 v23.05.04 v23.09.03 v23.11.03 v23.12.03 v24.01.04 v24.02.01
