@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+# Instructions: 
+# 1. Set HOMEPAGE, DESCRIPTION, UNIQUE_EDITIONS, REQUIRES_EDITION, and other variables if necessary
+# 2. Modify fetch_info function to include all of the necessary information (or way to fetch it)
+
+RESOURCE_DIR="$(dirname "${0}")"
+
+# Homepage of the operating system (URL)
+HOMEPAGE=""
+# Brief description of the operating system
+DESCRIPTION=""
+# Set this to 1 if the operating system has unique editions per release, 0 otherwise
+UNIQUE_EDITIONS=0
+# Set this variable depending on whether or not the operating system requires an edition to be specified
+REQUIRES_EDITION=0
+# If the operating system has a unique name for its editions (i.e. Windows: Languages), set it here
+EDITION_NAME="Editions"
+# Set this to 1 if your fetch_info function fetches data from the internet, 0 if it's hardcoded
+CACHE_DATA=0
+
+
+function fetch_info() {
+    # If your operating system checks for releases or editions on the internet, uncomment this
+    # in order to add support for caching this information to speed up quickget.
+    if [ "${1}" != "--refresh" ] && [ "${CACHE_DATA}" -eq 1 ]; then
+        fetch_from_cache && return 0
+    fi
+
+    # Add editions and releases here. Or, replace this with your code to fetch releases and editions.
+    # Add them to the array with the += operator followed by parentheses.
+    RELEASES+=()
+    EDITIONS+=()
+
+    # If unique editions are required, comment out the above EDITIONS+= statement and use this template instead.
+    # declare -A EDITIONS && associative_editions=true
+    # EDITIONS['RELEASE1']=(EDITION1 EDITION2)
+    # EDITIONS['RELEASE2']=(EDITION1 EDITION2)
+
+    if [ "${CACHE_DATA}" -eq 1 ]; then
+        populate_cache
+    fi
+}
+
+
+# Everything below here should not have to be modified. Variables above are used to determine the proper behavior
+function validate_edition() {
+    fetch_info
+    echo PLACEHOLDER
+}
+
+function validate_release() {
+    fetch_info
+    echo PLACEHOLDER
+}
+
+function format_re() {
+    fetch_info
+    echo PLACEHOLDER
+}
+
+function fetch_from_cache() {
+    echo PLACEHOLDER
+}
+
+function populate_cache() {
+    echo PLACEHOLDER
+}
+
+case "${1}" in
+    --homepage)
+        echo "${HOMEPAGE}";;
+    --requires-edition)
+        # 0 = false, 1 = true
+        return "${REQUIRES_EDITION}";;
+    --edition-name)
+        # Change this if editions has a custom name (or does something unique). i.e. Windows: Languages
+        echo "${EDITION_NAME}";;
+    --unique-editions)
+        # Return 0 if editions are the same between releases, 1 if they are different
+        return "${UNIQUE_EDITIONS}";;
+    --refresh)
+        fetch_info --refresh;;
+    --validate-release)
+        validate_release;;
+    --validate-edition)
+        validate_edition;;
+    --format-re)
+        format_re;;
+esac

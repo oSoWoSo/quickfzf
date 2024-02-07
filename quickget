@@ -19,7 +19,8 @@ function check_arch() {
             echo "i386";;
         armv8*|aarch64*)
             echo "arm64";;
-        *) echo "${OUTPUT}";;
+        *)
+            echo "${OUTPUT}";;
     esac
 }
 
@@ -72,8 +73,21 @@ function show_iso_url() {
     echo true
 }
 
+function usage() {
+    exit 1
+}
 
 trap cleanup EXIT
+
+if [ "${UID}" -eq 0 ]; then
+    echo "ERROR! Quickget cannot be run as root."
+    exit 1
+fi
+
+# Create cache file to store OS releases and editions in order to speed up quickget 
+# when this info must be downloaded from the internet (automatically refreshed when data is >7 days old)
+mkdir -p ~/.quickemu && touch ~/.quickemu/osinfo.cache
+
 BASE_DIR="$(dirname "${0}")"
 RESOURCE_DIR="${BASE_DIR}/quickget-resources"
 VALID_OS=($(ls "${RESOURCE_DIR}" | grep ".os" | sed 's/.os//g'))
@@ -113,7 +127,7 @@ while (( "${#}" )); do
             REFRESH=true
             ;;
         --refresh-all)
-            REFRESH_ALL
+            REFRESH_ALL=true
             ;;
         --*|-*)
             echo "Unsupported flag ${1}"
@@ -143,7 +157,13 @@ else
     usage
 fi
 
-if [ ! " ${VALID_OS[@]} " =~ " ${OS} " ]; then
+if [ "${OPEN_HOMEPAGE}" == 'true' ]; then
+    URL="$("${PLUGIN}" --homepage)"
+    xdg-open $URL || sensible-browser $URL || x-www-browser $URL || gnome-open $URL;
+    exit 0
+fi
+
+if [[ ! " ${VALID_OS[@]} " =~ " ${OS} " ]]; then
     echo -e "ERROR! ${OS} is not a supported OS.\n"
     echo "${VALID_OS[@]}"
     exit 1
@@ -151,6 +171,9 @@ fi
 
 if [ -n "${RELEASE}" ]; then
     VM_PATH="${OS}-${RELEASE}"
+
+    # Exit condition will be 1 (failure) if an edition is required. Thus, check if the command fails.
+    if [ ! "${PLUGIN}" --requires-edition ]; then
 
 
 fi
