@@ -12,10 +12,16 @@
 # Change this function for your distro
 function get_distro_info() {
     declare -A distro_info
-    distro_info['url']="https://mirror.cachyos.org/ISO/${EDITION}/${RELEASE}"
-    distro_info['iso']="cachyos-${EDITION}-linux-${RELEASE}.iso"
-    distro_info['hash']="$(wget -q -O- "${distro_info['url']}/${distro_info['iso']}.sha256" | cut -d' ' -f1)"
+    distro_info['url']="https://repo-default.voidlinux.org/live/current"
+    distro_info['date']=$(wget -q -O- "${distro_info['url']}/sha256sum.txt" | head -n1 | cut -d'.' -f1 | cut -d'-' -f4)
+    case ${EDITION} in
+        glibc)      distro_info['iso']="void-live-x86_64-${distro_info['date']}-base.iso";;
+        musl)       distro_info['iso']="void-live-x86_64-musl-${distro_info['date']}-base.iso";;
+        xfce-glibc) distro_info['iso']="void-live-x86_64-${distro_info['date']}-xfce.iso";;
+        xfce-musl)  distro_info['iso']="void-live-x86_64-musl-${distro_info['date']}-xfce.iso";;
+    esac
 
+    distro_info['hash']=$(wget -q -O- "${distro_info['url']}/sha256sum.txt" | grep "${distro_info['iso']}" | cut -d' ' -f4)
     echo "${distro_info[@]@k}"
 }
 
@@ -28,7 +34,7 @@ function get_distro_info() {
 # This function returns supported OS releases for the OS
 # Change this function for your distro
 function releases() {
-    echo 231210 240121
+    echo current
 }
 
 # This function returns an associative array with releases as the key
@@ -42,7 +48,7 @@ function editions() {
     local release
 
     for release in $(releases); do
-        editions[${release}]="gnome!kde"
+        editions[${release}]="glibc!musl!xfce-glibc!xfce-musl"
     done
 
     echo "${editions[@]@k}"
@@ -57,13 +63,13 @@ function editions_required() {
 # This function returns an expanded OS name for pretty printing
 # Change this function for your distro
 function pretty_name() {
-    echo "CachyOS"
+    echo "Void Linux"
 }
 
 # This function returns the OS's home page URL
 # Change this function for your distro
 function homepage() {
-    echo "https://cachyos.org/"
+    echo "https://voidlinux.org/"
 }
 
 # This function creates the vm_config file and can be used to
