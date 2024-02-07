@@ -10,8 +10,75 @@ function cleanup() {
   fi
 }
 
+function check_arch() {
+    # Check the architecture of the host system. Format it in a more standard way (e.g. x86_64 -> amd64)
+    case "$(uname -m)" in
+        x86_64)
+            echo "amd64";;
+        i386|i686)
+            echo "i386";;
+        armv8*|aarch64*)
+            echo "arm64";;
+        *) echo "${OUTPUT}";;
+    esac
+}
+
+function handle_urls() {
+    echo "Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
+    # Handle multiple URLs if necessary
+    local DIR="${1}"
+    
+    while (( "${#}" )); do
+        shift
+        web_get "${1}" "${DIR}"
+    done
+}
+
+function web_get() {
+    local DIR="${2}"
+    local FILE="${URL##*/}"
+    local URL="${1}"
+
+	# # Test mode for ISO
+	# if [ "${show_iso_url}" == 'on' ]; then
+	#     echo "${URL}"
+	#     exit 0
+    # elif [ "${test_iso_url}" == 'on' ]; then
+	#     wget --spider "${URL}"
+	#     exit 0
+    # elif [ "${download_iso}" == 'on' ]; then
+    #     DIR="$(pwd)"
+    # fi
+    
+    if command -v aria2c &>/dev/null; then
+        if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${DIR}" -o "${FILE}"; then
+          echo #Necessary as aria2c in suppressed mode does not have new lines
+          echo "ERROR! Failed to download ${URL} with aria2c. Try running 'quickget' again."
+          exit 1
+        fi
+        echo #Necessary as aria2c in suppressed mode does not have new lines
+    elif command -v wget2 &>/dev/null; then
+        if ! wget2 --quiet --continue --tries=3 --read-timeout=10 --force-progress --progress=bar:force:noscroll "${URL}" -O "${DIR}/${FILE}"; then
+            echo "ERROR! Failed to download ${URL} with wget2. Try running 'quickget' again."
+            exit 1
+        fi
+    elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${URL}" -O "${DIR}/${FILE}"; then
+        echo "ERROR! Failed to download ${URL} with wget. Try running 'quickget' again."
+        exit 1
+    fi
+}
+
+function show_iso_url() {
+    echo true
+}
+
+
+trap cleanup EXIT
 BASE_DIR="$(dirname "${0}")"
 RESOURCE_DIR="${BASE_DIR}/quickget-resources"
+VALID_OS=($(ls "${RESOURCE_DIR}" | grep ".os" | sed 's/.os//g'))
+PARAMS=()
+ARCH="$(check_arch)"
 
 while (( "${#}" )); do
     case "${1}" in
@@ -27,30 +94,63 @@ while (( "${#}" )); do
             "${BASE_DIR}"/quickemu ---version
             exit 0
             ;;
+        --arch|--architecture)
+            ARCH="${2}"
+            ;;
         --download-iso)
             DOWNLOAD_ONLY=true
-            shift
             ;;
         --test-iso-url|-t)
-            test_iso_url
-            shift
+            TEST_ISO_URL=true
             ;;
         --show-iso-url|-s)
-            show_iso_url
-            shift
+            SHOW_ISO_URL=true
             ;;
         --open-distro-homepage|-o)
             OPEN_HOMEPAGE=true
-            shift
+            ;;
+        --refresh)
+            REFRESH=true
+            ;;
+        --refresh-all)
+            REFRESH_ALL
             ;;
         --*|-*)
             echo "Unsupported flag ${1}"
-            shift
             ;;
         *)
-            PARAMS="${PARAMS} ${1}"
-            shift
+            PARAMS+=("${1}")
             ;;
     esac
+    shift
 done
 
+OS="${PARAMS[0]}"
+RELEASE="${PARAMS[1]}"
+EDITION="${PARAMS[2]}"
+if [ "${PARAMS[3]}" ]; then
+    echo "Error. Invalid parameters."
+    exit 1
+fi
+
+
+if [ -n "${OS}" ]; then
+    PLUGIN="${RESOURCE_DIR}/${OS}.os"
+else
+    echo "ERROR! You must specify an operating system."
+    echo -n " - Operating Systems: "
+    echo "${VALID_OS[@]}"
+    usage
+fi
+
+if [ ! " ${VALID_OS[@]} " =~ " ${OS} " ]; then
+    echo -e "ERROR! ${OS} is not a supported OS.\n"
+    echo "${VALID_OS[@]}"
+    exit 1
+fi
+
+if [ -n "${RELEASE}" ]; then
+    VM_PATH="${OS}-${RELEASE}"
+
+
+fi
