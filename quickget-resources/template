@@ -25,11 +25,13 @@ CACHE_DATA=0
 
 
 function fetch_info() {
-    # If your operating system checks for releases or editions on the internet, uncomment this
-    # in order to add support for caching this information to speed up quickget.
-    if [ "${1}" != "--refresh" ] && [ "${CACHE_DATA}" -eq 1 ]; then
-        fetch_from_cache "${1}" && return 0
-    fi
+    # Sets the architecture based on input, fetch OS data from cache if available.
+    case "${1}" in
+        --refresh)
+            ARCH="${2}";;
+        *)
+            fetch_from_cache && return 0;;
+    esac
 
     # Add editions and releases here. Or, replace this with your code to fetch releases and editions.
     # Add them to the array with the += operator followed by parentheses.
@@ -44,25 +46,59 @@ function fetch_info() {
     # associativeEDITIONS['RELEASE2']="EDITION1;EDITION2;EDITION3"
 
     if [ "${CACHE_DATA}" -eq 1 ]; then
-        populate_cache
+        populate_cache "${ARCH}"
     fi
+}
+
+function list_urls() {
+    ARCH="${3}"
+    fetch_info
+    local RELEASE="${4}"
+    local EDITION="${5}"
+
+    # Here, you can insert the URL, ISO, and HASH, similarly to the original quickget.
+    # Alternatively, you may replace it with anything else, or call another function you create if necessary.
+    URL=""
+    ISO=""
+    HASH=""
+
+    # These are default options. You may change them if necessary. If multiple files need to be downloaded,
+    # they may be separated by a space, with hashes (if applicable) following the file.
+    # If you need to handle downloading within this function, call whatever method you'd like, and then add 'exit 2' so quickget knows to skip download.
+    case "${2}" in
+        --friendly)
+            echo "${URL}/${ISO}";;
+        --download)
+            echo "${URL}/${ISO}" "${HASH}";;
+    esac
 }
 
 
 # Everything below here should not have to be modified. Variables above are used to determine the proper behavior
 function validate_re() {
-    local ARCH="${2}"
+    ARCH="${2}"
     fetch_info
     local RELEASE="${3}"
     local EDITION="${4}"
     
+    if [ -z "${RELEASE}" ]; then
+        echo "ERROR! You must specify a release."
+        format_re
+    fi
+
     # Check if release is present in the releases array
     for REL in "${RELEASES[@]}"; do
         if [ "${RELEASE,,}" == "${REL,,}" ]; then
             # Handle unnecessary editions passed
-            if [ -z "${EDITIONS}" ] && [ -n "${EDITION}" ]; then
+            if [ -z "${EDITIONS[@]}" ] && [ -n "${EDITION}" ]; then
                 echo "WARNING: ${PRETTY_NAME} does not support ${EDITION_NAME,,}. Ignoring."
-                return 2
+                exit 2
+            elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
+                exit 2
+            elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 1 ]; then
+                echo -en "ERROR: You must specify an edition.\n - ${PRETTY_NAME} ${RELEASE} Editions: "
+                list_editions "${ARCH}" "${RELEASE}"
+                exit 1
             fi
 
             # Handle the associative array for unique editions
@@ -72,28 +108,25 @@ function validate_re() {
                 done <<< "${associativeEDITIONS["${RELEASE}"]};"
             fi
 
-            if [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
-                return 0
-            fi
-
             # Loop through editions array and check if the edition is present
             for ED in "${EDITIONS[@]}"; do
                 if [ "${EDITION,,}" == "${ED,,}" ]; then
-                    return 0
+                    exit 0
                 fi
             done
+
+            echo -e "ERROR! ${EDITION} is not a supported ${PRETTY_NAME} ${RELEASE} edition.\n"
+            list_editions "${ARCH}" "${RELEASE}"
+            exit 1
         fi
     done
 
-    return 1
+    echo "ERROR! ${PRETTY_NAME} ${RELEASE} is not a supported release."
+    format_re 
+    exit 1
 }
 
 function format_re() {
-    local ARCH="${2}"
-    fetch_info "${ARCH}"
-    local RELEASE="${3}"
-    local EDITION="${4}"
-    
     if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
         echo PLACEHOLDER
     else
@@ -101,6 +134,17 @@ function format_re() {
     fi
 
     echo PLACEHOLDER
+}
+
+function list_editions() {
+    local RELEASE="${3}"
+    # Handle the associative array for unique editions
+    if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
+        while read -d ';' -r aEDITION; do
+            EDITIONS+=("${aEDITION}")
+        done <<< "${associativeEDITIONS["${RELEASE}"]};"
+    fi
+    echo "${EDITIONS[@]}"
 }
 
 function fetch_from_cache() {
@@ -116,9 +160,10 @@ if [ -z "${PRETTY_NAME}" ]; then
     PRETTY_NAME="$(basename "${0}" | sed 's/.os//g')"
 fi
 
-# Set default values for PRETTY_NAME and EDITION_NAME if they're unset above
+# Set default values (should not edit)
 PRETTY_NAME="${PRETTY_NAME:-$(basename "${0}" | sed 's/.os//g')}"
 EDITION_NAME="${EDITION_NAME:-Editions}"
+CACHE_FILE="${HOME}/.quickget/$(basename "${0}" | sed 's/.os//g').cache"
 
 case "${1}" in
     --homepage)
@@ -130,13 +175,9 @@ case "${1}" in
     --pretty-name)
         return "${PRETTY_NAME}";;
     --refresh)
-        fetch_info --refresh;;
+        fetch_info --refresh "${2}";;
     --validate-re)
         validate_re "${@}";;
-    --format-re)
-        format_re "${@}";;
+    --list-urls)
+        list_urls "${@}";;
 esac
-
-while read -d ';' -r aEDITION
-    do echo "${aEDITION}";
-done < <(echo "${associativeEDITIONS["key1"]}")
