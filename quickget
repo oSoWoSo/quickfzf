@@ -25,14 +25,20 @@ function check_arch() {
 }
 
 function handle_urls() {
-    echo "Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
     # Handle multiple URLs if necessary
     local DIR="${1}"
     
-    while (( "${#}" )); do
-        shift
-        web_get "${1}" "${DIR}"
-    done
+    if shift && [ -n "${1}" ]; then
+        if [ "${TEST_ISO_URL}" != 'true' ] && [ "${DOWNLOAD_ONLY}" != 'true' ]; then
+            echo "Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
+        fi
+
+        while (( "${#}" )); do
+            echo running web_get URL: "${1}" DIR: "${DIR}"
+            web_get "${1}" "${DIR}"
+            shift
+        done
+    fi
 }
 
 function web_get() {
@@ -40,16 +46,11 @@ function web_get() {
     local FILE="${URL##*/}"
     local URL="${1}"
 
-	# # Test mode for ISO
-	# if [ "${show_iso_url}" == 'on' ]; then
-	#     echo "${URL}"
-	#     exit 0
-    # elif [ "${test_iso_url}" == 'on' ]; then
-	#     wget --spider "${URL}"
-	#     exit 0
-    # elif [ "${download_iso}" == 'on' ]; then
-    #     DIR="$(pwd)"
-    # fi
+	if [ "${TEST_ISO_URL}" == 'true' ]; then
+        wget --spider "${URL}"
+    elif [ "${DOWNLOAD_ONLY}" ]; then
+        DIR="$(pwd)"
+    fi
     
     if command -v aria2c &>/dev/null; then
         if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${DIR}" -o "${FILE}"; then
@@ -70,7 +71,8 @@ function web_get() {
 }
 
 function show_iso_url() {
-    echo true
+    "${PLUGIN}" --list-urls --friendly
+    exit 0
 }
 
 function usage() {
@@ -93,7 +95,7 @@ fi
 
 BASE_DIR="$(dirname "${0}")"
 RESOURCE_DIR="${BASE_DIR}/quickget-resources"
-VALID_OS=($(ls "${RESOURCE_DIR}" | grep ".os" | sed 's/.os//g'))
+VALID_OS=($(ls "${RESOURCE_DIR}" | grep ".os" | sed 's/.os$//g'))
 PARAMS=()
 ARCH="$(check_arch)"
 
@@ -152,7 +154,7 @@ fi
 
 
 if [ -n "${OS}" ]; then
-    PLUGIN="${RESOURCE_DIR}/${OS}.os"
+    PLUGIN="${RESOURCE_DIR}/${OS,,}.os"
 else
     echo "ERROR! You must specify an operating system."
     echo -n " - Operating Systems: "
@@ -174,15 +176,13 @@ elif [ "${REFRESH_ALL}" == 'true' ]; then
     exit 0
 fi
 
-if [[ ! " ${VALID_OS[@]} " =~ " ${OS} " ]]; then
+if [[ ! " ${VALID_OS[@]} " =~ " ${OS,,} " ]]; then
     echo -e "ERROR! ${OS} is not a supported OS.\n"
     echo "${VALID_OS[@]}"
     exit 1
 fi
 
-export VM_DIR="$(pwd)"
-
-${PLUGIN} --validate-re "${ARCH}" "${RELEASE}" "${EDITION}"
+"${PLUGIN}" --validate-re "${ARCH}" "${RELEASE}" "${EDITION}"
 case "${?}" in
     0)
         VM_PATH="${OS}-${RELEASE}-${EDITION}";;
@@ -192,5 +192,14 @@ case "${?}" in
         VM_PATH="${OS}-${RELEASE}";;
 esac
 
+if [ "${SHOW_ISO_URL}" == 'true' ]; then
+    show_iso_url
+fi
+
+# Export variables to make accessible within plugin.
+export VM_DIR="$(pwd)"
 export VM_PATH
 
+PRETTY_NAME="$("${PLUGIN}" --pretty-name)"
+
+handle_urls "${VM_PATH}" "$("${PLUGIN}" --list-urls --download "${ARCH}" "${RELEASE}" "${EDITION}")"

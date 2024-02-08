@@ -58,14 +58,15 @@ function list_urls() {
 
     # Here, you can insert the URL, ISO, and HASH, similarly to the original quickget.
     # Alternatively, you may replace it with anything else, or call another function you create if necessary.
-    URL=""
-    ISO=""
-    HASH=""
+    local URL=""
+    local ISO=""
+    local HASH=""
 
     # These are default options. You may change them if necessary. If multiple files need to be downloaded,
-    # they may be separated by a space, with hashes (if applicable) following the file.
+    # they may be separated by a space, with hashes (if applicable) following the applicable files (once again, separated by a space).
     # If you need to handle downloading within this function, call whatever method you'd like, and then add 'exit 2' so quickget knows to skip download.
     case "${2}" in
+        # Friendly is the show_iso_url option. It should print the URL(s) in a way that's easily readable, and not hashes
         --friendly)
             echo "${URL}/${ISO}";;
         --download)
@@ -84,13 +85,14 @@ function validate_re() {
     if [ -z "${RELEASE}" ]; then
         echo "ERROR! You must specify a release."
         format_re
+        exit 1
     fi
 
     # Check if release is present in the releases array
     for REL in "${RELEASES[@]}"; do
         if [ "${RELEASE,,}" == "${REL,,}" ]; then
             # Handle unnecessary editions passed
-            if [ -z "${EDITIONS[@]}" ] && [ -n "${EDITION}" ]; then
+            if [ -z "${EDITIONS[*]}" ] && [ -n "${EDITION}" ]; then
                 echo "WARNING: ${PRETTY_NAME} does not support ${EDITION_NAME,,}. Ignoring."
                 exit 2
             elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
@@ -155,15 +157,10 @@ function populate_cache() {
     echo PLACEHOLDER
 }
 
-# Add OS name from the filename in the case that PRETTY_NAME is unset
-if [ -z "${PRETTY_NAME}" ]; then
-    PRETTY_NAME="$(basename "${0}" | sed 's/.os//g')"
-fi
-
 # Set default values (should not edit)
-PRETTY_NAME="${PRETTY_NAME:-$(basename "${0}" | sed 's/.os//g')}"
+PRETTY_NAME="${PRETTY_NAME:-$(basename "${0}" | sed 's/.os$//g')}"
 EDITION_NAME="${EDITION_NAME:-Editions}"
-CACHE_FILE="${HOME}/.quickget/$(basename "${0}" | sed 's/.os//g').cache"
+CACHE_FILE="${HOME}/.quickget/$(basename "${0}" | sed 's/.os$//g').cache"
 
 case "${1}" in
     --homepage)
