@@ -10,14 +10,18 @@ function main() {
     fi
 
     PARAMS=""
-    BASE_DIR="${BASH_SOURCE[0]%%/*}"
-    PLUGINS="${BASE_DIR}/quickget_plugins"
+    BASE_DIR="$(dirname "${BASEDIR_SOURCE}")"
+    if [[ "${BASE_DIR}" == '.' ]]; then
+        PLUGINS="${BASE_DIR}/quickget_plugins"          # < used in development
+    else
+        PLUGINS="/usr/share/quickemu/quickget_plugins"  # < used for production
+    fi
     TMPDIR="${HOME}/quickget-tmp"   # to be used for temp files if needed
     mkdir -p "${TMPDIR}"
-                                    # will automaticly get deleted
+                                    # will automatically get deleted
 
     # Set defaults for arguments
-    declare -A DISTRO_INFO # This get set in get_distro_info then made readonly
+    declare -A DISTRO_INFO # This get set in get_distro_info then made read only
     TEST_ISO_URL=false
     SHOW_ISO_URL=false
     OPEN_DISTRO_HOME_PAGE=false
@@ -63,7 +67,7 @@ function main() {
                 esac
                 ;;
             --*|-*) # unsupported flags
-                error "Unsuppotred flag ${1}"
+                error "Unsupported flag ${1}"
                 shift
                 usage
                 ;;
@@ -92,13 +96,18 @@ function main() {
         printf "\n"
         usage
     elif ! valid_os "${OS}"; then
-        error "${OS} is not a valid os please resubmit with valid os"
+        error "${OS} is not a valid OS please resubmit with valid OS"
         printf "Valid OS's:\n"
         supported_oses
         printf "\n"
         usage
     else            # shellcheck disable=SC1090
         source "${PLUGINS}/${OS}".plug          # get OS specific version of functions
+
+        if ${OPEN_DISTRO_HOME_PAGE}; then
+            open_url "$(homepage)"
+            exit 0
+        fi
 
         declare -r -A EDITIONS="($(editions))"
 
@@ -135,7 +144,7 @@ function main() {
                     fi
                 else
                     if [ -n "${EDITION}" ]; then
-                        error "Edition is not aloud you must specify only a vlaid release ${OS}"
+                        error "Edition is not aloud you must specify only a valid release ${OS}"
                         release_editions
                         usage
                     else
@@ -160,10 +169,7 @@ function main() {
         printf "%-5s: %s\n" "${key}" "${DISTRO_INFO["${key}"]}"
     done | sort
 
-    if ${OPEN_DISTRO_HOME_PAGE}; then
-        open_url "$(homepage)"
-        exit 0
-    elif ${SHOW_ISO_URL}; then
+    if ${SHOW_ISO_URL}; then
         show_iso_url
         exit 0
     elif ${TEST_ISO_URL}; then
@@ -253,13 +259,13 @@ function error() {
 }
 
 function edition_valid() {
-    #   This function valiates that the supplied edition is one of the
+    #   This function validates that the supplied edition is one of the
     #   valid releases
     [[ "${EDITIONS["${RELEASE}"]}" == *"${EDITION}"* ]] && return 0 || return 1
 }
 
 function release_valid() {
-    #   This function valiates that the supplied relese is one of the
+    #   This function validates that the supplied release is one of the
     #   valid releases
     for value in $(releases); do
         [[ "${RELEASE}" == "${value}" ]] && return 0
@@ -303,7 +309,7 @@ function list_json {
 
 function open_url() {
     local url=${1}
-    xdg-open "${url}" || sensible-brownser "${url}" || x-www-browser "${url}" || gnome-open "${url}";
+    xdg-open "${url}" || sensible-browser "${url}" || x-www-browser "${url}" || gnome-open "${url}";
 }
 
 function release_editions(){
