@@ -28,7 +28,51 @@ function get_distro_info() {
         fi
     done
 
-    echo "${distro_info[@]@k}"
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
+}
+
+#function get_file() {
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples..
+#}
+
+# This function returns supported OS releases for the OS
+# Change this function for your distro
+function releases() {
+    echo latest
+}
+
+# This function returns an associative array with releases as the key
+# and a "!" separated string of valid editions for the specific release.
+# While quite often editions are the same for all releases it is not always
+# the case.
+# Editions have different meanings for different OS's
+# Change this function for your distro
+function editions() {
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]="boot!minimal!dvd"
+    done
+
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
+}
+
+# Change this function for your distro
+# Returning 0 means editions are required and 1 not required
+function editions_required() {
+    return 0
+}
+
+# This function returns an expanded OS name for pretty printing
+# Change this function for your distro
+function pretty_name() {
+    echo "Alma Linux"
 }
 
 # Use this function to override the standard function in quickget

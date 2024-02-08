@@ -15,8 +15,10 @@ function get_distro_info() {
     distro_info['url']="https://ddl.bunsenlabs.org/ddl"
     distro_info['iso']="beryllium-1-amd64.hybrid.iso"
     distro_info['hash']="$(wget -q -O- "${distro_info['url']}/release.sha256.txt" | head -1 | cut -d' ' -f1)"
-
     echo "${distro_info[@]@k}"
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
 }
 
 # Use this function to override the standard function in quickget
@@ -45,7 +47,9 @@ function editions() {
         editions[${release}]=""
     done
 
-    echo "${editions[@]@k}"
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
 }
 
 # Change this function for your distro

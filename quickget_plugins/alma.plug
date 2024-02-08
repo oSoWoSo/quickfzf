@@ -16,7 +16,9 @@ function get_distro_info() {
     distro_info['iso']="AlmaLinux-${RELEASE}-latest-x86_64-${EDITION}.iso"
     distro_info['hash']="$(wget -q -O- "${distro_info['url']}"/CHECKSUM | grep \("${distro_info['iso']}"\) | cut -d' ' -f4)"
 
-    echo "${distro_info[@]@k}"
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
 }
 
 # Use this function to override the standard function in quickget
@@ -45,7 +47,9 @@ function editions() {
         editions[${release}]="boot!minimal!dvd"
     done
 
-    echo "${editions[@]@k}"
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
 }
 
 # Change this function for your distro

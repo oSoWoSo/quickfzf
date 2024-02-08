@@ -20,7 +20,9 @@ function get_distro_info() {
     esac
     distro_info['hash']=$(wget -q -O- "${distro_info['url']}/${distro_info['iso']}.sha256" | cut -d' ' -f1)
 
-    echo "${distro_info[@]@k}"
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
 }
 
 # Use this function to override the standard function in quickget
@@ -49,7 +51,9 @@ function editions() {
         editions[${release}]="standard!hwe!s76"
     done
 
-    echo "${editions[@]@k}"
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
 }
 
 # Change this function for your distro

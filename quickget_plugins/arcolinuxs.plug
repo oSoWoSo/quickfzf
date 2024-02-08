@@ -19,7 +19,10 @@ function get_distro_info() {
         distro_info['iso']="${RELEASE}/arcolinuxs-${EDITION}-${RELEASE}-x86_64.iso"
     fi
     distro_info['hash']="$(curl -s "${distro_info['url']}/${distro_info['iso']}.sha256" | cut -d' ' -f1)"
-    echo "${distro_info[@]@k}"
+
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
 }
 
 # Use this function to override the standard function in quickget
@@ -31,7 +34,7 @@ function get_distro_info() {
 # This function returns supported OS releases for the OS
 # Change this function for your distro
 function releases() {
-    echo v22.01.10 v22.03.07 v22.04.02 v22.05.02 v22.06.07 v22.07.03 v22.09.04 v22.10.02 v22.11.02 v22.12.02 v23.01.03 v23.02.02 v23.03.01 v23.04.03 v23.05.04 v23.06.02 v23.07.01 v23.09.03 v23.10.01 v23.11.03 v23.12.03 v24.01.04 v24.02.01
+    echo v22.01.10 v22.03.07 v22.04.02 v22.05.02 v22.06.07 v22.07.03 v22.09.04 v22.10.02 v22.11.02 v22.12.02 v23.01.03 v23.02.02 v23.03.01 v23.04.03 v23.05.04 v23.06.02 v23.07.01 v23.09.03 v23.10.01 v23.11.03 v23.12.03 v24.01.04
 }
 
 # This function returns an associative array with releases as the key
@@ -70,7 +73,9 @@ function editions() {
     editions['v24.01.04']="base!lts!hardend!zen"
     editions['v24.02.01']="base!lts!hardend!zen"
 
-    echo "${editions[@]@k}"
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
 }
 
 # Change this function for your distro

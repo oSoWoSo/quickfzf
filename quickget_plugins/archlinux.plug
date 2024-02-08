@@ -16,7 +16,9 @@ function get_distro_info() {
     distro_info['iso']=$(wget -q -O- "https://archlinux.org/releng/releases/json/" | jq -r '.releases[0].iso_url')
     distro_info['hash']=$(wget -q -O- "https://archlinux.org/releng/releases/json/" | jq -r '.releases[0].sha256_sum')
 
-    echo "${distro_info[@]@k}"
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
 }
 
 # Use this function to override the standard function in quickget
@@ -47,7 +49,9 @@ function editions() {
         editions[${release}]=""
     done
 
-    echo "${editions[@]@k}"
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
 }
 
 # Change this function for your distro
