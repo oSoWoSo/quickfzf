@@ -1,0 +1,123 @@
+#!/usr/bin/bash
+#
+#   This template identifies the functions required to supported by each OS
+
+#function create_vm() {
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples..
+#}
+
+# This function returns an associative array with keys "url", "iso", and "hash"
+# Change this function for your distro
+function get_distro_info() {
+    declare -A distro_info
+distro_info['iso']="deepin-desktop-community-${RELEASE}-amd64.iso" # deepin-desktop-community-20.3-amd64.iso distro_info['url']="https://cdimage.deepin.com/releases/"${RELEASE}
+
+    # fix iso name
+    if [[ "${RELEASE}" == *"20" ]] ; then
+      edition="1003"
+      distro_info['iso']="deepin-desktop-community-${edition}-amd64.iso"
+    elif [[ "${RELEASE}" == *"20.1" ]]; then
+      edition="1010"
+      distro_info['iso']="deepin-desktop-community-${edition}-amd64.iso"
+    fi
+
+    distro_info['hash']=$(wget -q -O- "${distro_info['url']}/SHA256SUMS" | grep "${distro_info['iso']}" | cut -d' ' -f1)
+
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
+}
+
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples..
+function get_file() {
+    local url=${1}
+    local dir=${2}
+    local file=${3}
+
+    if [ -z "${file}" ]; then
+        file="${url##*/}"
+    fi
+
+    if command -v aria2c &>/dev/null; then
+        echo aria2c
+        if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${url}" --dir "${dir}" -o "${file}"; then
+          echo #Necessary as aria2c in suppressed mode does not have new lines
+          error "Failed to download ${URL} with aria2c. Try running 'quickget' again."
+          exit 1
+        fi
+        echo #Necessary as aria2c in suppressed mode does not have new lines
+    elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${url}" -O "${dir}/${file}"; then
+        error "Failed to download ${URL} with wget. Try running 'quickget' again."
+        exit 1
+    fi
+
+    if [[ ${distro_info['iso']} =~ ".bz2" ]]; then
+        bzip2 -d  "${VM_PATH}/${distro_info['iso']}"
+    fi
+}
+
+# This function returns supported OS releases for the OS
+# Change this function for your distro
+function releases() {
+    echo 20 20.1 20.2 20.2.1 20.2.2 20.2.3 20.2.4 20.3 20.4 20.5 20.6 20.7
+}
+
+# This function returns an associative array with releases as the key
+# and a "!" separated string of valid editions for the specific release.
+# While quite often editions are the same for all releases it is not always
+# the case.
+# Editions have different meanings for different OS's
+# Change this function for your distro
+function editions() {
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]=""
+    done
+
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
+}
+
+# Change this function for your distro
+# Returning 0 means editions are required and 1 not required
+function editions_required() {
+    return 1
+}
+
+# This function returns an expanded OS name for pretty printing
+# Change this function for your distro
+function pretty_name() {
+    echo "Deepin Linux"
+}
+
+# This function returns the OS's home page URL
+# Change this function for your distro
+function homepage() {
+    echo "https://www.deepin.org/"
+}
+
+# This function creates the vm_config file and can be used to
+# replace the default one in the quickget
+# Change this function for your distro
+function make_vm_config() {
+    default_vm_config
+
+    # Override any default settings
+    #sed -i 's/^disk_size=.*/disk_size=\"80G\"/' "${VM_PATH}".conf
+    sed -i 's/^disk_size=.*/disk_size=\"64G\"/' "${VM_PATH}".conf
+
+    # Add any additional lines
+    # {
+    #     printf "fixed_iso=\"%s\"\n"   ${fixed_iso}
+    #
+    # } >> "${VM_PATH}.conf"
+    {
+        printf "ram=\"%s\"\n"   '4G'
+
+    } >> "${VM_PATH}.conf"
+}
