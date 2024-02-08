@@ -22,7 +22,10 @@ function get_distro_info() {
     esac
 
     distro_info['hash']=$(wget -q -O- "${distro_info['url']}/sha256sum.txt" | grep "${distro_info['iso']}" | cut -d' ' -f4)
-    echo "${distro_info[@]@k}"
+
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
 }
 
 # Use this function to override the standard function in quickget
@@ -51,7 +54,9 @@ function editions() {
         editions[${release}]="glibc!musl!xfce-glibc!xfce-musl"
     done
 
-    echo "${editions[@]@k}"
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
 }
 
 # Change this function for your distro

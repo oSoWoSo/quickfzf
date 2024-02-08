@@ -25,7 +25,9 @@ function get_distro_info() {
         ;;
     esac
 
-    echo "${distro_info[@]@k}"
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
 }
 
 # Use this function to override the standard function in quickget
@@ -54,7 +56,9 @@ function editions() {
         editions[${release}]="boot!dvd1"
     done
 
-    echo "${editions[@]@k}"
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
 }
 
 # Change this function for your distro
