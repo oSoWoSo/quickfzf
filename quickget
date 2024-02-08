@@ -173,7 +173,10 @@ if [ -n "${RELEASE}" ]; then
     VM_PATH="${OS}-${RELEASE}"
 
     # Exit condition will be 1 (failure) if an edition is required. Thus, check if the command fails.
-    if [ ! "${PLUGIN}" --requires-edition ]; then
+    if [ ! "${PLUGIN}" --requires-edition ] || [ -n "${EDITION}" ]; then
+    {
+        "${PLUGIN}" --validate-re "${RELEASE}" "${EDITION}"
+    }
 
 
 fi
