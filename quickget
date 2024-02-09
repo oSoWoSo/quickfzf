@@ -88,8 +88,8 @@ fi
 
 # Create directory to cache release/edition information in the case that it's sourced from the internet.
 # OS Template will handle the creation of individual files
-if ! mkdir -p "${HOME}/.quickemu"; then
-    echo "ERROR! Failed to create cache directory at ${HOME}/.quickemu"
+if ! mkdir -p "${HOME}/.cache/quickemu"; then
+    echo "ERROR! Failed to create cache directory at ${HOME}/.cache/quickemu"
     exit 1
 fi
 

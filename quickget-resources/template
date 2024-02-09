@@ -160,7 +160,7 @@ function populate_cache() {
 # Set default values (should not edit)
 PRETTY_NAME="${PRETTY_NAME:-$(basename "${0}" | sed 's/.os$//g')}"
 EDITION_NAME="${EDITION_NAME:-Editions}"
-CACHE_FILE="${HOME}/.quickget/$(basename "${0}" | sed 's/.os$//g').cache"
+CACHE_FILE="${HOME}/.cache/quickget/$(basename "${0}" | sed 's/.os$//g').cache"
 
 case "${1}" in
     --homepage)
