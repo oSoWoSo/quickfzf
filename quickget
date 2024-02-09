@@ -160,8 +160,12 @@ function main() {
                 if editions_required; then
                     release_editions
                 else
-                    printf "\t- Releases: %s\n" "$(releases)"
-                fi
+                    printf "%-15s |" "Releases"
+                    for item in $(releases); do
+                        printf " %s" "${item}"
+                    done
+                    printf "\n"
+                    fi
                 usage
             fi
         fi
@@ -271,9 +275,11 @@ function edition_valid() {
 function release_valid() {
     #   This function validates that the supplied release is one of the
     #   valid releases
+    #
     for value in $(releases); do
-        [[ "${RELEASE}" == "${value}" ]] && return 0
+        [[ "${RELEASE}" == "${value,,}" ]] && return 0
     done
+
     return 1
 }
 
