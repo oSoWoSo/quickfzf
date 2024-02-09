@@ -94,10 +94,16 @@ if ! mkdir -p "${HOME}/.cache/quickemu"; then
 fi
 
 BASE_DIR="$(dirname "${0}")"
-RESOURCE_DIR="${BASE_DIR}/quickget-resources"
 VALID_OS=($(ls "${RESOURCE_DIR}" | grep ".os" | sed 's/.os$//g'))
 PARAMS=()
 ARCH="$(uname -m)"
+
+# Set directory which contains quickget resources. If existing in directory with quickget, use that (for those using quickget from git). 
+if [ -d "${BASE_DIR}/quickget-resources" ]; then
+    RESOURCE_DIR="${BASE_DIR}/quickget-resources"
+else
+    RESOURCE_DIR="/usr/share/quickemu/quickget-resources"
+fi
 
 while (( "${#}" )); do
     case "${1}" in
