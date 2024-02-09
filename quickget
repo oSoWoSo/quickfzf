@@ -10,9 +10,9 @@ function cleanup() {
   fi
 }
 
-function check_arch() {
-    # Check the architecture of the host system. Format it in a more standard way (e.g. x86_64 -> amd64)
-    case "$(uname -m)" in
+function format_arch() {
+    # Format the architecture in a more standard way (e.g. x86_64 -> amd64)
+    case "${1}" in
         x86_64)
             echo "amd64";;
         i386|i686)
@@ -97,7 +97,7 @@ BASE_DIR="$(dirname "${0}")"
 RESOURCE_DIR="${BASE_DIR}/quickget-resources"
 VALID_OS=($(ls "${RESOURCE_DIR}" | grep ".os" | sed 's/.os$//g'))
 PARAMS=()
-ARCH="$(check_arch)"
+ARCH="$(uname -m)"
 
 while (( "${#}" )); do
     case "${1}" in
@@ -144,6 +144,8 @@ while (( "${#}" )); do
     shift
 done
 
+ARCH="$(format_arch "${ARCH}")"
+
 OS="${PARAMS[0]}"
 RELEASE="${PARAMS[1]}"
 EDITION="${PARAMS[2]}"
@@ -168,8 +170,8 @@ if [ "${OPEN_HOMEPAGE}" == 'true' ]; then
     exit 0
 elif [ "${REFRESH}" == 'true' ]; then
     "${PLUGIN}" --refresh
-    exit 0
 elif [ "${REFRESH_ALL}" == 'true' ]; then
+    # TODO: Implement a progress indicator. This function may take a while to run.
     for OS in "${VALID_OS[@]}"; do
         "${RESOURCE_DIR}/${OS}.os" --refresh
     done

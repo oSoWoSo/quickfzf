@@ -28,13 +28,10 @@ ARCHITECTURES=(amd64)
 
 
 function fetch_info() {
-    # Sets the architecture based on input, fetch OS data from cache if available.
-    case "${1}" in
-        --refresh)
-            ARCH="${2}";;
-        *)
-            fetch_from_cache && return 0;;
-    esac
+    # fetch OS data from cache if available. If --refresh is passed, override this behavior
+    if [ "${1}" != "--refresh" ]; then
+        fetch_from_cache && return 0
+    fi
 
     # Add editions and releases here. Or, replace this with your code to fetch releases and editions.
     # Add them to the array with the += operator followed by parentheses.
@@ -54,7 +51,6 @@ function fetch_info() {
 }
 
 function list_urls() {
-    ARCH="${3}"
     fetch_info
     local RELEASE="${4}"
     local EDITION="${5}"
@@ -77,11 +73,22 @@ function list_urls() {
     esac
 }
 
+function config_additions() {
+    # SPECIFICS TBD
+
+
+    # Here, you can add any additional configuation options that should be included in the VM config.
+    # Just echo them out (in quotation marks) if you want to append them to the other options.
+    # append "OVERRIDE " to the beginning of the string to instead replace the value of a default option.
+    # Example: echo "OVERRIDE guest_os=macos" to replace the default linux option with macos
+    # You can REMOVE options by echoing "REMOVE " followed by the option name. 
+    # Example: echo "REMOVE disk_size" to remove the disk_size option, such as for macOS VMs which have disk_size handled in quickemu
+    exit 0
+}
 
 # Everything below here should not have to be modified. Variables above are used to determine the proper behavior
 # I'm expecting to move most of this to a separate file which will be run with `source`, but it'll remain here until functional
 function validate_re() {
-    ARCH="${2}"
     fetch_info
     local RELEASE="${3}"
     local EDITION="${4}"
@@ -161,10 +168,22 @@ function populate_cache() {
     echo PLACEHOLDER
 }
 
+function verify_arch() {
+    for ARCHITECTURE in "${ARCHITECTURES[@]}"; do
+        if [ "${ARCHITECTURE}" == "${ARCH}" ]; then
+            return 0
+        fi
+    done
+    ARCH="${ARCHITECTURES[0]}"
+}
+
 # Set default values (should not edit)
 PRETTY_NAME="${PRETTY_NAME:-$(basename "${0}" | sed 's/.os$//g')}"
 EDITION_NAME="${EDITION_NAME:-Editions}"
 CACHE_FILE="${HOME}/.cache/quickget/$(basename "${0}" | sed 's/.os$//g').cache"
+
+ARCH="${2}"
+verify_arch
 
 case "${1}" in
     --homepage)
@@ -176,9 +195,12 @@ case "${1}" in
     --pretty-name)
         return "${PRETTY_NAME}";;
     --refresh)
-        fetch_info --refresh "${2}";;
+        fetch_info --refresh;;
     --validate-re)
         validate_re "${@}";;
     --list-urls)
+        ARCH="${3}"
         list_urls "${@}";;
+    --return-arch)
+        echo "${ARCH}";;
 esac
