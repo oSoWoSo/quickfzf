@@ -208,8 +208,14 @@ function check_hash() {
         40) hash_algo=sha1sum;;
         64) hash_algo=sha256sum;;
         128) hash_algo=sha512sum;;
-        None) warning "Hash not provided , not checking ${OS} hash";;
-        *) warning "Can't guess hash algorithm, not checking ${OS} hash";;
+        None)
+            warning "Hash not provided , not checking ${OS} hash"
+            return 0
+            ;;
+        *)
+            warning "Can't guess hash algorithm, not checking ${OS} hash"
+            return 0
+            ;;
     esac
 
     printf "Checking %s with %s... " "${DISTRO_INFO['iso']}" "${hash_algo}"

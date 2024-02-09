@@ -1,0 +1,94 @@
+#!/usr/bin/bash
+#
+#   This template identifies the functions required to supported by each OS
+
+#function create_vm() {
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples..
+#}
+
+# This function returns an associative array with keys "url", "iso", and "hash"
+# Change this function for your distro
+function get_distro_info() {
+    declare -A distro_info
+
+    case ${RELEASE} in
+      7.0)
+        distro_info['iso']="MTcwNzQ1OTIyMAo=/elementaryos-7.0-stable.20230129rc.iso"
+        distro_info['hash']="None"
+        ;;
+      7.1)
+        distro_info['iso']="MTcwNzQ1NzE4Mg==/elementaryos-${RELEASE}-stable.20230926rc.iso"
+        distro_info['hash']="5c7f6b388e5787c366587985301ea05ab16e4cc0de3be2b3d6a559ce81a2f102"
+        ;;
+    esac
+    distro_info['url']="https://ams3.dl.elementary.io/download"
+
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
+}
+
+#function get_file() {
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples..
+#}
+
+# This function returns supported OS releases for the OS
+# Change this function for your distro
+function releases() {
+    echo 7.0 7.1
+}
+
+# This function returns an associative array with releases as the key
+# and a "!" separated string of valid editions for the specific release.
+# While quite often editions are the same for all releases it is not always
+# the case.
+# Editions have different meanings for different OS's
+# Change this function for your distro
+function editions() {
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]=""
+    done
+
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
+}
+
+# Change this function for your distro
+# Returning 0 means editions are required and 1 not required
+function editions_required() {
+    return 1
+}
+
+# This function returns an expanded OS name for pretty printing
+# Change this function for your distro
+function pretty_name() {
+    echo "elementary OS"
+}
+
+# This function returns the OS's home page URL
+# Change this function for your distro
+function homepage() {
+    echo "https://elementary.io/"
+}
+
+# This function creates the vm_config file and can be used to
+# replace the default one in the quickget
+# Change this function for your distro
+function make_vm_config() {
+    default_vm_config
+
+    # Override any default settings
+    #sed -i 's/^disk_size=.*/disk_size=\"80G\"/' "${VM_PATH}".conf
+
+    # Add any additional lines
+    # {
+    #     printf "fixed_iso=\"%s\"\n"   ${fixed_iso}
+    #
+    # } >> "${VM_PATH}.conf"
+}
