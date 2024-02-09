@@ -1700,6 +1700,10 @@ else
             KEYBOARD="${2}"
             shift;
             shift;;
+        -keyboard_layout|--keyboard_layout)
+            KEYBOARD_LAYOUT="${2}"
+            shift;
+            shift;;
         -mouse|--mouse)
             MOUSE="${2}"
             shift;
