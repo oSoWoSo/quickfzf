@@ -8,31 +8,26 @@ RESOURCE_DIR="$(dirname "${0}")"
 # 3. Modify list_urls function to provide ISO(s) for the operating system
 
 # (REQUIRED) Homepage of the operating system (URL)
-HOMEPAGE=""
+readonly HOMEPAGE=""
 # (OPTIONAL) Brief description of the operating system
-DESCRIPTION=""
+readonly DESCRIPTION=""
 # (OPTIONAL) Set this to the friendly name of the operating system, if applicable. 
 PRETTY_NAME=""
 # Set this to 1 if the operating system has unique editions (which you will set) for each release, 0 otherwise
-UNIQUE_EDITIONS=0
+readonly UNIQUE_EDITIONS=0
 # Set this variable depending on whether or not the operating system requires an edition to be specified
-REQUIRES_EDITION=0
+readonly REQUIRES_EDITION=0
 # If an edition is NOT required but multiple editions ARE available, put the default edition's name here.
-DEFAULT_EDITION=""
+readonly DEFAULT_EDITION=""
 # If the operating system has a unique name for its editions (i.e. Windows: Languages), set it here
 EDITION_NAME=""
 # Set this to 1 if your fetch_info function fetches data from the internet, 0 if it's hardcoded
-CACHE_DATA=0
+readonly CACHE_DATA=0
 # Add all valid architectures for your operating system here. The first one in the array will be the default (if host system does not match)
-ARCHITECTURES=(amd64)
+readonly ARCHITECTURES=(amd64)
 
 
 function fetch_info() {
-    # fetch OS data from cache if available. If --refresh is passed, override this behavior
-    if [ "${1}" != "--refresh" ]; then
-        fetch_from_cache && return 0
-    fi
-
     # Add editions and releases here. Or, replace this with your code to fetch releases and editions.
     # Add them to the array with the += operator followed by parentheses.
     RELEASES+=()
@@ -44,14 +39,10 @@ function fetch_info() {
     # declare -A associativeEDITIONS
     # associativeEDITIONS['RELEASE1']="EDITION1;EDITION2;EDITION3"
     # associativeEDITIONS['RELEASE2']="EDITION1;EDITION2;EDITION3"
-
-    if [ "${CACHE_DATA}" -eq 1 ]; then
-        populate_cache "${ARCH}"
-    fi
 }
 
 function list_urls() {
-    fetch_info
+    fetch_from_cache
     local RELEASE="${4}"
     local EDITION="${5}"
 
@@ -89,7 +80,7 @@ function config_additions() {
 # Everything below here should not have to be modified. Variables above are used to determine the proper behavior
 # I'm expecting to move most of this to a separate file which will be run with `source`, but it'll remain here until functional
 function validate_re() {
-    fetch_info
+    fetch_from_cache
     local RELEASE="${3}"
     local EDITION="${4}"
     
@@ -143,10 +134,11 @@ function format_re() {
     if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
         echo PLACEHOLDER
     else
-        echo PLACEHOLDER
+        echo " - Releases: ${RELEASES[@]}"
+        if [ -n "${EDITIONS[*]}" ]; then
+            echo " - Editions: ${EDITIONS[@]}"
+        fi
     fi
-
-    echo PLACEHOLDER
 }
 
 function list_editions() {
@@ -161,10 +153,21 @@ function list_editions() {
 }
 
 function fetch_from_cache() {
+    if [[ "${CACHE_DATA}" == 0 ]]; then
+        fetch_info 
+        return 0
+    # TODO: Determine whether cache exists and contains up to date data. 
+    elif [ true ]; then
+        fetch_info
+        populate_cache
+        return 0
+    fi
+
     echo PLACEHOLDER
 }
 
 function populate_cache() {
+    # Populate cache with JSON data, to be read by fetch_from_cache function
     echo PLACEHOLDER
 }
 
@@ -195,7 +198,10 @@ case "${1}" in
     --pretty-name)
         return "${PRETTY_NAME}";;
     --refresh)
-        fetch_info --refresh;;
+        if [ "${CACHE_DATA}" -eq 1 ]; then
+            fetch_info
+            populate_cache
+        fi;;
     --validate-re)
         validate_re "${@}";;
     --list-urls)
@@ -204,3 +210,5 @@ case "${1}" in
     --return-arch)
         echo "${ARCH}";;
 esac
+
+# vim:tabstop=4:shiftwidth=4:expandtab
