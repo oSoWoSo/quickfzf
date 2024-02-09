@@ -34,17 +34,14 @@ function fetch_info() {
     # You may leave EDITIONS blank if there is only one edition.
     EDITIONS+=()
 
-    # If unique editions are required, use this template instead. 
+    # If unique editions are required per release, use this template.
     # You may still put static editions (those which are present for ALL releases) in the EDITIONS array 
-    # declare -A associativeEDITIONS
     # associativeEDITIONS['RELEASE1']="EDITION1;EDITION2;EDITION3"
     # associativeEDITIONS['RELEASE2']="EDITION1;EDITION2;EDITION3"
 }
 
 function list_urls() {
     fetch_from_cache
-    local RELEASE="${4}"
-    local EDITION="${5}"
 
     # Here, you can insert the URL, ISO, and HASH, similarly to the original quickget.
     # Alternatively, you may replace it with anything else, or call another function you create if necessary.
@@ -81,8 +78,6 @@ function config_additions() {
 # I'm expecting to move most of this to a separate file which will be run with `source`, but it'll remain here until functional
 function validate_re() {
     fetch_from_cache
-    local RELEASE="${3}"
-    local EDITION="${4}"
     
     if [ -z "${RELEASE}" ]; then
         echo "ERROR! You must specify a release."
@@ -134,15 +129,14 @@ function format_re() {
     if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
         echo PLACEHOLDER
     else
-        echo " - Releases: ${RELEASES[@]}"
+        echo " - Releases: " "${RELEASES[@]}"
         if [ -n "${EDITIONS[*]}" ]; then
-            echo " - Editions: ${EDITIONS[@]}"
+            echo " - Editions: " "${EDITIONS[@]}"
         fi
     fi
 }
 
 function list_editions() {
-    local RELEASE="${3}"
     # Handle the associative array for unique editions
     if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
         while read -d ';' -r aEDITION; do
@@ -181,9 +175,10 @@ function verify_arch() {
 }
 
 # Set default values (should not edit)
-PRETTY_NAME="${PRETTY_NAME:-$(basename "${0}" | sed 's/.os$//g')}"
+PRETTY_NAME="${PRETTY_NAME:-${OS}}"
 EDITION_NAME="${EDITION_NAME:-Editions}"
-CACHE_FILE="${HOME}/.cache/quickget/$(basename "${0}" | sed 's/.os$//g').cache"
+CACHE_FILE="${HOME}/.cache/quickget/${OS}.cache"
+declare -A associativeEDITIONS
 
 ARCH="${2}"
 verify_arch

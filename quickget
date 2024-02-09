@@ -94,7 +94,10 @@ if ! mkdir -p "${HOME}/.cache/quickemu"; then
 fi
 
 BASE_DIR="$(dirname "${0}")"
-VALID_OS=($(ls "${RESOURCE_DIR}" | grep ".os" | sed 's/.os$//g'))
+VALID_OS=()
+for OS_PLUGIN in "${RESOURCE_DIR}"/*.os; do
+    VALID_OS+=("$(basename "${OS_PLUGIN}" .os)")
+done
 PARAMS=()
 ARCH="$(uname -m)"
 
@@ -152,17 +155,18 @@ done
 
 ARCH="$(format_arch "${ARCH}")"
 
-OS="${PARAMS[0]}"
+OS="${PARAMS[0],,}"
 RELEASE="${PARAMS[1]}"
 EDITION="${PARAMS[2]}"
 if [ "${PARAMS[3]}" ]; then
     echo "Error. Invalid parameters."
     exit 1
 fi
+export ARCH OS RELEASE EDITION
 
 
 if [ -n "${OS}" ]; then
-    PLUGIN="${RESOURCE_DIR}/${OS,,}.os"
+    PLUGIN="${RESOURCE_DIR}/${OS}.os"
 else
     echo "ERROR! You must specify an operating system."
     echo -n " - Operating Systems: "
@@ -172,7 +176,7 @@ fi
 
 if [ "${OPEN_HOMEPAGE}" == 'true' ]; then
     URL="$("${PLUGIN}" --homepage)"
-    xdg-open $URL || sensible-browser $URL || x-www-browser $URL || gnome-open $URL;
+    xdg-open "${URL}" || sensible-browser "${URL}" || x-www-browser "${URL}" || gnome-open "${URL}";
     exit 0
 elif [ "${REFRESH}" == 'true' ]; then
     "${PLUGIN}" --refresh
@@ -184,7 +188,9 @@ elif [ "${REFRESH_ALL}" == 'true' ]; then
     exit 0
 fi
 
-if [[ ! " ${VALID_OS[@]} " =~ " ${OS,,} " ]]; then
+# shellcheck disable=SC2076
+# This must be in quotes, we're trying to determine if the full string is in the array. i.e. "ubu" must fail if "ubuntu" is the value in the array.
+if [[ ! " ${VALID_OS[*]} " =~ " ${OS} " ]]; then
     echo -e "ERROR! ${OS} is not a supported OS.\n"
     echo "${VALID_OS[@]}"
     exit 1
@@ -200,14 +206,19 @@ case "${?}" in
         VM_PATH="${OS}-${RELEASE}";;
 esac
 
+# Determine the architecture of the OS given by the plugin. 
+FINALARCH="$("${PLUGIN}" --return-arch)"
+
 if [ "${SHOW_ISO_URL}" == 'true' ]; then
     show_iso_url
 fi
 
 # Export variables to make accessible within plugin.
-export VM_DIR="$(pwd)"
-export VM_PATH
+VM_DIR="$(pwd)"
+export VM_DIR VM_PATH
 
 PRETTY_NAME="$("${PLUGIN}" --pretty-name)"
 
 handle_urls "${VM_PATH}" "$("${PLUGIN}" --list-urls --download "${ARCH}" "${RELEASE}" "${EDITION}")"
+
+# vim:tabstop=4:shiftwidth=4:expandtab
