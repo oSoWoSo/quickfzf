@@ -5,6 +5,7 @@ RESOURCE_DIR="$(dirname "${0}")"
 # Instructions: 
 # 1. Set necessary variables below
 # 2. Modify fetch_info function to include all of the necessary information (or way to fetch it)
+# 3. Modify list_urls function to provide ISO(s) for the operating system
 
 # (REQUIRED) Homepage of the operating system (URL)
 HOMEPAGE=""
@@ -22,6 +23,8 @@ DEFAULT_EDITION=""
 EDITION_NAME=""
 # Set this to 1 if your fetch_info function fetches data from the internet, 0 if it's hardcoded
 CACHE_DATA=0
+# Add all valid architectures for your operating system here. The first one in the array will be the default (if host system does not match)
+ARCHITECTURES=(amd64)
 
 
 function fetch_info() {
@@ -76,6 +79,7 @@ function list_urls() {
 
 
 # Everything below here should not have to be modified. Variables above are used to determine the proper behavior
+# I'm expecting to move most of this to a separate file which will be run with `source`, but it'll remain here until functional
 function validate_re() {
     ARCH="${2}"
     fetch_info
