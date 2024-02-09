@@ -116,7 +116,11 @@ function main() {
             if editions_required; then
                 release_editions
             else
-                printf "%-15s | %s\n" "Releases" "$(releases)"
+                printf "%-15s |" "Releases"
+                for item in $(releases); do
+                    printf " %s" "${item}"
+                done
+                printf "\n"
             fi
             usage
         else
