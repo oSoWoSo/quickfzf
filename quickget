@@ -207,6 +207,7 @@ while (( "${#}" )); do
             ;;
         --arch|--architecture)
             ARCH="${2}"
+            shift
             ;;
         --download-iso)
             # Set as a global variable, in case the plugin uses its own method of downloading.
