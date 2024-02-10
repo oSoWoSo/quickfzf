@@ -28,48 +28,81 @@ function format_arch() {
 
 function handle_urls() {
     # Handle multiple URLs if necessary
-    local DIR="${1}"
-    
-    if shift && [ -n "${1}" ]; then
-        if [ "${TEST_ISO_URL}" != 'true' ] && [ "${DOWNLOAD_ONLY}" != 'true' ]; then
-            echo "Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
-        fi
+    if [ "${TEST_ISO_URL}" != 'true' ] && [ "${DOWNLOAD_ONLY}" != 'true' ]; then
+        echo "Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
+    fi
 
-        while (( "${#}" )); do
-            echo running web_get URL: "${1}" DIR: "${DIR}"
-            web_get "${1}" "${DIR}"
-            shift
-        done
+    local URL=""
+    for URL in "${URLs[@]}"; do
+        web_get "${URL}"
+        check_hash "${URL}"
+    done
+}
+
+function check_hash() {
+    local FILE=""
+    local HASH="${1}"
+    local HASH_ALGO=""
+
+    # Determine the hash algorithm
+    case "${#HASH}" in
+        32) HASH_ALGO=md5sum;;
+        40) HASH_ALGO=sha1sum;;
+        64) HASH_ALGO=sha256sum;;
+        128) HASH_ALGO=sha512sum;;
+        *) return 0;;
+    esac
+
+    # If the "hash" contains a forward slash, it must be a URL. 
+    if echo "${HASH}" | grep -q "/" || [ -z "${LAST_DOWNLOADED}" ]; then
+        return 0
+    fi
+
+    echo -n "Checking ${LAST_DOWNLOADED} with ${HASH_ALGO}... "
+    if ! echo "${HASH} ${LAST_DOWNLOADED}" | ${HASH_ALGO} --check --status; then
+        echo "ERROR!"
+        echo "${LAST_DOWNLOADED} doesn't match ${HASH}. Try running 'quickget' again."
+        exit 1
+    else
+        echo "Good!"
+    fi
+
+    # --download-iso should only need to download one file. 
+    if [ "${DOWNLOAD_ONLY}" == 'true' ]; then
+        exit 0
     fi
 }
 
 function web_get() {
-    local DIR="${2}"
     local FILE="${URL##*/}"
     local URL="${1}"
 
 	if [ "${TEST_ISO_URL}" == 'true' ]; then
         wget --spider "${URL}"
-    elif [ "${DOWNLOAD_ONLY}" ]; then
-        DIR="$(pwd)"
     fi
     
     if command -v aria2c &>/dev/null; then
-        if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${DIR}" -o "${FILE}"; then
+        if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${VM_PATH}" -o "${FILE}"; then
           echo #Necessary as aria2c in suppressed mode does not have new lines
           echo "ERROR! Failed to download ${URL} with aria2c. Try running 'quickget' again."
           exit 1
         fi
         echo #Necessary as aria2c in suppressed mode does not have new lines
     elif command -v wget2 &>/dev/null; then
-        if ! wget2 --quiet --continue --tries=3 --read-timeout=10 --force-progress --progress=bar:force:noscroll "${URL}" -O "${DIR}/${FILE}"; then
+        if ! wget2 --quiet --continue --tries=3 --read-timeout=10 --force-progress --progress=bar:force:noscroll "${URL}" -O "${VM_PATH}/${FILE}"; then
             echo "ERROR! Failed to download ${URL} with wget2. Try running 'quickget' again."
             exit 1
         fi
-    elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${URL}" -O "${DIR}/${FILE}"; then
+    elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${URL}" -O "${VM_PATH}/${FILE}"; then
         echo "ERROR! Failed to download ${URL} with wget. Try running 'quickget' again."
         exit 1
     fi
+
+    if [ -z "${IMAGE_FILE}" ]; then
+        IMAGE_FILE="${FILE}"
+    fi
+    # Set the last downloaded filename for use in the check_hash function
+    LAST_DOWNLOADED="${FILE}"
 }
 
 function verify_release() {
@@ -82,6 +115,36 @@ function verify_release() {
         2)
             VM_PATH="${OS}-${RELEASE}";;
     esac
+
+    # Set VM path to current directory if --download-iso is used.
+    if [ "${DOWNLOAD_ONLY}" == 'true' ]; then
+        VM_PATH="$(pwd)"
+    fi
+}
+
+function make_vm_config() {
+    local CONF_FILE=""
+    local IMAGE_TYPE=""
+    local GUEST=""
+    local SEC_BOOT=""
+
+    GUEST="$("${PLUGIN}" --guest)"
+    IMAGE_TYPE="$("${PLUGIN}" --image-type)"
+
+    CONF_FILE="${VM_PATH}.conf"
+
+    if [ ! -e "${CONF_FILE}" ]; then
+        echo "Making ${CONF_FILE}"
+        cat << EOF > "${CONF_FILE}"
+#!$(which quickemu) --vm
+guest_os="${GUEST}"
+disk_img="${VM_PATH}/disk.qcow2"
+${IMAGE_TYPE}="${VM_PATH}/${IMAGE_FILE}"
+disk_size="32G"
+EOF
+    echo "Giving user execute permissions on ${CONF_FILE},"
+    chmod u+x "${CONF_FILE}"
+    fi
 }
 
 function find_plugin() {
@@ -113,19 +176,18 @@ if ! mkdir -p "${HOME}/.cache/quickemu"; then
 fi
 
 BASE_DIR="$(dirname "${0}")"
-VALID_OS=()
-for OS_PLUGIN in "${RESOURCE_DIR}"/*.os; do
-    VALID_OS+=("$(basename "${OS_PLUGIN}" .os)")
-done
-PARAMS=()
-ARCH="$(uname -m)"
-
-# Set directory which contains quickget resources. If existing in directory with quickget, use that (for those using quickget from git). 
+# Set directory which contains quickget resources. If existing in directory with quickget, use that (for those using quickget from git, or development). 
 if [ -d "${BASE_DIR}/quickget-resources" ]; then
     RESOURCE_DIR="${BASE_DIR}/quickget-resources"
 else
     RESOURCE_DIR="/usr/share/quickemu/quickget-resources"
 fi
+
+for OS_PLUGIN in "${RESOURCE_DIR}"/*.os; do
+    VALID_OS+=("$(basename "${OS_PLUGIN}" .os)")
+done
+PARAMS=()
+ARCH="$(uname -m)"
 
 while (( "${#}" )); do
     case "${1}" in
@@ -145,7 +207,8 @@ while (( "${#}" )); do
             ARCH="${2}"
             ;;
         --download-iso)
-            DOWNLOAD_ONLY=true
+            # Set as a global variable, in case the plugin uses its own method of downloading.
+            export DOWNLOAD_ONLY=true
             ;;
         --test-iso-url|-t)
             TEST_ISO_URL=true
@@ -216,7 +279,6 @@ if [[ ! " ${VALID_OS[*]} " =~ " ${OS} " ]]; then
     echo "${VALID_OS[@]}"
     exit 1
 fi
-
 verify_release
 
 # Determine the architecture of the OS given by the plugin. 
@@ -230,7 +292,10 @@ fi
 VM_DIR="$(pwd)"
 export VM_DIR VM_PATH
 
+URLs="$("${PLUGIN}" --list-urls --download)"
+if [ "${?}" != 2 ]; then
+    handle_urls
+fi
 
-handle_urls "${VM_PATH}" "$("${PLUGIN}" --list-urls --download "${ARCH}" "${RELEASE}" "${EDITION}")"
 
 # vim:tabstop=4:shiftwidth=4:expandtab

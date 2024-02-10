@@ -52,26 +52,33 @@ function list_urls() {
 
     # These are default options. You may change them if necessary. If multiple files need to be downloaded,
     # they may be separated by a space, with hashes (if applicable) following the applicable files (once again, separated by a space).
-    # If you need to handle downloading within this function, call whatever method you'd like, and then add 'exit 2' so quickget knows to skip download.
+    # Of course, each HASH or URL should be enclosed in double quotes.
+    # If you need to handle ALL downloading within this function, call whatever method you'd like, and then uncomment 'exit 2' so quickget knows to skip download.
     case "${2}" in
         # Friendly is the show_iso_url option. It should print the URL(s) in a way that's easily readable, and not hashes
         --friendly)
             echo "${URL}/${ISO}";;
+        # The first file (if multiple are present) will be listed as the ISO in the VM config. 
         --download)
             echo "${URL}/${ISO}" "${HASH}";;
     esac
+    # exit 2
 }
 
 function config_additions() {
-    # SPECIFICS TBD
-
-
     # Here, you can add any additional configuation options that should be included in the VM config.
     # Just echo them out (in quotation marks) if you want to append them to the other options.
-    # append "OVERRIDE " to the beginning of the string to instead replace the value of a default option.
-    # Example: echo "OVERRIDE guest_os=macos" to replace the default linux option with macos
-    # You can REMOVE options by echoing "REMOVE " followed by the option name. 
-    # Example: echo "REMOVE disk_size" to remove the disk_size option, such as for macOS VMs which have disk_size handled in quickemu
+    # Add "OVERRIDE" before the string to instead replace the value of a default option.
+    # Example: echo OVERRIDE "disk_size=\"40G\"" to replace the default disk_size with 40G.
+    # You can REMOVE options by adding REMOVE before the option name. 
+    # Example: echo REMOVE "disk_size" to remove the disk_size option, such as for macOS VMs which have disk_size handled in quickemu
+    exit 0
+}
+
+function prepare_image() {
+    # If you need to do anything to the image before it's used (for example, uncompressing), put it here.
+    # Echo the filename(s) of the old image followed by that of the new image.
+    # Example: echo ""
     exit 0
 }
 
