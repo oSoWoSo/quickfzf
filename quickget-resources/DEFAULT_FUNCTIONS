@@ -23,19 +23,15 @@ function validate_re() {
             fi
 
             # Handle the associative array for unique editions
-            if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
-                while read -d ';' -r aEDITION; do
-                    EDITIONS+=("${aEDITION}")
-                done <<< "${associativeEDITIONS["${RELEASE}"]};"
-            fi
+            IFS='!' read -ra fullEDITIONS <<< "$(list_editions --edelim)"
             
-            if [ -z "${EDITIONS[*]}" ] && [ -n "${EDITION}" ]; then
+            if [ -z "${fullEDITIONS[*]}" ] && [ -n "${EDITION}" ]; then
                 echo "WARNING: ${PRETTY_NAME} does not support ${EDITION_NAME,,}. Ignoring."
                 exit 2
             fi
 
             # Loop through editions array and check if the edition is present
-            for ED in "${EDITIONS[@]}"; do
+            for ED in "${fullEDITIONS[@]}"; do
                 if [ "${EDITION,,}" == "${ED,,}" ]; then
                     exit 0
                 fi
@@ -54,7 +50,10 @@ function validate_re() {
 
 function format_re() {
     if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
-        echo PLACEHOLDER
+        printf "%--10s%s\n" "Releases:" "      Editions:"
+        for RELEASE in "${RELEASES[@]}"; do
+            printf "%-10s%s\n" "${RELEASE}" "      $(list_editions)"
+        done
     else
         echo " - Releases:" "${RELEASES[@]}"
         if [ -n "${EDITIONS[*]}" ]; then
@@ -128,6 +127,7 @@ function populate_cache() {
 
 
     for REL in "${RELEASES[@]}"; do
+        # Gather the editions for each release. Then, loop through them and add them to an array in JSON formatting
         fullEDITIONS=("$(list_editions)")
 
         for ED in "${fullEDITIONS[@]}"; do
@@ -138,6 +138,7 @@ function populate_cache() {
     }")
         done
     done
+    # Add the JSON data to the cache file using ',' as a delimiter (between curly braces) 
     IFS=','; echo -e "[\n${JSON_DATA[*]}\n]" >> "${CACHE_FILE}"
 }
 
@@ -162,7 +163,7 @@ function csv_urls() {
 
     for RELEASE in "${RELEASES[@]}"; do
         IFS='!' read -ra fullEDITIONS <<< "$(list_editions --edelim)"
-        if [ -z "${EDITIONS}" ]; then
+        if [ -z "${EDITIONS[*]}" ]; then
             echo "${PRETTY_NAME},${OS},${RELEASE},,${DOWNLOADER},${PNG},${SVG}"
         else
             for ED in "${fullEDITIONS[@]}"; do

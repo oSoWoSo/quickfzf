@@ -23,7 +23,7 @@ readonly ARCHITECTURES=(amd64)
 # (OPTIONAL, HIGHLY RECOMMENDED) Brief description of the operating system
 readonly DESCRIPTION=""
 # (OPTIONAL, HIGHLY RECOMMENDED) Set this to the friendly name of the operating system, if applicable. 
-readonly PRETTY_NAME="${OS}"
+readonly PRETTY_NAME="Zorin OS"
 
 
 function fetch_info() {

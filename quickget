@@ -308,10 +308,14 @@ fi
 VM_DIR="$(pwd)"
 export VM_DIR VM_PATH
 
-URLs=($("${PLUGIN}" --list-urls --download))
+read -ra URLs <<<"$("${PLUGIN}" --list-urls --download)"
 
 if [ "${?}" != 2 ]; then
     handle_urls
+    if [ -z "${LAST_DOWNLOADED}" ]; then
+        echo "ERROR! Received no URLs from the ${PRETTY_NAME} plugin. Try running 'quickget' again."
+        exit 1
+    fi
 fi
 
 make_vm_config
