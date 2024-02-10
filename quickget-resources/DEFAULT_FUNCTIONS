@@ -93,14 +93,14 @@ function fetch_from_cache() {
     if [[ "${UNIQUE_EDITIONS}" -eq 1 ]]; then
         # shellcheck disable=SC1009
         for REL in "${RELEASES[@]}"; do
-            mapfile -t tempEDITIONS < <(jq -r '.[] | select(.Release == '\""${REL}"\"') .Editions[]' "${CACHE_FILE}")
+            mapfile -t tempEDITIONS < <(jq -r '..|select(.Release? == "'"${REL}"'")|.Edition?|strings' "${CACHE_FILE}" | tr ' ' '\n')
             # shellcheck disable=SC1073
             for ED in "${tempEDITIONS[@]}"; do
                 associativeEDITIONS["${REL}"]+=";${ED}"
             done
         done
     else
-        mapfile -t EDITIONS < <(jq -r '..|.Edition?|select(. != "")' "${CACHE_FILE}")
+        mapfile -t EDITIONS < <(jq -r '..|select(.Release? == "'"${RELEASES[0]}"'")|.Edition?|strings' "${CACHE_FILE}" | tr ' ' '\n')
     fi
 }
 
