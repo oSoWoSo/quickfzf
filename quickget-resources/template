@@ -24,6 +24,7 @@ EDITION_NAME=""
 # Set this to 1 if your fetch_info function fetches data from the internet, 0 if it's hardcoded
 readonly CACHE_DATA=0
 # Add all valid architectures for your operating system here. The first one in the array will be the default (if host system does not match)
+# Use the most standard name for each architecture. Example: amd64, arm64, riscv64, i386. NOT: x86_64, aarch64, x86, riscv.
 readonly ARCHITECTURES=(amd64)
 
 
@@ -180,7 +181,6 @@ EDITION_NAME="${EDITION_NAME:-Editions}"
 CACHE_FILE="${HOME}/.cache/quickget/${OS}.cache"
 declare -A associativeEDITIONS
 
-ARCH="${2}"
 verify_arch
 
 case "${1}" in
@@ -192,6 +192,10 @@ case "${1}" in
         return "${UNIQUE_EDITIONS}";;
     --pretty-name)
         return "${PRETTY_NAME}";;
+    --return-arch)
+        echo "${ARCH}";;
+    --description)
+        echo "${DESCRIPTION}";;
     --refresh)
         if [ "${CACHE_DATA}" -eq 1 ]; then
             fetch_info
@@ -200,10 +204,7 @@ case "${1}" in
     --validate-re)
         validate_re "${@}";;
     --list-urls)
-        ARCH="${3}"
         list_urls "${@}";;
-    --return-arch)
-        echo "${ARCH}";;
 esac
 
 # vim:tabstop=4:shiftwidth=4:expandtab

@@ -19,6 +19,8 @@ function format_arch() {
             echo "i386";;
         armv8*|aarch64*)
             echo "arm64";;
+        riscv*)
+            echo "riscv64";;
         *)
             echo "${OUTPUT}";;
     esac
@@ -68,6 +70,23 @@ function web_get() {
         echo "ERROR! Failed to download ${URL} with wget. Try running 'quickget' again."
         exit 1
     fi
+}
+
+function verify_release() {
+    "${PLUGIN}" --validate-re "${ARCH}" "${RELEASE}" "${EDITION}"
+    case "${?}" in
+        0)
+            VM_PATH="${OS}-${RELEASE}-${EDITION}";;
+        1)
+            exit 1;;
+        2)
+            VM_PATH="${OS}-${RELEASE}";;
+    esac
+}
+
+function find_plugin() {
+    PLUGIN="${RESOURCE_DIR}/${OS}.os"
+    PRETTY_NAME="$("${PLUGIN}" --pretty-name)"
 }
 
 function show_iso_url() {
@@ -166,7 +185,7 @@ export ARCH OS RELEASE EDITION
 
 
 if [ -n "${OS}" ]; then
-    PLUGIN="${RESOURCE_DIR}/${OS}.os"
+    find_plugin
 else
     echo "ERROR! You must specify an operating system."
     echo -n " - Operating Systems: "
@@ -182,8 +201,10 @@ elif [ "${REFRESH}" == 'true' ]; then
     "${PLUGIN}" --refresh
 elif [ "${REFRESH_ALL}" == 'true' ]; then
     # TODO: Implement a progress indicator. This function may take a while to run.
+    # Also use pretty_name to show the current OS being refreshed.
     for OS in "${VALID_OS[@]}"; do
-        "${RESOURCE_DIR}/${OS}.os" --refresh
+        find_plugin
+        "${PLUGIN}" --refresh
     done
     exit 0
 fi
@@ -196,15 +217,7 @@ if [[ ! " ${VALID_OS[*]} " =~ " ${OS} " ]]; then
     exit 1
 fi
 
-"${PLUGIN}" --validate-re "${ARCH}" "${RELEASE}" "${EDITION}"
-case "${?}" in
-    0)
-        VM_PATH="${OS}-${RELEASE}-${EDITION}";;
-    1)
-        exit 1;;
-    2)
-        VM_PATH="${OS}-${RELEASE}";;
-esac
+verify_release
 
 # Determine the architecture of the OS given by the plugin. 
 FINALARCH="$("${PLUGIN}" --return-arch)"
@@ -217,7 +230,6 @@ fi
 VM_DIR="$(pwd)"
 export VM_DIR VM_PATH
 
-PRETTY_NAME="$("${PLUGIN}" --pretty-name)"
 
 handle_urls "${VM_PATH}" "$("${PLUGIN}" --list-urls --download "${ARCH}" "${RELEASE}" "${EDITION}")"
 
