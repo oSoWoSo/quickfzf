@@ -14,10 +14,7 @@ function validate_re() {
     for REL in "${RELEASES[@]}"; do
         if [ "${RELEASE,,}" == "${REL,,}" ]; then
             # Handle unnecessary editions passed
-            if [ -z "${EDITIONS[*]}" ] && [ -n "${EDITION}" ]; then
-                echo "WARNING: ${PRETTY_NAME} does not support ${EDITION_NAME,,}. Ignoring."
-                exit 2
-            elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
+            if [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
                 exit 2
             elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 1 ]; then
                 echo -en "ERROR: You must specify an edition.\n - Editions: "
@@ -31,6 +28,11 @@ function validate_re() {
                     EDITIONS+=("${aEDITION}")
                 done <<< "${associativeEDITIONS["${RELEASE}"]};"
             fi
+            
+            if [ -z "${EDITIONS[*]}" ] && [ -n "${EDITION}" ]; then
+                echo "WARNING: ${PRETTY_NAME} does not support ${EDITION_NAME,,}. Ignoring."
+                exit 2
+            fi
 
             # Loop through editions array and check if the edition is present
             for ED in "${EDITIONS[@]}"; do
@@ -40,7 +42,7 @@ function validate_re() {
             done
 
             echo -e "ERROR! ${EDITION} is not a supported ${PRETTY_NAME} ${RELEASE} edition.\n"
-            list_editions
+            echo " - Editions:" "${EDITIONS[@]}"
             exit 1
         fi
     done

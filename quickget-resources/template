@@ -37,7 +37,7 @@ function fetch_info() {
             # If unique editions are required per release, use this template.
             # You may still put static editions (those which are present for ALL releases) in the EDITIONS array 
             # associativeEDITIONS['RELEASE1']="EDITION1;EDITION2;EDITION3"
-            # associativeEDITIONS['RELEASE2']="EDITION1;EDITION2;EDITION3";;
+            # associativeEDITIONS['RELEASE2']="EDITION1;EDITION2;EDITION3"
             ;;
 
         # Add other architectures here if necessary, like this.

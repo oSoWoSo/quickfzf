@@ -164,7 +164,7 @@ EOF
 
 function find_plugin() {
     PLUGIN="${RESOURCE_DIR}/${OS}.os"
-    PRETTY_NAME="$("${PLUGIN}" --pretty-name)"
+    PRETTY_NAME="$("${PLUGIN}" --pretty-name)" 2>/dev/null
 }
 
 function show_iso_url() {

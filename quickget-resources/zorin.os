@@ -32,12 +32,11 @@ function fetch_info() {
             # Add editions and releases here. Or, replace this with your code to fetch releases and editions.
             RELEASES+=(17 16)
             # You may leave EDITIONS blank if there is only one edition.
-            EDITIONS+=("core64" "lite64" "education64" "edulite64")
+            EDITIONS+=("core64")
 
             # If unique editions are required per release, use this template.
             # You may still put static editions (those which are present for ALL releases) in the EDITIONS array 
-            # associativeEDITIONS['RELEASE1']="EDITION1;EDITION2;EDITION3"
-            # associativeEDITIONS['RELEASE2']="EDITION1;EDITION2;EDITION3";;
+            associativeEDITIONS['16']="lite64;education64;edulite64"
             ;;
 
         # Add other architectures here if necessary, like this.
@@ -78,7 +77,7 @@ function list_urls() {
 # OPTIONAL VARIABLES. Use these to customize the behavior if necessary
 
 # Set this to 1 if the operating system has unique editions (which you will set) for each release, 0 otherwise
-readonly UNIQUE_EDITIONS=0
+readonly UNIQUE_EDITIONS=1
 # If an edition is NOT required but multiple editions ARE available, put the default edition's name here.
 readonly DEFAULT_EDITION=""
 # If the operating system has a unique name for its editions (i.e. Windows: Languages), set it here
