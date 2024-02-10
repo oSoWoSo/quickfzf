@@ -144,6 +144,8 @@ case "${1}" in
         validate_re "${@}";;
     --list-urls)
         list_urls "${@}";;
+    --csv-urls)
+        csv_urls;;
 esac
 
 # vim:tabstop=4:shiftwidth=4:expandtab

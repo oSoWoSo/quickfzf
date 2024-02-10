@@ -142,6 +142,8 @@ case "${1}" in
         prepare_image;;
     --config-additions)
         config_additions;;
+    --csv-urls)
+        csv_urls;;
 esac
 
 # vim:tabstop=4:shiftwidth=4:expandtab

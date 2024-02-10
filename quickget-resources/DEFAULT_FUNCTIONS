@@ -132,6 +132,31 @@ function populate_cache() {
     IFS=','; echo -e "[\n${JSON_DATA[*]}\n]" >> "${CACHE_FILE}"
 }
 
+function csv_urls() {
+    fetch_from_cache
+    local REL=""
+    local ED=""
+    local PNG=""
+    local SVG=""
+
+    if [ -z "${DOWNLOADER}" ]; then
+        if command -v aria2c &>/dev/null; then
+            DOWNLOADER="aria2c"
+        else
+            DOWNLOADER="wget"
+        fi
+    fi
+
+    PNG="https://quickemu-project.github.io/quickemu-icons/png/${OS}/${OS}-quickemu-white-pinkbg.png"
+    SVG="https://quickemu-project.github.io/quickemu-icons/svg/${OS}/${OS}-quickemu-white-pinkbg.svg"
+
+    for REL in "${RELEASES[@]}"; do
+        for ED in "${EDITIONS[@]}"; do
+            echo "${PRETTY_NAME},${OS},${REL},${ED},${DOWNLOADER},${PNG},${SVG}"
+        done
+    done
+}
+
 function verify_arch() {
     for ARCHITECTURE in "${ARCHITECTURES[@]}"; do
         if [ "${ARCHITECTURE}" == "${ARCH}" ]; then

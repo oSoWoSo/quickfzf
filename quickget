@@ -109,6 +109,19 @@ function web_get() {
     LAST_DOWNLOADED="${VM_PATH}/${FILE}"
 }
 
+function list_json() {
+  list_csv | jq -R 'split(",") as $h|reduce inputs as $in ([]; . += [$in|split(",")|. as $a|reduce range(0,length) as $i ({};.[$h[$i]]=$a[$i])])'
+}
+
+function list_csv() {
+    echo "Display Name,OS,Release,Option,Downloader,PNG,SVG"
+    for OS in "${VALID_OS[@]}"; do
+        find_plugin
+        export OS
+        "${PLUGIN}" --csv-urls
+    done
+}
+
 function verify_release() {
     "${PLUGIN}" --validate-re "${ARCH}" "${RELEASE}" "${EDITION}"
     case "${?}" in
