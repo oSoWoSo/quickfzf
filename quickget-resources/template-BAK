@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034
+
+# IMPORTANT: DO NOT USE THIS TEMPLATE. IT IS A BACKUP AND WILL BE REMOVED. USE THE NORMAL TEMPLATE INSTEAD.
+
+RESOURCE_DIR="$(dirname "${0}")"
 
 # Instructions: 
 # 1. Set mandatory variables below, and set recommended variables if possible
@@ -108,11 +111,159 @@ function prepare_image() {
     exit 0
 }
 
+# Everything below here should not have to be modified. Variables above are used to determine the proper behavior
+# I'm expecting to move most of this to a separate file which will be run with `source`, but it'll remain here until functional
+function validate_re() {
+    local REL=""
+    local ED=""
+    fetch_from_cache
+    
+    if [ -z "${RELEASE}" ]; then
+        echo "ERROR! You must specify a release."
+        format_re
+        exit 1
+    fi
+
+    # Check if release is present in the releases array
+    for REL in "${RELEASES[@]}"; do
+        if [ "${RELEASE,,}" == "${REL,,}" ]; then
+            # Handle unnecessary editions passed
+            if [ -z "${EDITIONS[*]}" ] && [ -n "${EDITION}" ]; then
+                echo "WARNING: ${PRETTY_NAME} does not support ${EDITION_NAME,,}. Ignoring."
+                exit 2
+            elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
+                exit 2
+            elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 1 ]; then
+                echo -en "ERROR: You must specify an edition.\n - ${PRETTY_NAME} ${RELEASE} Editions: "
+                list_editions
+                exit 1
+            fi
+
+            # Handle the associative array for unique editions
+            if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
+                while read -d ';' -r aEDITION; do
+                    EDITIONS+=("${aEDITION}")
+                done <<< "${associativeEDITIONS["${RELEASE}"]};"
+            fi
+
+            # Loop through editions array and check if the edition is present
+            for ED in "${EDITIONS[@]}"; do
+                if [ "${EDITION,,}" == "${ED,,}" ]; then
+                    exit 0
+                fi
+            done
+
+            echo -e "ERROR! ${EDITION} is not a supported ${PRETTY_NAME} ${RELEASE} edition.\n"
+            list_editions
+            exit 1
+        fi
+    done
+
+    echo "ERROR! ${PRETTY_NAME} ${RELEASE} is not a supported release."
+    format_re 
+    exit 1
+}
+
+function format_re() {
+    if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
+        echo PLACEHOLDER
+    else
+        echo " - Releases:" "${RELEASES[@]}"
+        if [ -n "${EDITIONS[*]}" ]; then
+            echo " - Editions:" "${EDITIONS[@]}"
+        fi
+    fi
+}
+
+function list_editions() {
+    # Handle the associative array for unique editions
+    local fullEDITIONS=("${EDITIONS[@]}")
+    if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
+        while read -d ';' -r aEDITION; do
+            fullEDITIONS+=("${aEDITION}")
+        done <<< "${associativeEDITIONS["${RELEASE}"]};"
+    fi
+    echo "${fullEDITIONS[@]}"
+}
+
+function fetch_from_cache() {
+    local REL=""
+    local ED=""
+    local tempEDITIONS=()
+
+    if [[ "${CACHE_DATA}" == 0 ]]; then
+        fetch_info
+        return 0
+    fi
+    # Determine whether cache file exists and whether it contains up to date data.
+    if [ ! -f "${CACHE_FILE}" ] || [[ $(( $(date +%s) - $(head -n 1 < "${CACHE_FILE}") )) -ge $(( CACHE_DAYS * 86400 )) ]]; then
+        fetch_info
+        populate_cache
+        return 0
+    fi
+
+    mapfile -t RELEASES < <(jq -r '..|.Release?|strings' "${CACHE_FILE}")
+
+    if [[ "${UNIQUE_EDITIONS}" -eq 1 ]]; then
+        # shellcheck disable=SC1009
+        for REL in "${RELEASES[@]}"; do
+            mapfile -t tempEDITIONS < <(jq -r '.[] | select(.Release == '\""${REL}"\"') .Editions[]' "${CACHE_FILE}")
+            # shellcheck disable=SC1073
+            for ED in "${tempEDITIONS[@]}"; do
+                associativeEDITIONS["${REL}"]+=";${ED}"
+            done
+        done
+    else
+        mapfile -t EDITIONS < <(jq -r '..|.Edition?|select(. != "")' "${CACHE_FILE}")
+    fi
+}
+
+function populate_cache() {
+    # Populate cache with JSON data, to be read by fetch_from_cache function
+    local REL=""
+    local ED=""
+    local fullEDITIONS=()
+    local JSON_DATA=()
+
+    if [ -f "${CACHE_FILE}" ]; then
+        rm "${CACHE_FILE}"
+    fi
+
+    date +%s >> "${CACHE_FILE}"
 
 
-# Nothing below this line should be modified.
+    for REL in "${RELEASES[@]}"; do
+        fullEDITIONS=("$(list_editions)")
 
-source "$(dirname "${0}")/DEFAULT_FUNCTIONS"
+        for ED in "${fullEDITIONS[@]}"; do
+            JSON_DATA+=("
+    {
+        \"Release\": \"${REL}\",
+        \"Edition\": \"${ED}\"
+    }")
+        done
+    done
+    IFS=','; echo -e "[\n${JSON_DATA[*]}\n]" >> "${CACHE_FILE}"
+}
+
+function verify_arch() {
+    for ARCHITECTURE in "${ARCHITECTURES[@]}"; do
+        if [ "${ARCHITECTURE}" == "${ARCH}" ]; then
+            return 0
+        fi
+    done
+    ARCH="${ARCHITECTURES[0]}"
+}
+
+
+verify_arch
+CACHE_FILE="${HOME}/.cache/quickemu/${OS}-${ARCH}.cache"
+declare -A associativeEDITIONS
+
+# Set the edition to the default if necessary
+if [ -z "${EDITION}" ] && [ -n "${DEFAULT_EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
+    EDITION="${DEFAULT_EDITION}"
+fi
 
 case "${1}" in
     --homepage)
