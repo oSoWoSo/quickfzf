@@ -67,11 +67,18 @@ function list_editions() {
     # Handle the associative array for unique editions
     local fullEDITIONS=("${EDITIONS[@]}")
     if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
-        while read -d ';' -r aEDITION; do
-            fullEDITIONS+=("${aEDITION}")
-        done <<< "${associativeEDITIONS["${RELEASE}"]};"
+        if [[ -v associativeEDITIONS["${RELEASE}"] ]]; then
+            while read -d ';' -r aEDITION; do
+                fullEDITIONS+=("${aEDITION}")
+            done <<< "${associativeEDITIONS["${RELEASE}"]};"
+        fi
     fi
-    echo "${fullEDITIONS[@]}"
+    
+    if [ "${1}" == "--edelim" ]; then
+        IFS='!'; echo "${fullEDITIONS[*]}"
+    else
+        echo "${fullEDITIONS[@]}"
+    fi
 }
 
 function fetch_from_cache() {
@@ -140,6 +147,7 @@ function csv_urls() {
     local ED=""
     local PNG=""
     local SVG=""
+    local fullEDITIONS
 
     if [ -z "${DOWNLOADER}" ]; then
         if command -v aria2c &>/dev/null; then
@@ -152,10 +160,15 @@ function csv_urls() {
     PNG="https://quickemu-project.github.io/quickemu-icons/png/${OS}/${OS}-quickemu-white-pinkbg.png"
     SVG="https://quickemu-project.github.io/quickemu-icons/svg/${OS}/${OS}-quickemu-white-pinkbg.svg"
 
-    for REL in "${RELEASES[@]}"; do
-        for ED in "${EDITIONS[@]}"; do
-            echo "${PRETTY_NAME},${OS},${REL},${ED},${DOWNLOADER},${PNG},${SVG}"
-        done
+    for RELEASE in "${RELEASES[@]}"; do
+        IFS='!' read -ra fullEDITIONS <<< "$(list_editions --edelim)"
+        if [ -z "${EDITIONS}" ]; then
+            echo "${PRETTY_NAME},${OS},${RELEASE},,${DOWNLOADER},${PNG},${SVG}"
+        else
+            for ED in "${fullEDITIONS[@]}"; do
+                echo "${PRETTY_NAME},${OS},${RELEASE},${ED},${DOWNLOADER},${PNG},${SVG}"
+            done
+        fi
     done
 }
 
