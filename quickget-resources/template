@@ -103,8 +103,8 @@ function config_additions() {
 
 function prepare_image() {
     # If you need to do anything to the image before it's used (for example, uncompressing), do it here.
-    # Echo the filename(s) of the old image followed by that of the new image.
-    # Example: echo ""
+    # Echo the filename(s) of the old image followed by that of the new image. Separate them with :NEWPATH: as in this example
+    # Example: echo -e "${OLD_FILE}:NEWPATH:${NEW_FILE}"
     exit 0
 }
 
