@@ -34,8 +34,7 @@ function handle_urls() {
 
     local URL=""
     for URL in "${URLs[@]}"; do
-        web_get "${URL}"
-        check_hash "${URL}"
+        check_hash "${URL}" || web_get "${URL}"
     done
 }
 
@@ -50,12 +49,12 @@ function check_hash() {
         40) HASH_ALGO=sha1sum;;
         64) HASH_ALGO=sha256sum;;
         128) HASH_ALGO=sha512sum;;
-        *) return 0;;
+        *) return 1;;
     esac
 
     # If the "hash" contains a forward slash, it must be a URL. 
     if echo "${HASH}" | grep -q "/" || [ -z "${LAST_DOWNLOADED}" ]; then
-        return 0
+        return 1
     fi
 
     echo -n "Checking ${LAST_DOWNLOADED} with ${HASH_ALGO}... "
@@ -80,6 +79,11 @@ function web_get() {
 	if [ "${TEST_ISO_URL}" == 'true' ]; then
         wget --spider "${URL}"
     fi
+
+    if [ "${VM_PATH}" != "$(pwd)" ] && ! mkdir -p "${VM_PATH}" 2>/dev/null; then
+      echo "ERROR! Unable to create directory ${VM_PATH}"
+      exit 1
+    fi
     
     if command -v aria2c &>/dev/null; then
         if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${VM_PATH}" -o "${FILE}"; then
@@ -102,7 +106,7 @@ function web_get() {
         IMAGE_FILE="${FILE}"
     fi
     # Set the last downloaded filename for use in the check_hash function
-    LAST_DOWNLOADED="${FILE}"
+    LAST_DOWNLOADED="${VM_PATH}/${FILE}"
 }
 
 function verify_release() {
@@ -123,15 +127,12 @@ function verify_release() {
 }
 
 function make_vm_config() {
-    local CONF_FILE=""
+    CONF_FILE="${VM_PATH}.conf"
     local IMAGE_TYPE=""
     local GUEST=""
-    local SEC_BOOT=""
 
     GUEST="$("${PLUGIN}" --guest)"
     IMAGE_TYPE="$("${PLUGIN}" --image-type)"
-
-    CONF_FILE="${VM_PATH}.conf"
 
     if [ ! -e "${CONF_FILE}" ]; then
         echo "Making ${CONF_FILE}"
@@ -141,6 +142,7 @@ guest_os="${GUEST}"
 disk_img="${VM_PATH}/disk.qcow2"
 ${IMAGE_TYPE}="${VM_PATH}/${IMAGE_FILE}"
 disk_size="32G"
+arch="${FINALARCH}"
 EOF
     echo "Giving user execute permissions on ${CONF_FILE},"
     chmod u+x "${CONF_FILE}"
@@ -292,10 +294,14 @@ fi
 VM_DIR="$(pwd)"
 export VM_DIR VM_PATH
 
-URLs="$("${PLUGIN}" --list-urls --download)"
+URLs=($("${PLUGIN}" --list-urls --download))
+
 if [ "${?}" != 2 ]; then
     handle_urls
 fi
 
+make_vm_config
+
+echo -e "\nTo start your ${PRETTY_NAME} virtual machine run:\n    quickemu --vm ${CONF_FILE}\n"
 
 # vim:tabstop=4:shiftwidth=4:expandtab
