@@ -20,7 +20,7 @@ function validate_re() {
             elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
                 exit 2
             elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 1 ]; then
-                echo -en "ERROR: You must specify an edition.\n - ${PRETTY_NAME} ${RELEASE} Editions: "
+                echo -en "ERROR: You must specify an edition.\n - Editions: "
                 list_editions
                 exit 1
             fi
