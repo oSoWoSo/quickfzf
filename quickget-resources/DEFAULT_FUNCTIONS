@@ -33,12 +33,15 @@ function validate_re() {
             # Loop through editions array and check if the edition is present
             for ED in "${fullEDITIONS[@]}"; do
                 if [ "${EDITION,,}" == "${ED,,}" ]; then
+                    if [ "${EDITION}" == "${DEFAULT_EDITION}" ]; then
+                        exit 2
+                    fi
                     exit 0
                 fi
             done
 
             echo -e "ERROR! ${EDITION} is not a supported ${PRETTY_NAME} ${RELEASE} edition.\n"
-            echo " - Editions:" "${EDITIONS[@]}"
+            echo " - Editions:" "${fullEDITIONS[@]}"
             exit 1
         fi
     done
@@ -50,9 +53,10 @@ function validate_re() {
 
 function format_re() {
     if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
+        echo
         printf "%--10s%s\n" "Releases:" "      Editions:"
         for RELEASE in "${RELEASES[@]}"; do
-            printf "%-10s%s\n" "${RELEASE}" "      $(list_editions)"
+            printf "%-10s%s\n" "${RELEASE}" "      $(list_editions)" | fold -s -w "$(tput cols)"
         done
     else
         echo " - Releases:" "${RELEASES[@]}"
