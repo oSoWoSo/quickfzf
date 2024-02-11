@@ -90,6 +90,8 @@ readonly GUEST_TYPE="linux"
 readonly IMAGE_TYPE="iso"
 # Set this to the amount of days before the cache is considered outdated and refreshed (if fetching from internet)
 readonly CACHE_DAYS=7
+# WIP: Cache URLs. For example, a Windows URL may be cached for 24 hours (1 day) since that's how long it takes to expire
+readonly CACHE_URLS=0
 
 
 # OPTIONAL. Only use these functions if you need to do something special with the VM config or image file
