@@ -1,0 +1,107 @@
+#!/usr/bin/bash
+#
+#   This template identifies the functions required to supported by each OS
+
+#function create_vm() {
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples..
+#}
+
+# This function returns an associative array with keys "url", "iso", and "hash"
+# Change this function for your distro
+function get_distro_info() {
+    declare -A distro_info
+    distro_info['url']="https://repo.almalinux.org/almalinux/${RELEASE}/isos/x86_64"
+    distro_info['iso']="AlmaLinux-${RELEASE}-latest-x86_64-${EDITION}.iso"
+    distro_info['hash']="None" # No hash - there is a signature in .asc signed by
+    #https://d1anzknqnc1kmb.cloudfront.net/eos-image-keyring.gpg
+    # (4096R: CB50 0F7B C923 3FAD 32B4 E720 9E0C 1250 587A 279C)
+    local file_ts=""
+    # https://support.endlessos.org/en/installation/direct-download gives the info but computes the URLS in js
+    # so parsing out the useful info is not happening tonight
+    # Endless edition names are "base" for the small minimal one or the Language for the large full release
+    # The isos are stamped as they are finished so ....
+    case ${EDITION} in
+        base)
+            file_ts="230127-211122";;
+        fr)
+            file_ts="230127-213415";;
+        en)
+            file_ts="230127-212436";;
+        es)
+            file_ts="230127-212646";;
+        pt_BR)
+            file_ts="230127-220328";;
+      esac
+
+    distro_info['url']="https://images-dl.endlessm.com/release/${RELEASE}/eos-amd64-amd64/${EDITION}"
+    distro_info['iso']="eos-eos${RELEASE:0:3}-amd64-amd64.${file_ts}.${EDITION}.iso"
+
+    for key in "${!distro_info[@]}"; do
+        echo "${key}" "${distro_info[${key}]}"
+    done
+}
+
+#function get_file() {
+#    #    This function can be used to over rid the standard function in quickget
+#    #    if you distribution requires something special. Windows and Mac are examples..
+#}
+
+# This function returns supported OS releases for the OS
+# Change this function for your distro
+function releases() {
+    echo 5.0.0
+}
+
+# This function returns an associative array with releases as the key
+# and a "!" separated string of valid editions for the specific release.
+# While quite often editions are the same for all releases it is not always
+# the case.
+# Editions have different meanings for different OS's
+# Change this function for your distro
+function editions() {
+    declare -A editions
+    local release
+
+    for release in $(releases); do
+        editions[${release}]="base!en!fr!pt_BR!es"
+    done
+
+    for key in "${!editions[@]}"; do
+        echo "${key}" "${editions[${key}]}"
+    done
+}
+
+# Change this function for your distro
+# Returning 0 means editions are required and 1 not required
+function editions_required() {
+    return 0
+}
+
+# This function returns an expanded OS name for pretty printing
+# Change this function for your distro
+function pretty_name() {
+    echo "Endless OS"
+}
+
+# This function returns the OS's home page URL
+# Change this function for your distro
+function homepage() {
+    echo "https://www.endlessos.org/os"
+}
+
+# This function creates the vm_config file and can be used to
+# replace the default one in the quickget
+# Change this function for your distro
+function make_vm_config() {
+    default_vm_config
+
+    # Override any default settings
+    #sed -i 's/^disk_size=.*/disk_size=\"80G\"/' "${VM_PATH}".conf
+
+    # Add any additional lines
+    # {
+    #     printf "fixed_iso=\"%s\"\n"   ${fixed_iso}
+    #
+    # } >> "${VM_PATH}.conf"
+}

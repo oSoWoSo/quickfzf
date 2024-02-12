@@ -116,7 +116,11 @@ function main() {
             if editions_required; then
                 release_editions
             else
-                printf "%-15s | %s\n" "Releases" "$(releases)"
+                printf "%-15s |" "Releases"
+                for item in $(releases); do
+                    printf " %s" "${item}"
+                done
+                printf "\n"
             fi
             usage
         else
@@ -156,8 +160,12 @@ function main() {
                 if editions_required; then
                     release_editions
                 else
-                    printf "\t- Releases: %s\n" "$(releases)"
-                fi
+                    printf "%-15s |" "Releases"
+                    for item in $(releases); do
+                        printf " %s" "${item}"
+                    done
+                    printf "\n"
+                    fi
                 usage
             fi
         fi
@@ -200,8 +208,14 @@ function check_hash() {
         40) hash_algo=sha1sum;;
         64) hash_algo=sha256sum;;
         128) hash_algo=sha512sum;;
-        None) warning "Hash not provided , not checking ${OS} hash";;
-        *) warning "Can't guess hash algorithm, not checking ${OS} hash";;
+        None)
+            warning "Hash not provided , not checking ${OS} hash"
+            return 0
+            ;;
+        *)
+            warning "Can't guess hash algorithm, not checking ${OS} hash"
+            return 0
+            ;;
     esac
 
     printf "Checking %s with %s... " "${DISTRO_INFO['iso']}" "${hash_algo}"
@@ -267,9 +281,11 @@ function edition_valid() {
 function release_valid() {
     #   This function validates that the supplied release is one of the
     #   valid releases
+    #
     for value in $(releases); do
-        [[ "${RELEASE}" == "${value}" ]] && return 0
+        [[ "${RELEASE}" == "${value,,}" ]] && return 0
     done
+
     return 1
 }
 
