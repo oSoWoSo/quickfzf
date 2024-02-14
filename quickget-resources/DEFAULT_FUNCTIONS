@@ -54,7 +54,7 @@ function validate_re() {
 function format_re() {
     if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
         echo
-        printf "%--10s%s\n" "Releases:" "      Editions:"
+        printf "%--10s%s\n" "Releases:" "      ${EDITION_NAME}:"
         for RELEASE in "${RELEASES[@]}"; do
             printf "%-10s%s\n" "${RELEASE}" "      $(list_editions)" | fold -s -w "$(tput cols)"
         done

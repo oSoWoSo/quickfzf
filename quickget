@@ -325,9 +325,8 @@ VM_DIR="$(pwd)"
 export VM_DIR VM_PATH
 
 PLUGIN_OUTPUT="$("${PLUGIN}" --list-urls --download)"
-EXIT_STATUS="${?}"
 
-case "${EXIT_STATUS}" in
+case "${?}" in
     0)
         handle_urls
         if [ -z "${LAST_DOWNLOADED}" ]; then
