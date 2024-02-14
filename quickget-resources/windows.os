@@ -37,19 +37,19 @@ function fetch_info() {
             # If unique editions are required per release, use this template.
             # You may still put static editions (those which are present for ALL releases) in the EDITIONS array 
             associativeEDITIONS['8']="Arabic;Brazilian Portuguese;Bulgarian;Chinese (Simplified);Chinese (Traditional);Chinese (Traditional Hong Kong);\
-            Croatian;Czech;Danish;Dutch;English (United States);English International;Estonian;Finnish;French;German;Greek;Hebrew;Hungarian;Italian;Japanese;\
-            Latvian;Lithuanian;Norwegian;Polish;Portuguese;Romanian;Russian;Serbian Latin;Slovak;Slovenian;Spanish;Swedish;Thai;Turkish;Ukrainian"
+Croatian;Czech;Danish;Dutch;English (United States);English International;Estonian;Finnish;French;German;Greek;Hebrew;Hungarian;Italian;Japanese;\
+Latvian;Lithuanian;Norwegian;Polish;Portuguese;Romanian;Russian;Serbian Latin;Slovak;Slovenian;Spanish;Swedish;Thai;Turkish;Ukrainian"
             
             associativeEDITIONS['10-ltsc']="English (United States);English (Great Britain);Chinese (Simplified);Chinese (Traditional);French;German;Italian;\
-            Japanese;Korean;Portugese (Brazil);Spanish"
+Japanese;Korean;Portugese (Brazil);Spanish"
 
             associativeEDITIONS['10']="Arabic;Brazilian Portuguese;Bulgarian;Chinese (Simplified);Chinese (Traditional);Croatian;Czech;Danish;Dutch;\
-            English (United States);English International;Estonian;Finnish;French;French Canadian;German;Greek;Hebrew;Hungarian;Italian;Japanese;Korean;\
-            Latvian;Lithuanian;Norwegian;Polish;Portuguese;Romanian;Russian;Serbian Latin;Slovak;Slovenian;Spanish;Spanish (Mexico);Swedish;Thai;Turkish;Ukrainian"
+English (United States);English International;Estonian;Finnish;French;French Canadian;German;Greek;Hebrew;Hungarian;Italian;Japanese;Korean;\
+Latvian;Lithuanian;Norwegian;Polish;Portuguese;Romanian;Russian;Serbian Latin;Slovak;Slovenian;Spanish;Spanish (Mexico);Swedish;Thai;Turkish;Ukrainian"
             
             associativeEDITIONS['11']="Arabic;Brazilian Portuguese;Bulgarian;Chinese (Simplified);Chinese (Traditional);Croatian;Czech;Danish;Dutch;\
-            English (United States);English International;Estonian;Finnish;French;French Canadian;German;Greek;Hebrew;Hungarian;Italian;Japanese;Korean;\
-            Latvian;Lithuanian;Norwegian;Polish;Portuguese;Romanian;Russian;Serbian Latin;Slovak;Slovenian;Spanish;Spanish (Mexico);Swedish;Thai;Turkish;Ukrainian"
+English (United States);English International;Estonian;Finnish;French;French Canadian;German;Greek;Hebrew;Hungarian;Italian;Japanese;Korean;\
+Latvian;Lithuanian;Norwegian;Polish;Portuguese;Romanian;Russian;Serbian Latin;Slovak;Slovenian;Spanish;Spanish (Mexico);Swedish;Thai;Turkish;Ukrainian"
             ;;
 
         # Add other architectures here if necessary, like this.
