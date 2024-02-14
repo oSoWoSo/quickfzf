@@ -123,12 +123,7 @@ function populate_cache() {
     local fullEDITIONS=()
     local JSON_DATA=()
 
-    if [ -f "${CACHE_FILE}" ]; then
-        rm "${CACHE_FILE}"
-    fi
-
-    date +%s >> "${CACHE_FILE}"
-
+    date +%s > "${CACHE_FILE}"
 
     for REL in "${RELEASES[@]}"; do
         # Gather the editions for each release. Then, loop through them and add them to an array in JSON formatting
