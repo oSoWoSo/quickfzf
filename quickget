@@ -189,7 +189,48 @@ function show_iso_url() {
 }
 
 function usage() {
-    exit 1
+    printf '\n - Or use "quickget --help" or "quickget -h" to see help'
+    exit 0
+}
+
+function usage_help() {
+    printf '                             _              _
+           __ _ _   _ _  ___║ ║ ____ _  ___║ ║_
+          / _` ║ ║ ║ ║ ║/ __║ ║/ / _` ║/ _ \ __║
+         ( (_║ ║ ║_║ ║ ║ (__║   < (_║ ║  __/ ║_      MIT
+          \__, ║\__,_║_║\___║_║\ \__, ║\___║\__║   license
+             ║_║  version: %s ║___/
+ QEMU %s --------------------------------------------------
+       > Quickly create and run optimised Windows, <
+       > macOS and Linux desktop virtual machines. <
+   homepage   -    Not Yet
+  repository  - https://github.com/quickemu-project/quickemu
+ official GUI - https://github.com/quickemu-project/quickgui
+  by Wimpy https://github.com/flexiondotorg and contributors
+ Discord - https://discord.gg/wimpy-s-world-712850672223125565
+--------------------------------------------------------------
+
+Basic Usage:
+ quickget <os> <release> [edition]
+ quickget alpine latest
+
+Advanced Usage:
+ quickget <arg> [path] <os> [re] [ed]
+ quickget -d peppermint latest devuan-xfce
+
+Posible arguments:
+ --help             (-h)                : Show this help message and exit
+ --os-info          (-i) <os>           : Show info about OS
+ --os-homepage      (-o) <os>           : Open OS homepage in default browser
+ --iso-download     (-d) <os> <re> [ed] : Just download ISO
+ --list-supported  (-ls)                : List all supported OS,releases,editions
+ --list-isos       (-li)                : List all supported ISOs
+ --test-isos       (-ti)                : Test if ISOs are available
+ --version          (-v)                : Show version and exit
+
+supported Operating Systems: ' "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
+    echo "${VALID_OS[@]}"
+    exit 0
 }
 
 trap cleanup EXIT
@@ -230,25 +271,29 @@ while (( "${#}" )); do
             list_json
             exit 0
             ;;
-        --version|-version)
+        -h|--help)
+            usage_help
+            exit 0
+            ;;
+        -v|--version)
             "${BASE_DIR}"/quickemu ---version
             exit 0
             ;;
-        --arch|--architecture)
+        -a|--architecture)
             ARCH="${2}"
             shift
             ;;
-        --download-iso)
+        -d|--download-iso)
             # Set as a global variable, in case the plugin uses its own method of downloading.
             export DOWNLOAD_ONLY=true
             ;;
-        --test-iso-url|-t)
+        -t|--test-iso-url)
             TEST_ISO_URL=true
             ;;
-        --show-iso-url|-s)
+        -s|--show-iso-url)
             SHOW_ISO_URL=true
             ;;
-        --open-distro-homepage|-o)
+        -o|--open-distro-homepage)
             OPEN_HOMEPAGE=true
             ;;
         --refresh)
