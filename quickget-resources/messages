@@ -1,5 +1,6 @@
 MSG_DOWNLOADING="Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
 MSG_CHECKING_HASH="Checking ${LAST_DOWNLOADED} with ${HASH_ALGO}... "
+#!/usr/bin/env bash
 MSG_ERROR="ERROR!"
 MSG_HASH_NOT_MATCH="${LAST_DOWNLOADED} doesn't match ${HASH}. Try running 'quickget' again."
 MSG_HASH_MATCH="Good!"
