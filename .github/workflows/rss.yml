@@ -8,8 +8,19 @@ name: Monitor OS updates
 
 on:
   schedule:
-    - cron: "23 8,11,14,17 * * *"
+    # Run this Action every day at 7:37am UTC
+    - cron: "37 7 * * *"
+  push:
+    branches: '**' #'!master' # excludes master
+    paths-ignore: [ '**/README.md' ]
+  pull_request:
+    branches: '**' # matches every branch
+    paths-ignore: [ '**/README.md' ]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CHARACTER_LIMIT: 5000
