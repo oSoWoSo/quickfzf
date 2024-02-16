@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-# Instructions: 
+# Instructions:
 # 1. Set mandatory variables below, and set recommended variables if possible
 # 2. Modify fetch_info function to include all of the necessary information (or way to fetch it)
 # 3. Modify list_urls function to provide ISO(s) for the operating system
@@ -17,21 +17,23 @@ readonly CACHE_DATA=0
 # Set this variable depending on whether or not the operating system requires an edition to be specified
 readonly REQUIRES_EDITION=0
 # Add all valid architectures for your operating system here. The first one in the array will be the default (if host system does not match)
-# Use the most standard name for each architecture. Example: amd64, arm64, riscv64, i386. NOT: x86_64, aarch64, x86, riscv.
+# Use the most standard name for each architecture. Example: (amd64 arm64 riscv64 i386) NOT: (x86_64, aarch64, x86, riscv)
 readonly ARCHITECTURES=(amd64)
-
+# (OPTIONAL, HIGHLY RECOMMENDED) Is Operating System based of something or Independent? Example: arch, debian
+readonly BASEDOF=""
+# (OPTIONAL, HIGHLY RECOMMENDED) Login information for Live image. Example: anon:void, root:voidlinux
+readonly CREDENTIALS=""
 # (OPTIONAL, HIGHLY RECOMMENDED) Brief description of the operating system
 readonly DESCRIPTION=""
-# (OPTIONAL, HIGHLY RECOMMENDED) Set this to the friendly name of the operating system, if applicable. 
+# (OPTIONAL, HIGHLY RECOMMENDED) Set this to the friendly name of the operating system, if applicable. Leave "${OS}" otherwise
 readonly PRETTY_NAME="${OS}"
-
 
 function fetch_info() {
     case "${ARCH}" in
         amd64)
-            # Add editions and releases here. Or, replace this with your code to fetch releases and editions.
+            # Add editions and releases here. Or, replace this with your code to fetch releases and editions. Example: RELEASES+=(glibc musl)
             RELEASES+=()
-            # You may leave EDITIONS blank if there is only one edition.
+            # You may leave EDITIONS blank if there is only one edition. Example: EDTIONS+=(base xfce)
             EDITIONS+=()
 
             # If unique editions are required per release, use this template.
@@ -98,7 +100,7 @@ function config_additions() {
     # Just echo them out (in quotation marks) if you want to append them to the other options.
     # Add "OVERRIDE" before the string to instead replace the value of a default option.
     # Example: echo OVERRIDE "disk_size=\"40G\"" to replace the default disk_size with 40G.
-    # You can REMOVE options by adding REMOVE before the option name. 
+    # You can REMOVE options by adding REMOVE before the option name.
     # Example: echo REMOVE "disk_size" to remove the disk_size option, such as for macOS VMs which have disk_size handled in quickemu
     exit 0
 }
@@ -107,7 +109,6 @@ function prepare_image() {
     # If you need to do anything to the image before it's used (for example, uncompressing), do it here.
     # If the file is your ISO/img file, echo "NEW_IMAGE_FILE" before the name of your file.
     # echo "NEW_IMAGE_FILE" "${VM_PATH}/${IMAGE_FILE}"
-
     exit 0
 }
 
@@ -126,6 +127,10 @@ case "${1}" in
         echo "${PRETTY_NAME}";;
     --return-arch)
         echo "${ARCH}";;
+    --based-of)
+        echo "${BASEDOF}";;
+    --credentials)
+        echo "${CREDENTIALS}";;
     --description)
         echo "${DESCRIPTION}";;
     --guest)
