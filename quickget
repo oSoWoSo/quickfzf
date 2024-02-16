@@ -10,8 +10,8 @@ function cleanup() {
   fi
 }
 
-# source ui messages from plugin. Here for now...
-. quickget-resources/ui.messages
+# source ui messages. Linked to default messages.en_US.
+. quickget-resources/messages
 
 function format_arch() {
     # Format the architecture in a more standard way (e.g. x86_64 -> amd64)
