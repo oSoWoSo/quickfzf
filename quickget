@@ -11,8 +11,7 @@ function cleanup() {
 }
 
 # source ui messages. Linked to default messages.en_US.
-# shellcheck source=quickget-resources/messages
-. ./quickget-resources/messages
+. quickget-resources/messages
 
 function format_arch() {
     # Format the architecture in a more standard way (e.g. x86_64 -> amd64)
