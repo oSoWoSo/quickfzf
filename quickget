@@ -29,7 +29,7 @@ function format_arch() {
 function handle_urls() {
     # Handle multiple URLs if necessary
     if [ "${TEST_ISO_URL}" != 'true' ] && [ "${DOWNLOAD_ONLY}" != 'true' ]; then
-        echo "Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
+        echo "${MSG_DOWNLOADING}"
     fi
 
     local URL=""
@@ -56,13 +56,13 @@ function check_hash() {
         return 1
     fi
 
-    echo -n "Checking ${LAST_DOWNLOADED} with ${HASH_ALGO}... "
+    echo -n "${MSG_CHECKING_HASH}"
     if ! echo "${HASH} ${LAST_DOWNLOADED}" | ${HASH_ALGO} --check --status; then
-        echo "ERROR!"
-        echo "${LAST_DOWNLOADED} doesn't match ${HASH}. Try running 'quickget' again."
+        echo "${MSG_ERROR}"
+        echo "${MSG_HASH_NOT_MATCH}"
         exit 1
     else
-        echo "Good!"
+        echo "${MSG_HASH_MATCH}"
     fi
 
     # --download-iso should only need to download one file. 
@@ -86,24 +86,24 @@ function web_get() {
     fi
 
     if [ "${VM_PATH}" != "$(pwd)" ] && ! mkdir -p "${VM_PATH}" 2>/dev/null; then
-      echo "ERROR! Unable to create directory ${VM_PATH}"
+      echo "${MSG_ERROR_CANT_CREATE_DIR}"
       exit 1
     fi
     
     if command -v aria2c &>/dev/null; then
         if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${VM_PATH}" -o "${FILE}"; then
           echo #Necessary as aria2c in suppressed mode does not have new lines
-          echo "ERROR! Failed to download ${URL} with aria2c. Try running 'quickget' again."
+          echo "${MSG_ERROR_DOWNLOAD_ARIA}"
           exit 1
         fi
         echo #Necessary as aria2c in suppressed mode does not have new lines
     elif command -v wget2 &>/dev/null; then
         if ! wget2 --quiet --continue --tries=3 --read-timeout=10 --force-progress --progress=bar:force:noscroll "${URL}" -O "${VM_PATH}/${FILE}"; then
-            echo "ERROR! Failed to download ${URL} with wget2. Try running 'quickget' again."
+            echo "${MSG_ERROR_DOWNLOAD_WGET2}"
             exit 1
         fi
     elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${URL}" -O "${VM_PATH}/${FILE}"; then
-        echo "ERROR! Failed to download ${URL} with wget. Try running 'quickget' again."
+        echo "${MSG_ERROR_DOWNLOAD_WGET}"
         exit 1
     fi
 
@@ -150,7 +150,7 @@ function handle_config_additions() {
     CONFIG_ADDITIONS="$("${PLUGIN}" --config-additions)"
     echo "${CONFIG_ADDITIONS}" | while IFS= read -r CHANGE; do
         echo "${CHANGE}" >> "${CONF_FILE}"
-        echo "PLACEHOLDER: ${CHANGE}"
+        echo "${MSG_CONFIG_ADDITION}"
     done
 }
 
@@ -189,46 +189,12 @@ function show_iso_url() {
 }
 
 function usage() {
-    printf '\n - Or use "quickget --help" or "quickget -h" to see help'
+    echo -e "${MSG_USAGE}"
     exit 0
 }
 
 function usage_help() {
-    printf '                             _              _
-           __ _ _   _ _  ___║ ║ ____ _  ___║ ║_
-          / _` ║ ║ ║ ║ ║/ __║ ║/ / _` ║/ _ \ __║
-         ( (_║ ║ ║_║ ║ ║ (__║   < (_║ ║  __/ ║_      MIT
-          \__, ║\__,_║_║\___║_║\ \__, ║\___║\__║   license
-             ║_║  version: %s ║___/
- QEMU %s --------------------------------------------------
-       > Quickly create and run optimised Windows, <
-       > macOS and Linux desktop virtual machines. <
-   homepage   -    Not Yet
-  repository  - https://github.com/quickemu-project/quickemu
- official GUI - https://github.com/quickemu-project/quickgui
-  by Wimpy https://github.com/flexiondotorg and contributors
- Discord - https://discord.gg/wimpy-s-world-712850672223125565
---------------------------------------------------------------
-
-Basic Usage:
- quickget <os> <release> [edition]
- quickget alpine latest
-
-Advanced Usage:
- quickget <arg> [path] <os> [re] [ed]
- quickget -d peppermint latest devuan-xfce
-
-Posible arguments:
- --help             (-h)                : Show this help message and exit
- --os-info          (-i) <os>           : Show info about OS
- --os-homepage      (-o) <os>           : Open OS homepage in default browser
- --iso-download     (-d) <os> <re> [ed] : Just download ISO
- --list-supported  (-ls)                : List all supported OS,releases,editions
- --list-isos       (-li)                : List all supported ISOs
- --test-isos       (-ti)                : Test if ISOs are available
- --version          (-v)                : Show version and exit
-
-supported Operating Systems: ' "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
+    printf "${MSG_PRINTF_HELP}" "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
     echo "${VALID_OS[@]}"
     exit 0
 }
@@ -236,14 +202,14 @@ supported Operating Systems: ' "$(quickemu --version)" "$(qemu-x86_64 -version |
 trap cleanup EXIT
 
 if [ "${UID}" -eq 0 ]; then
-    echo "ERROR! Quickget cannot be run as root."
+    echo "${MSG_ERROR_NO_ROOT}"
     exit 1
 fi
 
 # Create directory to cache release/edition information in the case that it's sourced from the internet.
 # OS Template will handle the creation of individual files
 if ! mkdir -p "${HOME}/.cache/quickemu"; then
-    echo "ERROR! Failed to create cache directory at ${HOME}/.cache/quickemu"
+    echo "${MSG_ERROR_CREATE_CACHE}"
     exit 1
 fi
 
@@ -318,7 +284,7 @@ OS="${PARAMS[0],,}"
 RELEASE="${PARAMS[1]}"
 EDITION="${PARAMS[2]}"
 if [ "${PARAMS[3]}" ]; then
-    echo "Error. Invalid parameters."
+    echo "${MSG_ERROR_INVALID_PARAMETERS}"
     exit 1
 fi
 export ARCH OS RELEASE EDITION
@@ -327,8 +293,8 @@ export ARCH OS RELEASE EDITION
 if [ -n "${OS}" ]; then
     find_plugin
 else
-    echo "ERROR! You must specify an operating system."
-    echo -n " - Operating Systems: "
+    echo "${MSG_ERROR_OS}"
+    echo -n "${MSG_OS}"
     echo "${VALID_OS[@]}"
     usage
 fi
@@ -375,7 +341,7 @@ case "${?}" in
     0)
         handle_urls
         if [ -z "${LAST_DOWNLOADED}" ]; then
-            echo "ERROR! Received no URLs from the ${PRETTY_NAME} plugin. Try running 'quickget' again."
+            echo "${MSG_ERROR_NO_URL}"
             exit 1
         fi;;
     1)
@@ -390,6 +356,6 @@ fi
 
 make_vm_config
 
-echo -e "\nTo start your ${PRETTY_NAME} virtual machine run:\n    quickemu --vm ${CONF_FILE}\n"
+echo -e "${MSG_TO_START}"
 
 # vim:tabstop=4:shiftwidth=4:expandtab
