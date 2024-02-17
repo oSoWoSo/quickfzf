@@ -11,11 +11,11 @@
 # MANDATORY VARIABLES: You must set these to appropriate values for your OS.
 
 # Homepage of the operating system (URL)
-readonly HOMEPAGE="https://www.apple.com/macos/"
+readonly HOMEPAGE=""
 # Set this to 1 if your fetch_info function fetches data from the internet, 0 if it's hardcoded
 readonly CACHE_DATA=0
 # Set this variable depending on whether or not the operating system requires an edition to be specified
-readonly REQUIRES_EDITION=0
+readonly REQUIRES_EDITION=1
 # Add all valid architectures for your operating system here. The first one in the array will be the default (if host system does not match)
 # Use the most standard name for each architecture. Example: amd64, arm64, riscv64, i386. NOT: x86_64, aarch64, x86, riscv.
 readonly ARCHITECTURES=(amd64)
@@ -23,21 +23,20 @@ readonly ARCHITECTURES=(amd64)
 # (OPTIONAL, HIGHLY RECOMMENDED) Brief description of the operating system
 readonly DESCRIPTION=""
 # (OPTIONAL, HIGHLY RECOMMENDED) Set this to the friendly name of the operating system, if applicable. 
-readonly PRETTY_NAME="${OS}"
+readonly PRETTY_NAME="Zorin OS"
 
 
 function fetch_info() {
     case "${ARCH}" in
         amd64)
             # Add editions and releases here. Or, replace this with your code to fetch releases and editions.
-            RELEASES+=(high-sierra mojave catalina big-sur monterey ventura sonoma)
+            RELEASES+=(17 16)
             # You may leave EDITIONS blank if there is only one edition.
-            EDITIONS+=()
+            EDITIONS+=("core64")
 
             # If unique editions are required per release, use this template.
             # You may still put static editions (those which are present for ALL releases) in the EDITIONS array 
-            # associativeEDITIONS['RELEASE1']="EDITION1;EDITION2;EDITION3"
-            # associativeEDITIONS['RELEASE2']="EDITION1;EDITION2;EDITION3"
+            associativeEDITIONS['16']="lite64;education64;edulite64"
             ;;
 
         # Add other architectures here if necessary, like this.
@@ -56,43 +55,38 @@ function list_urls() {
     local ISO=""
     local HASH=""
 
-    # You can also use switch cases to handle the variables differently depending on architecture or anything else
+    URL=$(wget -q -S -O- --max-redirect=0 "https://zrn.co/${RELEASE}${EDITION}" 2>&1 | grep Location | cut -d' ' -f4)
 
-    local OpenCore_qcow2="https://github.com/kholia/OSX-KVM/raw/master/OpenCore/OpenCore.qcow2"
-    local OVMF_CODE="https://github.com/kholia/OSX-KVM/raw/master/OVMF_CODE.fd"
-    local OVMF_VARS="https://github.com/kholia/OSX-KVM/raw/master/OVMF_VARS-1920x1080.fd"
+    # You can also use switch cases to handle the variables differently depending on architecture or anything else
 
     # These are default options. You may change them if necessary. If multiple files need to be downloaded,
     # they may be separated by a space, with hashes (if applicable) following the applicable files (once again, separated by a space).
     # Of course, each HASH or URL should be enclosed in double quotes.
+    # If you need to handle ALL downloading within this function, call whatever method you'd like, and then uncomment 'exit 2' so quickget knows to skip download.
     case "${2}" in
         # Friendly is the show_iso_url option. It should print the URL(s) in a way that's easily readable, and not hashes
         --friendly)
-            echo -e "Recovery URL (inaccessible through normal browser):\n${downloadLink}\nChunklist (used for verifying the Recovery Image):\n${chunkListLink}\n\
-            Firmware URLs:\n${OpenCore_qcow2}\n${OVMF_CODE}\n${OVMF_VARS}";;
+            echo "${URL}";;
         # The first file (if multiple are present) will be listed as the ISO in the VM config. 
         --download)
-            echo "${OVMF_CODE}" "${OVMF_VARS}" "${OpenCore_qcow2}"
+            echo "${URL}" "${HASH}";;
     esac
-    # If you need to handle ALL downloading within this function, call whatever method you'd like, and then uncomment 'exit 2' so quickget knows to skip download.
-    # Echo out the name of the ISO/IMG file in that case
     # exit 2
-    # If the command fails, use exit 1
 }
 
 # OPTIONAL VARIABLES. Use these to customize the behavior if necessary
 
 # Set this to 1 if the operating system has unique editions (which you will set) for each release, 0 otherwise
-readonly UNIQUE_EDITIONS=0
+readonly UNIQUE_EDITIONS=1
 # If an edition is NOT required but multiple editions ARE available, put the default edition's name here.
 readonly DEFAULT_EDITION=""
 # If the operating system has a unique name for its editions (i.e. Windows: Languages), set it here
 readonly EDITION_NAME="Editions"
 # Set this to the OS type. These allow quickemu to optimize for your OS.
 # Do not modify unless you know what is supported in this option or if you're adding it to quickemu
-readonly GUEST_TYPE="macos"
+readonly GUEST_TYPE="linux"
 # Set this to the image type (iso/img)
-readonly IMAGE_TYPE="img"
+readonly IMAGE_TYPE="iso"
 # Set this to the amount of days before the cache is considered outdated and refreshed (if fetching from internet)
 readonly CACHE_DAYS=7
 
@@ -110,106 +104,16 @@ function config_additions() {
 
 function prepare_image() {
     # If you need to do anything to the image before it's used (for example, uncompressing), do it here.
-    # If the file is your ISO/img file, echo "NEW_IMAGE_FILE" before the name of your file.
-    # echo "NEW_IMAGE_FILE" "${VM_PATH}/${IMAGE_FILE}"
-
+    # Echo the filename(s) of the old image followed by that of the new image. Separate them with :NEWPATH: as in this example
+    # Example: echo -e "${OLD_FILE}:NEWPATH:${NEW_FILE}"
     exit 0
-}
-
-function get_macos() {
-    local BOARD_ID=""
-    local CWD=""
-    local CHUNKCHECK=""
-    local MLB="00000000000000000"
-    local OS_TYPE="default"
-    local downloadSession=""
-    local chunkListSession=""
-    local info=""
-    local appleSession=""
-
-    case ${RELEASE} in
-        lion)           #10.7
-            BOARD_ID="Mac-2E6FAB96566FE58C"
-            MLB="00000000000F25Y00";;
-        mountainlion)   #10.8
-            BOARD_ID="Mac-7DF2A3B5E5D671ED"
-            MLB="00000000000F65100";;
-        mavericks)      #10.9
-            BOARD_ID="Mac-F60DEB81FF30ACF6"
-            MLB="00000000000FNN100";;
-        yosemite)       #10.10
-            BOARD_ID="Mac-E43C1C25D4880AD6"
-            MLB="00000000000GDVW00";;
-        elcapitan)      #10.11
-            BOARD_ID="Mac-FFE5EF870D7BA81A"
-            MLB="00000000000GQRX00";;
-        sierra)         #10.12
-            BOARD_ID="Mac-77F17D7DA9285301"
-            MLB="00000000000J0DX00";;
-        high-sierra)    #10.13
-            BOARD_ID="Mac-BE088AF8C5EB4FA2"
-            MLB="00000000000J80300";;
-        mojave)         #10.14
-            BOARD_ID="Mac-7BA5B2DFE22DDD8C"
-            MLB="00000000000KXPG00";;
-        catalina)       #10.15
-            BOARD_ID="Mac-00BE6ED71E35EB86";;
-        big-sur)        #11
-            BOARD_ID="Mac-42FD25EABCABB274";;
-        monterey)       #12
-            BOARD_ID="Mac-E43C1C25D4880AD6";;
-        ventura)        #13
-            BOARD_ID="Mac-BE088AF8C5EB4FA2";;
-        sonoma)
-            BOARD_ID="Mac-53FDB3D8DB8CA971";;
-        *) echo "ERROR! Unknown release: ${RELEASE}"
-           releases_macos
-           exit 1;;
-    esac
-
-    CWD="$(dirname "${0}")"
-    if [ -x "${CWD}/verifyRecoveryImage" ]; then
-        CHUNKCHECK="${CWD}/verifyRecoveryImage"
-    elif [ -x /usr/share/quickemu/quickget-resources/verifyRecoveryImage ]; then
-        CHUNKCHECK="/usr/share/quickemu/quickget-resources/verifyRecoveryImage"
-    else
-        web_get "https://raw.githubusercontent.com/wimpysworld/quickemu/master/quickget-resources/verifyRecoveryImage" "${HOME}/.quickemu"
-        CHUNKCHECK="${HOME}/.quickemu/verifyRecoveryImage"
-    fi
-
-    if [ -z "${CHUNKCHECK}" ]; then
-        echo "ERROR! Could not find chunkcheck. Exiting."
-    fi
-
-    appleSession=$(curl -v -H "Host: osrecovery.apple.com" -H "Connection: close" -A "InternetRecovery/1.0" http://osrecovery.apple.com/ 2>&1 | tr ';' '\n' | awk -F'session=|;' '{print $2}' | grep 1)
-    info=$(curl -s -X POST -H "Host: osrecovery.apple.com" -H "Connection: close" -A "InternetRecovery/1.0" -b "session=\"${appleSession}\"" -H "Content-Type: text/plain"\
-    -d $'cid='"$(generate_id 16)"$'\nsn='${MLB}$'\nbid='${BOARD_ID}$'\nk='"$(generate_id 64)"$'\nfg='"$(generate_id 64)"$'\nos='${OS_TYPE} \
-    http://osrecovery.apple.com/InstallationPayload/RecoveryImage | tr ' ' '\n')
-    downloadLink=$(echo "$info" | grep 'oscdn' | grep 'dmg')
-    downloadSession=$(echo "$info" | grep 'expires' | grep 'dmg')
-    chunkListLink=$(echo "$info" | grep 'oscdn' | grep 'chunklist')
-    chunkListSession=$(echo "$info" | grep 'expires' | grep 'chunklist')
-
-    if ! python3 "${CHUNKCHECK}" "${VM_PATH}" 2> /dev/null; then
-        echo "Verification failed."
-        exit 1
-    fi
-    echo "Verified macOS ${RELEASE} image using chunklist."
-
-    if [ -e "${VM_PATH}/RecoveryImage.dmg" ] && [ ! -e "${VM_PATH}/RecoveryImage.img" ]; then
-        echo "Converting RecoveryImage..."
-        qemu-img convert "${VM_PATH}/RecoveryImage.dmg" -O raw "${VM_PATH}/RecoveryImage.img" 2>/dev/null
-    fi
-
-    rm "${VM_PATH}/RecoveryImage.dmg" "${VM_PATH}/RecoveryImage.chunklist"
-    make_vm_config RecoveryImage.img
 }
 
 
 
 # Nothing below this line should be modified.
 
-source "$(dirname "${0}")/DEFAULT_FUNCTIONS"
+. "${OS_RESOURCES}/DEFAULT_FUNCTIONS"
 
 case "${1}" in
     --homepage)

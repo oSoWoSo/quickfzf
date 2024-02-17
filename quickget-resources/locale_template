@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# In order to add a new language, write appropriate translations for each message here.
+# Make use of the same variables, and use examples to verify.
+
+# Name the file according to the language+country code. i.e. "en_US.locale", "zh_CN.locale", "es_ES.locale"
+# For most languages (country not being particularly relevant), use just the language code, followed by "_*". i.e. "de_*.locale", "fr_*.locale"
+
+function locale.downloading_message() {
+    # echo "Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
+    # EXAMPLE: "Downloading fedora 39 Workstation"
+    echo ""
+}
+
+function locale.image_verification() {
+    # echo -n "Checking ${LAST_DOWNLOADED} with ${HASH_ALGO}... "
+    echo -n ""
+}
+
+function locale.failed_image_verification() {
+    # echo "ERROR! ${LAST_DOWNLOADED} doesn't match ${HASH}. Try running 'quickget' again."
+    # EXAMPLE: "ERROR! archlinux-latest.iso doesn't match d6f4192128b774a5cdf22468dc35a399. Try running 'quickget' again."
+    echo ""
+}
+
+function locale.successful_image_verification() {
+    # echo "Good!"
+    echo ""
+}
+
+function locale.vm_dir_failure() {
+    # echo "ERROR! Unable to create directory ${VM_PATH}"
+    echo ""
+}
+
+function locale.failed_download() {
+    # echo "ERROR! Failed to download ${URL} with ${DOWNLOADER}. Try running 'quickget' again."
+    echo ""
+}
+
+function locale.make_conf() {
+    # echo "Making ${CONF_FILE}"
+    echo ""
+}
+
+function locale.execute_permissions() {
+    # echo "Giving user execute permissions on ${CONF_FILE},"
+    echo ""
+}
+
+function locale.root_failure() {
+    # echo "ERROR! Quickget cannot be run as root."
+    echo ""
+}
+
+function locale.cache_dir_failure() {
+    # echo "ERROR! Failed to create cache directory at ${HOME}/.cache/quickemu"
+    echo ""
+}
+
+function locale.no_os() {
+    # echo "ERROR! You must specify an operating system."
+    # echo -n " - Operating Systems: "
+    echo ""
+    echo -n ""
+}
+
+function locale.unsupported_flag() {
+    # echo -n "Unsupported flag"
+    echo -n ""
+}
+
+function locale.invalid_params() {
+    # echo "Error. Invalid parameters."
+    echo ""
+}
+
+function locale.unsupported_os() {
+    # echo -e "ERROR! ${OS} is not a supported OS.\n"
+    echo -e ""
+}
+
+function locale.no_urls() {
+    # echo "ERROR! Received no URLs from the ${PRETTY_NAME} plugin. Try running 'quickget' again."
+    echo ""
+}
+
+function locale.start_vm() {
+    # echo -e "\nTo start your ${PRETTY_NAME} virtual machine run:\n    quickemu --vm ${CONF_FILE}\n"
+    echo -e ""
+}
+
+function locale.usage() {
+    # PLACEHOLDER.
+    echo ""
+}

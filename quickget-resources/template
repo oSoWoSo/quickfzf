@@ -2,11 +2,12 @@
 # shellcheck disable=SC2034
 
 # Instructions: 
-# 1. Set mandatory variables below, and set recommended variables if possible
-# 2. Modify fetch_info function to include all of the necessary information (or way to fetch it)
-# 3. Modify list_urls function to provide ISO(s) for the operating system
-# 4. Check out the optional variables below the list_urls function to see if you have a use for any of them
-# 5. If necessary, modify config_additions and/or prepare_image functions if you need it for your OS.
+# 1. Copy this file to the OS Plugins directory, and rename it to the name of the operating system.
+# 2. Set mandatory variables below, and set recommended variables if possible
+# 3. Modify fetch_info function to include all of the necessary information (or way to fetch it)
+# 4. Modify list_urls function to provide ISO(s) for the operating system
+# 5. Check out the optional variables below the list_urls function to see if you have a use for any of them
+# 6. If necessary, modify config_additions and/or prepare_image functions if you need it for your OS.
 
 # MANDATORY VARIABLES: You must set these to appropriate values for your OS.
 
@@ -115,7 +116,7 @@ function prepare_image() {
 
 # Nothing below this line should be modified.
 
-source "$(dirname "${0}")/DEFAULT_FUNCTIONS"
+. "$(dirname "${0}")/DEFAULT_FUNCTIONS"
 
 case "${1}" in
     --homepage)

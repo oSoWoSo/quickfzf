@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-RESOURCE_DIR="$(dirname "${0}")"
-
 # Instructions: 
 # 1. Set mandatory variables below, and set recommended variables if possible
 # 2. Modify fetch_info function to include all of the necessary information (or way to fetch it)
@@ -118,7 +116,7 @@ function prepare_image() {
 
 
 
-source "$(dirname "${0}")/DEFAULT_FUNCTIONS"
+. "${OS_RESOURCES}/DEFAULT_FUNCTIONS"
 
 case "${1}" in
     --homepage)

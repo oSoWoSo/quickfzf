@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1090,SC1091,SC2034
 export LC_ALL=C
 
 # In order to add an operating system to quickget, add a plugin in the
@@ -26,10 +27,28 @@ function format_arch() {
     esac
 }
 
+function set_locale() {
+    local SYSTEM_LANG="${1}"
+    # Prioritize an exact match over a wildcard
+    for LOCALE in "${RESOURCE_DIR}"/locale/*.locale; do
+        if [ "$(basename "${LOCALE}")" == "${SYSTEM_LANG}.locale" ]; then
+            return 0
+        fi
+    done
+
+    for LOCALE in "${RESOURCE_DIR}"/locale/*.locale; do
+        if [ "${SYSTEM_LANG%_*}_*.locale" == "$(basename "${LOCALE}")" ]; then
+            return 0
+        fi
+    done
+    
+    LOCALE="${RESOURCE_DIR}"/locale/en_US.locale
+}
+
 function handle_urls() {
     # Handle multiple URLs if necessary
     if [ "${TEST_ISO_URL}" != 'true' ] && [ "${DOWNLOAD_ONLY}" != 'true' ]; then
-        echo "Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
+        locale.downloading_message
     fi
 
     local URL=""
@@ -56,13 +75,12 @@ function check_hash() {
         return 1
     fi
 
-    echo -n "Checking ${LAST_DOWNLOADED} with ${HASH_ALGO}... "
+    locale.image_verification
     if ! echo "${HASH} ${LAST_DOWNLOADED}" | ${HASH_ALGO} --check --status; then
-        echo "ERROR!"
-        echo "${LAST_DOWNLOADED} doesn't match ${HASH}. Try running 'quickget' again."
+        locale.failed_image_verification
         exit 1
     else
-        echo "Good!"
+        locale.successful_image_verification
     fi
 
     # --download-iso should only need to download one file. 
@@ -73,6 +91,7 @@ function check_hash() {
 
 function web_get() {
     local URL="${1}"
+    local DOWNLOADER="wget"
     if [ -z "${FILE}" ]; then
         FILE="${URL##*/}"
     fi
@@ -86,24 +105,26 @@ function web_get() {
     fi
 
     if [ "${VM_PATH}" != "$(pwd)" ] && ! mkdir -p "${VM_PATH}" 2>/dev/null; then
-      echo "ERROR! Unable to create directory ${VM_PATH}"
+      locale.vm_dir_failure
       exit 1
     fi
     
     if command -v aria2c &>/dev/null; then
+        DOWNLOADER="aria2c"
         if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${VM_PATH}" -o "${FILE}"; then
           echo #Necessary as aria2c in suppressed mode does not have new lines
-          echo "ERROR! Failed to download ${URL} with aria2c. Try running 'quickget' again."
+          locale.failed_download
           exit 1
         fi
         echo #Necessary as aria2c in suppressed mode does not have new lines
     elif command -v wget2 &>/dev/null; then
+        DOWNLOADER="wget2"
         if ! wget2 --quiet --continue --tries=3 --read-timeout=10 --force-progress --progress=bar:force:noscroll "${URL}" -O "${VM_PATH}/${FILE}"; then
-            echo "ERROR! Failed to download ${URL} with wget2. Try running 'quickget' again."
+            locale.failed_download
             exit 1
         fi
     elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${URL}" -O "${VM_PATH}/${FILE}"; then
-        echo "ERROR! Failed to download ${URL} with wget. Try running 'quickget' again."
+        locale.failed_download
         exit 1
     fi
 
@@ -163,7 +184,7 @@ function make_vm_config() {
     IMAGE_TYPE="$("${PLUGIN}" --image-type)"
 
     if [ ! -e "${CONF_FILE}" ]; then
-        echo "Making ${CONF_FILE}"
+        locale.make_conf
         cat << EOF > "${CONF_FILE}"
 #!$(which quickemu) --vm
 guest_os="${GUEST}"
@@ -172,14 +193,13 @@ ${IMAGE_TYPE}="${VM_PATH}/${IMAGE_FILE}"
 disk_size="32G"
 arch="${FINALARCH}"
 EOF
-    echo "Giving user execute permissions on ${CONF_FILE},"
-    chmod u+x "${CONF_FILE}"
+    locale.execute_permissions && chmod u+x "${CONF_FILE}"
     fi
     handle_config_additions
 }
 
 function find_plugin() {
-    PLUGIN="${RESOURCE_DIR}/${OS}.os"
+    PLUGIN="${OS_DIR}/${OS}.os"
     PRETTY_NAME="$("${PLUGIN}" --pretty-name)" 2>/dev/null
 }
 
@@ -194,18 +214,6 @@ function usage() {
 
 trap cleanup EXIT
 
-if [ "${UID}" -eq 0 ]; then
-    echo "ERROR! Quickget cannot be run as root."
-    exit 1
-fi
-
-# Create directory to cache release/edition information in the case that it's sourced from the internet.
-# OS Template will handle the creation of individual files
-if ! mkdir -p "${HOME}/.cache/quickemu"; then
-    echo "ERROR! Failed to create cache directory at ${HOME}/.cache/quickemu"
-    exit 1
-fi
-
 BASE_DIR="$(dirname "${0}")"
 # Set directory which contains quickget resources. If existing in directory with quickget, use that (for those using quickget from git, or development). 
 if [ -d "${BASE_DIR}/quickget-resources" ]; then
@@ -213,8 +221,27 @@ if [ -d "${BASE_DIR}/quickget-resources" ]; then
 else
     RESOURCE_DIR="/usr/share/quickemu/quickget-resources"
 fi
+OS_DIR="${RESOURCE_DIR}/OS_PLUGINS"
+OS_RESOURCES="${RESOURCE_DIR}/OS_PLUGIN_RESOURCES"
+export OS_DIR OS_RESOURCES
 
-for OS_PLUGIN in "${RESOURCE_DIR}"/*.os; do
+
+set_locale "$(echo "${LANG}" | cut -f1 -d'.' | cut -f1 -d' ')" && . "${LOCALE}"
+
+if [ "${UID}" -eq 0 ]; then
+    locale.root_failure
+    exit 1
+fi
+
+# Create directory to cache release/edition information in the case that it's sourced from the internet.
+# OS Template will handle the creation of individual files
+if ! mkdir -p "${HOME}/.cache/quickemu"; then
+    locale.cache_dir_failure
+    exit 1
+fi
+
+
+for OS_PLUGIN in "${OS_DIR}"/*.os; do
     VALID_OS+=("$(basename "${OS_PLUGIN}" .os)")
 done
 PARAMS=()
@@ -258,7 +285,7 @@ while (( "${#}" )); do
             REFRESH_ALL=true
             ;;
         --*|-*)
-            echo "Unsupported flag ${1}"
+            echo "$(locale.unsupported_flag) ${1}"
             ;;
         *)
             PARAMS+=("${1}")
@@ -273,17 +300,16 @@ OS="${PARAMS[0],,}"
 RELEASE="${PARAMS[1]}"
 EDITION="${PARAMS[2]}"
 if [ "${PARAMS[3]}" ]; then
-    echo "Error. Invalid parameters."
+    locale.invalid_params
     exit 1
 fi
-export ARCH OS RELEASE EDITION
+export ARCH OS RELEASE EDITION LOCALE
 
 
 if [ -n "${OS}" ]; then
     find_plugin
 else
-    echo "ERROR! You must specify an operating system."
-    echo -n " - Operating Systems: "
+    locale.no_os
     echo "${VALID_OS[@]}"
     usage
 fi
@@ -307,7 +333,7 @@ fi
 # shellcheck disable=SC2076
 # This must be in quotes, we're trying to determine if the full string is in the array. i.e. "ubu" must fail if "ubuntu" is the value in the array.
 if [[ ! " ${VALID_OS[*]} " =~ " ${OS} " ]]; then
-    echo -e "ERROR! ${OS} is not a supported OS.\n"
+    locale.unsupported_os
     echo "${VALID_OS[@]}"
     exit 1
 fi
@@ -330,7 +356,7 @@ case "${?}" in
     0)
         handle_urls
         if [ -z "${LAST_DOWNLOADED}" ]; then
-            echo "ERROR! Received no URLs from the ${PRETTY_NAME} plugin. Try running 'quickget' again."
+            locale.no_urls
             exit 1
         fi;;
     1)
@@ -344,7 +370,6 @@ if echo "${prepare_image_output}" | grep -q "NEW_IMAGE_FILE"; then
 fi 
 
 make_vm_config
-
-echo -e "\nTo start your ${PRETTY_NAME} virtual machine run:\n    quickemu --vm ${CONF_FILE}\n"
+locale.start_vm
 
 # vim:tabstop=4:shiftwidth=4:expandtab
