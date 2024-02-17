@@ -3,8 +3,10 @@
 # In order to add a new language, write appropriate translations for each message here.
 # Make use of the same variables, and use examples to verify.
 
-# Name the file according to the language+country code. i.e. "en_US.locale", "zh_CN.locale", "es_ES.locale"
 # For most languages (country not being particularly relevant), use just the language code, followed by "_*". i.e. "de_*.locale", "fr_*.locale"
+# If you're implementing a language variant specific to a certain country, use the country code in the name as well. i.e. "en_GB, es_AR", etc. (continued..)
+# It's not recommended to use the specific country code unless the language is already implemented, unless the variants are so different that it would be hard to understand
+
 function locale.downloading_message() {
     echo "Downloading ${PRETTY_NAME} ${RELEASE} ${EDITION}"
 }
