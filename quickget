@@ -11,7 +11,8 @@ function cleanup() {
 }
 
 # source ui messages. Linked to default messages.en_US.
-. quickget-resources/messages
+# shellcheck source=quickget-resources/messages
+. ./quickget-resources/messages
 
 function format_arch() {
     # Format the architecture in a more standard way (e.g. x86_64 -> amd64)
@@ -32,7 +33,7 @@ function format_arch() {
 function handle_urls() {
     # Handle multiple URLs if necessary
     if [ "${TEST_ISO_URL}" != 'true' ] && [ "${DOWNLOAD_ONLY}" != 'true' ]; then
-        echo "${MSG_DOWNLOADING}"
+        printf '%s %s %s %s' "$MSG_DOWNLOADING" "${PRETTY_NAME}" "${RELEASE}" "${EDITION}"
     fi
 
     local URL=""
@@ -59,10 +60,10 @@ function check_hash() {
         return 1
     fi
 
-    echo -n "${MSG_CHECKING_HASH}"
+    printf '%s %s %s %s...' "${MSG_CHECKING_HASH}" "${LAST_DOWNLOADED}" "${MSG_CHECKING_HASH2}" "${HASH_ALGO}"
     if ! echo "${HASH} ${LAST_DOWNLOADED}" | ${HASH_ALGO} --check --status; then
         echo "${MSG_ERROR}"
-        echo "${MSG_HASH_NOT_MATCH}"
+        echo "${LAST_DOWNLOADED} ${MSG_HASH_NOT_MATCH} ${HASH_ALGO}. ${MSG_HASH_NOT_MATCH2}"
         exit 1
     else
         echo "${MSG_HASH_MATCH}"
@@ -89,7 +90,7 @@ function web_get() {
     fi
 
     if [ "${VM_PATH}" != "$(pwd)" ] && ! mkdir -p "${VM_PATH}" 2>/dev/null; then
-      echo "${MSG_ERROR_CANT_CREATE_DIR}"
+      echo "${MSG_ERROR_CANT_CREATE_DIR} ${VM_PATH}"
       exit 1
     fi
     
@@ -153,7 +154,7 @@ function handle_config_additions() {
     CONFIG_ADDITIONS="$("${PLUGIN}" --config-additions)"
     echo "${CONFIG_ADDITIONS}" | while IFS= read -r CHANGE; do
         echo "${CHANGE}" >> "${CONF_FILE}"
-        echo "${MSG_CONFIG_ADDITION}"
+        echo "${MSG_CONFIG_ADDITION} ${CHANGE}"
     done
 }
 
@@ -166,7 +167,7 @@ function make_vm_config() {
     IMAGE_TYPE="$("${PLUGIN}" --image-type)"
 
     if [ ! -e "${CONF_FILE}" ]; then
-        echo "${MSG_MAKING_CONFIG}"
+        echo "${MSG_MAKING_CONFIG} ${CONF_FILE}"
         cat << EOF > "${CONF_FILE}"
 #!$(which quickemu) --vm
 guest_os="${GUEST}"
@@ -175,7 +176,7 @@ ${IMAGE_TYPE}="${VM_PATH}/${IMAGE_FILE}"
 disk_size="32G"
 arch="${FINALARCH}"
 EOF
-    echo "${MSG_PERMISSIONS}"
+    echo "${MSG_PERMISSIONS} ${CONF_FILE},"
     chmod u+x "${CONF_FILE}"
     fi
     handle_config_additions
@@ -197,7 +198,7 @@ function usage() {
 }
 
 function usage_help() {
-    printf "${MSG_PRINTF_HELP}" "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
+    echo "${MSG_PRINTF_HELP}" "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
     echo "${VALID_OS[@]}"
     exit 0
 }
@@ -212,7 +213,7 @@ fi
 # Create directory to cache release/edition information in the case that it's sourced from the internet.
 # OS Template will handle the creation of individual files
 if ! mkdir -p "${HOME}/.cache/quickemu"; then
-    echo "${MSG_ERROR_CREATE_CACHE}"
+    printf '%s at %s' "${MSG_ERROR_CREATE_CACHE}" "${HOME}"
     exit 1
 fi
 
@@ -242,7 +243,7 @@ while (( "${#}" )); do
             ;;
         -h|--help)
             usage_help
-            exit 0
+            #exit 0
             ;;
         -v|--version)
             "${BASE_DIR}"/quickemu ---version
@@ -321,7 +322,7 @@ fi
 # shellcheck disable=SC2076
 # This must be in quotes, we're trying to determine if the full string is in the array. i.e. "ubu" must fail if "ubuntu" is the value in the array.
 if [[ ! " ${VALID_OS[*]} " =~ " ${OS} " ]]; then
-    echo -e "${MSG_ERROR_OS_SUPPORTED}"
+    echo -e "${MSG_ERROR} ${OS} ${MSG_ERROR_OS_SUPPORTED}"
     echo "${VALID_OS[@]}"
     exit 1
 fi
@@ -344,7 +345,7 @@ case "${?}" in
     0)
         handle_urls
         if [ -z "${LAST_DOWNLOADED}" ]; then
-            echo "${MSG_ERROR_NO_URL}"
+            echo "${MSG_ERROR_NO_URL} ${PRETTY_NAME} ${MSG_ERROR_NO_URL2}"
             exit 1
         fi;;
     1)
@@ -359,5 +360,5 @@ fi
 
 make_vm_config
 
-echo -e "${MSG_TO_START}"
+echo -e "${MSG_TO_START} ${PRETTY_NAME} ${MSG_TO_START2}\n ${MSG_TO_START3} ${CONF_FILE}"
 
