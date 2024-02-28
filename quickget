@@ -137,7 +137,7 @@ function pretty_name() {
     local SIMPLE_NAME=""
     local PRETTY_NAME=""
     SIMPLE_NAME="${1}"
-    PRETTY_NAME=$(os_info ${SIMPLE_NAME} | cut -d'|' -f1)
+    PRETTY_NAME=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f1)
     echo "${PRETTY_NAME}"
 }
 
@@ -145,7 +145,7 @@ function os_basedof() {
     local SIMPLE_NAME=""
     local BASED=""
     SIMPLE_NAME="${1}"
-    BASED=$(os_info ${SIMPLE_NAME} | cut -d'|' -f2)
+    BASED=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f2)
     echo "${BASED}"
 }
 
@@ -153,7 +153,7 @@ function os_credentials() {
     local SIMPLE_NAME=""
     local CREDE=""
     SIMPLE_NAME="${1}"
-    CREDE=$(os_info ${SIMPLE_NAME} | cut -d'|' -f3)
+    CREDE=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f3)
     echo "${CREDE}"
 }
 
@@ -161,7 +161,7 @@ function os_homepage(){
     local SIMPLE_NAME=""
     local HOMEP=""
     SIMPLE_NAME="${1}"
-    HOMEP=$(os_info ${SIMPLE_NAME} | cut -d'|' -f4)
+    HOMEP=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f4)
     echo "$HOMEP"
 }
 
@@ -169,7 +169,7 @@ function os_about() {
     local SIMPLE_NAME=""
     local ABOUT=""
     SIMPLE_NAME="${1}"
-    ABOUT=$(os_info ${SIMPLE_NAME} | cut -d'|' -f5)
+    ABOUT=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f5)
     echo "${ABOUT}"
 }
 
