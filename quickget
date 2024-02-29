@@ -197,7 +197,7 @@ function usage() {
 }
 
 function usage_help() {
-    echo "${MSG_PRINTF_HELP}" "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
+    printf "${MSG_PRINTF_HELP}" "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
     echo "${VALID_OS[@]}"
     exit 0
 }
