@@ -62,7 +62,7 @@ function check_hash() {
         *) return 1;;
     esac
 
-    # If the "hash" contains a forward slash, it must be a URL. 
+    # If the "hash" contains a forward slash, it must be a URL.
     if echo "${HASH}" | grep -q "/" || [ -z "${LAST_DOWNLOADED}" ]; then
         return 1
     fi
@@ -76,7 +76,7 @@ function check_hash() {
         echo "${MSG_HASH_MATCH}"
     fi
 
-    # --download-iso should only need to download one file. 
+    # --download-iso should only need to download one file.
     if [ "${DOWNLOAD_ONLY}" == 'true' ]; then
         exit 0
     fi
@@ -100,7 +100,7 @@ function web_get() {
       echo "${MSG_ERROR_CANT_CREATE_DIR} ${VM_PATH}"
       exit 1
     fi
-    
+
     if command -v aria2c &>/dev/null; then
         if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${VM_PATH}" -o "${FILE}"; then
           echo #Necessary as aria2c in suppressed mode does not have new lines
@@ -232,6 +232,24 @@ ARCH="$(uname -m)"
 
 while (( "${#}" )); do
     case "${1}" in
+        -a|--architecture)
+            ARCH="${2}"
+            shift
+            ;;
+        -d|--iso-download)
+            # Set as a global variable, in case the plugin uses its own method of downloading.
+            export DOWNLOAD_ONLY=true
+            ;;
+        -h|--help)
+            usage_help
+            #exit 0
+            ;;
+        -i|--os-info)
+            SHOW_ISO_URL=true
+            ;;
+        -li|--list-isos)
+            SHOW_ISO_URL=true
+            ;;
         list|list_csv)
             list_csv
             exit 0
@@ -240,29 +258,11 @@ while (( "${#}" )); do
             list_json
             exit 0
             ;;
-        -h|--help)
-            usage_help
-            #exit 0
-            ;;
-        -v|--version)
-            "${BASE_DIR}"/quickemu ---version
+        -ls|--list-supported)
+            list_supported
             exit 0
             ;;
-        -a|--architecture)
-            ARCH="${2}"
-            shift
-            ;;
-        -d|--download-iso)
-            # Set as a global variable, in case the plugin uses its own method of downloading.
-            export DOWNLOAD_ONLY=true
-            ;;
-        -t|--test-iso-url)
-            TEST_ISO_URL=true
-            ;;
-        -s|--show-iso-url)
-            SHOW_ISO_URL=true
-            ;;
-        -o|--open-distro-homepage)
+        -o|--os-homepage)
             OPEN_HOMEPAGE=true
             ;;
         --refresh)
@@ -270,6 +270,13 @@ while (( "${#}" )); do
             ;;
         --refresh-all)
             REFRESH_ALL=true
+            ;;
+        -ti|--test-isos)
+            TEST_ISO_URL=true
+            ;;
+        -v|--version)
+            "${BASE_DIR}"/quickemu ---version
+            exit 0
             ;;
         --*|-*)
             echo "${MSG_ERROR_FLAG}"
@@ -327,7 +334,7 @@ if [[ ! " ${VALID_OS[*]} " =~ " ${OS} " ]]; then
 fi
 verify_release
 
-# Determine the architecture of the OS given by the plugin. 
+# Determine the architecture of the OS given by the plugin.
 FINALARCH="$("${PLUGIN}" --return-arch)"
 
 if [ "${SHOW_ISO_URL}" == 'true' ]; then
@@ -355,7 +362,7 @@ esac
 prepare_image_output="$("${PLUGIN}" --prepare-image)"
 if echo "${prepare_image_output}" | grep -q "NEW_IMAGE_FILE"; then
     IMAGE_FILE="${prepare_image_output#*NEW_IMAGE_FILE }"
-fi 
+fi
 
 make_vm_config
 
