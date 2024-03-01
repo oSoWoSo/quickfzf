@@ -39,21 +39,28 @@ Advanced Usage:
  quickget -d peppermint latest devuan-xfce
 
 Posible arguments:
+ --architecture     (-a) <arch>         : Use different architecture than host
+ --iso-download     (-d) <os> <re> [ed] : Just download ISO (No VM created)
  --help             (-h)                : Show this help message and exit
  --os-info          (-i) <os>           : Show info about OS
+ --list-isos       (-li)                : List supported ISOs
  --os-homepage      (-o) <os>           : Open OS homepage in default browser
- --iso-download     (-d) <os> <re> [ed] : Just download ISO
- --list-supported  (-ls)                : List all supported OS,releases,editions
- --list-isos       (-li)                : List all supported ISOs
+ --refresh                              : Not sure what this does yet
+ --refresh-all                          : -"-
  --test-isos       (-ti)                : Test if ISOs are available
  --version          (-v)                : Show version and exit
 
-Platforms:
+Posible architectures:
  x86_64                                 : Run on x86_64
  i386             (i686)                : Run on i386
  armv8*       (aarch64*)                : Run on arm64
  riscv*                                 : Run on riscv64
  *                                      : Run on anything user provide (*)
+
+For developers:
+ --list-supported  (-ls)                : List supported OS,releases,editions
+ list_csv         (list)                : list info in csv format
+ list_json                              : list info in json format
 
 supported Operating Systems: '
 MSG_ERROR_NO_ROOT="ERROR! Quickget cannot be run as root."
