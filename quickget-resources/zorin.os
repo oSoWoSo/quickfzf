@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-# Instructions: 
+# Instructions:
 # 1. Set mandatory variables below, and set recommended variables if possible
 # 2. Modify fetch_info function to include all of the necessary information (or way to fetch it)
 # 3. Modify list_urls function to provide ISO(s) for the operating system
@@ -22,7 +22,7 @@ readonly ARCHITECTURES=(amd64)
 
 # (OPTIONAL, HIGHLY RECOMMENDED) Brief description of the operating system
 readonly DESCRIPTION=""
-# (OPTIONAL, HIGHLY RECOMMENDED) Set this to the friendly name of the operating system, if applicable. 
+# (OPTIONAL, HIGHLY RECOMMENDED) Set this to the friendly name of the operating system, if applicable.
 readonly PRETTY_NAME="Zorin OS"
 
 
@@ -35,7 +35,7 @@ function fetch_info() {
             EDITIONS+=("core64")
 
             # If unique editions are required per release, use this template.
-            # You may still put static editions (those which are present for ALL releases) in the EDITIONS array 
+            # You may still put static editions (those which are present for ALL releases) in the EDITIONS array
             associativeEDITIONS['16']="lite64;education64;edulite64"
             ;;
 
@@ -67,7 +67,7 @@ function list_urls() {
         # Friendly is the show_iso_url option. It should print the URL(s) in a way that's easily readable, and not hashes
         --friendly)
             echo "${URL}";;
-        # The first file (if multiple are present) will be listed as the ISO in the VM config. 
+        # The first file (if multiple are present) will be listed as the ISO in the VM config.
         --download)
             echo "${URL}" "${HASH}";;
     esac
@@ -97,7 +97,7 @@ function config_additions() {
     # Just echo them out (in quotation marks) if you want to append them to the other options.
     # Add "OVERRIDE" before the string to instead replace the value of a default option.
     # Example: echo OVERRIDE "disk_size=\"40G\"" to replace the default disk_size with 40G.
-    # You can REMOVE options by adding REMOVE before the option name. 
+    # You can REMOVE options by adding REMOVE before the option name.
     # Example: echo REMOVE "disk_size" to remove the disk_size option, such as for macOS VMs which have disk_size handled in quickemu
     exit 0
 }
