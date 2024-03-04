@@ -23,7 +23,7 @@ readonly ARCHITECTURES=(amd64)
 # (OPTIONAL, HIGHLY RECOMMENDED) Brief description of the operating system
 readonly DESCRIPTION=""
 # (OPTIONAL, HIGHLY RECOMMENDED) Set this to the friendly name of the operating system, if applicable. 
-readonly PRETTY_NAME="${OS}"
+readonly PRETTY_NAME="macOS"
 
 
 function fetch_info() {
@@ -116,6 +116,16 @@ function prepare_image() {
     exit 0
 }
 
+function generate_id() {
+    local macRecoveryID=""
+    local TYPE="${1}"
+    local valid_chars=("0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "A" "B" "C" "D" "E" "F")
+    for ((i=0; i<TYPE; i++)); do
+        macRecoveryID+="${valid_chars[$((RANDOM % 16))]}"
+    done
+    echo "${macRecoveryID}"
+}
+
 function get_macos() {
     local BOARD_ID=""
     local CWD=""
@@ -170,7 +180,7 @@ function get_macos() {
     CWD="$(dirname "${0}")"
     if [ -x "${CWD}/verifyRecoveryImage" ]; then
         CHUNKCHECK="${CWD}/verifyRecoveryImage"
-    elif [ -x /usr/share/quickemu/quickget-resources/verifyRecoveryImage ]; then
+    elif [ -x "/usr/share/quickemu/quickget-resources/verifyRecoveryImage" ]; then
         CHUNKCHECK="/usr/share/quickemu/quickget-resources/verifyRecoveryImage"
     else
         web_get "https://raw.githubusercontent.com/wimpysworld/quickemu/master/quickget-resources/verifyRecoveryImage" "${HOME}/.quickemu"
@@ -195,14 +205,49 @@ function get_macos() {
         exit 1
     fi
     echo "Verified macOS ${RELEASE} image using chunklist."
+}
 
-    if [ -e "${VM_PATH}/RecoveryImage.dmg" ] && [ ! -e "${VM_PATH}/RecoveryImage.img" ]; then
-        echo "Converting RecoveryImage..."
-        qemu-img convert "${VM_PATH}/RecoveryImage.dmg" -O raw "${VM_PATH}/RecoveryImage.img" 2>/dev/null
+function web_get() {
+    local DIR="${2}"
+    local FILE=""
+    local URL="${1}"
+
+    if [ -n "${3}" ]; then
+        FILE="${3}"
+    else
+        FILE="${URL##*/}"
     fi
+    
+    while (( "$#" )); do
+        if [[ $1 == --header ]]; then
+            HEADERS+=("$1" "$2")
+            shift 2
+        else
+            shift
+        fi
+    done
 
-    rm "${VM_PATH}/RecoveryImage.dmg" "${VM_PATH}/RecoveryImage.chunklist"
-    make_vm_config RecoveryImage.img
+    if [ "${DIR}" != "$(pwd)" ] && ! mkdir -p "${DIR}" 2>/dev/null; then
+      echo "ERROR! Unable to create directory ${DIR}"
+      exit 1
+    fi
+    
+    if command -v aria2c &>/dev/null; then
+        if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${DIR}" -o "${FILE}" "${HEADERS[@]}"; then
+          echo #Necessary as aria2c in suppressed mode does not have new lines
+          echo "ERROR! Failed to download ${URL} with aria2c. Try running 'quickget' again."
+          exit 1
+        fi
+        echo #Necessary as aria2c in suppressed mode does not have new lines
+    elif command -v wget2 &>/dev/null; then
+        if ! wget2 --quiet --continue --tries=3 --read-timeout=10 --force-progress --progress=bar:force:noscroll "${URL}" -O "${DIR}/${FILE}" "${HEADERS[@]}"; then
+            echo "ERROR! Failed to download ${URL} with wget2. Try running 'quickget' again."
+            exit 1
+        fi
+    elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${URL}" -O "${DIR}/${FILE}" "${HEADERS[@]}"; then
+        echo "ERROR! Failed to download ${URL} with wget. Try running 'quickget' again."
+        exit 1
+    fi
 }
 
 
