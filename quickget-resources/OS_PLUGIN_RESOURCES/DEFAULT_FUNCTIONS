@@ -1,0 +1,193 @@
+#!/bin/bash
+function validate_re() {
+    local REL=""
+    local ED=""
+    fetch_from_cache
+    
+    if [ -z "${RELEASE}" ]; then
+        echo "ERROR! You must specify a release."
+        format_re
+        exit 1
+    fi
+
+    # Check if release is present in the releases array
+    for REL in "${RELEASES[@]}"; do
+        if [ "${RELEASE,,}" == "${REL,,}" ]; then
+            # Handle unnecessary editions passed
+            if [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
+                exit 2
+            elif [ -z "${EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 1 ]; then
+                echo -en "ERROR: You must specify an edition.\n - Editions: "
+                list_editions
+                exit 1
+            fi
+
+            # Handle the associative array for unique editions
+            IFS='!' read -ra fullEDITIONS <<< "$(list_editions --edelim)"
+            
+            if [ -z "${fullEDITIONS[*]}" ] && [ -n "${EDITION}" ]; then
+                echo "WARNING: ${PRETTY_NAME} does not support ${EDITION_NAME,,}. Ignoring."
+                exit 2
+            fi
+
+            # Loop through editions array and check if the edition is present
+            for ED in "${fullEDITIONS[@]}"; do
+                if [ "${EDITION,,}" == "${ED,,}" ]; then
+                    if [ "${EDITION}" == "${DEFAULT_EDITION}" ]; then
+                        exit 2
+                    fi
+                    exit 0
+                fi
+            done
+
+            echo -e "ERROR! ${EDITION} is not a supported ${PRETTY_NAME} ${RELEASE} edition.\n"
+            echo " - Editions:" "${fullEDITIONS[@]}"
+            exit 1
+        fi
+    done
+
+    echo "ERROR! ${PRETTY_NAME} ${RELEASE} is not a supported release."
+    format_re 
+    exit 1
+}
+
+function format_re() {
+    if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
+        echo
+        printf "%--10s%s\n" "Releases:" "      ${EDITION_NAME}:"
+        for RELEASE in "${RELEASES[@]}"; do
+            printf "%-10s%s\n" "${RELEASE}" "      $(list_editions)" | fold -s -w "$(tput cols)"
+        done
+    else
+        echo " - Releases:" "${RELEASES[@]}"
+        if [ -n "${EDITIONS[*]}" ]; then
+            echo " - Editions:" "${EDITIONS[@]}"
+        fi
+    fi
+}
+
+function list_editions() {
+    # Handle the associative array for unique editions
+    local fullEDITIONS=("${EDITIONS[@]}")
+    if [ "${UNIQUE_EDITIONS}" -eq 1 ]; then
+        if [[ -v associativeEDITIONS["${RELEASE}"] ]]; then
+            while read -d ';' -r aEDITION; do
+                fullEDITIONS+=("${aEDITION}")
+            done <<< "${associativeEDITIONS["${RELEASE}"]};"
+        fi
+    fi
+    
+    if [ "${1}" == "--edelim" ]; then
+        IFS='!'; echo "${fullEDITIONS[*]}"
+    else
+        echo "${fullEDITIONS[@]}"
+    fi
+}
+
+function fetch_from_cache() {
+    local REL=""
+    local ED=""
+    local tempEDITIONS=()
+
+    if [[ "${CACHE_DATA}" == 0 ]]; then
+        fetch_info
+        return 0
+    fi
+    # Determine whether cache file exists and whether it contains up to date data.
+    if [ ! -f "${CACHE_FILE}" ] || [[ $(( $(date +%s) - $(head -n 1 < "${CACHE_FILE}") )) -ge $(( CACHE_DAYS * 86400 )) ]]; then
+        fetch_info
+        populate_cache
+        return 0
+    fi
+
+    mapfile -t RELEASES < <(jq -r '..|.Release?|strings' "${CACHE_FILE}")
+
+    if [[ "${UNIQUE_EDITIONS}" -eq 1 ]]; then
+        # shellcheck disable=SC1009
+        for REL in "${RELEASES[@]}"; do
+            mapfile -t tempEDITIONS < <(jq -r '..|select(.Release? == "'"${REL}"'")|.Edition?|strings' "${CACHE_FILE}" | tr ' ' '\n')
+            # shellcheck disable=SC1073
+            for ED in "${tempEDITIONS[@]}"; do
+                associativeEDITIONS["${REL}"]+=";${ED}"
+            done
+        done
+    else
+        mapfile -t EDITIONS < <(jq -r '..|select(.Release? == "'"${RELEASES[0]}"'")|.Edition?|strings' "${CACHE_FILE}" | tr ' ' '\n')
+    fi
+}
+
+function populate_cache() {
+    # Populate cache with JSON data, to be read by fetch_from_cache function
+    local REL=""
+    local ED=""
+    local fullEDITIONS=()
+    local JSON_DATA=()
+
+    date +%s > "${CACHE_FILE}"
+
+    for REL in "${RELEASES[@]}"; do
+        # Gather the editions for each release. Then, loop through them and add them to an array in JSON formatting
+        fullEDITIONS=("$(list_editions)")
+
+        for ED in "${fullEDITIONS[@]}"; do
+            JSON_DATA+=("
+    {
+        \"Release\": \"${REL}\",
+        \"Edition\": \"${ED}\"
+    }")
+        done
+    done
+    # Add the JSON data to the cache file using ',' as a delimiter (between curly braces) 
+    IFS=','; echo -e "[\n${JSON_DATA[*]}\n]" >> "${CACHE_FILE}"
+}
+
+function csv_urls() {
+    fetch_from_cache
+    local REL=""
+    local ED=""
+    local PNG=""
+    local SVG=""
+    local fullEDITIONS
+
+    if [ -z "${DOWNLOADER}" ]; then
+        if command -v aria2c &>/dev/null; then
+            DOWNLOADER="aria2c"
+        else
+            DOWNLOADER="wget"
+        fi
+    fi
+
+    PNG="https://quickemu-project.github.io/quickemu-icons/png/${OS}/${OS}-quickemu-white-pinkbg.png"
+    SVG="https://quickemu-project.github.io/quickemu-icons/svg/${OS}/${OS}-quickemu-white-pinkbg.svg"
+
+    for RELEASE in "${RELEASES[@]}"; do
+        IFS='!' read -ra fullEDITIONS <<< "$(list_editions --edelim)"
+        if [ -z "${EDITIONS[*]}" ]; then
+            echo "${PRETTY_NAME},${OS},${RELEASE},,${DOWNLOADER},${PNG},${SVG}"
+        else
+            for ED in "${fullEDITIONS[@]}"; do
+                echo "${PRETTY_NAME},${OS},${RELEASE},${ED},${DOWNLOADER},${PNG},${SVG}"
+            done
+        fi
+    done
+}
+
+function verify_arch() {
+    for ARCHITECTURE in "${ARCHITECTURES[@]}"; do
+        if [ "${ARCHITECTURE}" == "${ARCH}" ]; then
+            return 0
+        fi
+    done
+    ARCH="${ARCHITECTURES[0]}"
+}
+
+verify_arch
+CACHE_FILE="${HOME}/.cache/quickemu/${OS}-${ARCH}.cache"
+declare -A associativeEDITIONS
+
+# Set the edition to the default if necessary
+if [ -z "${EDITION}" ] && [ -n "${DEFAULT_EDITION}" ] && [ "${REQUIRES_EDITION}" -eq 0 ]; then
+    EDITION="${DEFAULT_EDITION}"
+fi
+
+# vim:tabstop=4:shiftwidth=4:expandtab
