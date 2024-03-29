@@ -22,9 +22,150 @@ export LC_ALL=C
 #}
 
 function cleanup() {
-  if [ -n "$(jobs -p)" ]; then
-    kill "$(jobs -p)"
-  fi
+    if [ -n "$(jobs -p)" ]; then
+        kill "$(jobs -p)"
+    fi
+}
+
+function os_info() {
+    local SIMPLE_NAME=""
+    local INFO=""
+    SIMPLE_NAME="${1}"
+    case ${SIMPLE_NAME} in
+      alma)             INFO="Alma Linux|Fedora,RedHat||https://almalinux.org/|Community owned and governed, forever-free enterprise Linux distribution, focused on long-term stability, providing a robust production-grade platform. AlmaLinux OS is binary compatible with RHEL®.";;
+      alpine)           INFO="Alpine Linux|Independent||https://alpinelinux.org/|Security-oriented, lightweight Linux distribution based on musl libc and busybox.";;
+      android)          INFO="Android x86|Independent||https://www.android-x86.org/|Port Android Open Source Project to x86 platform.";;
+      antix)            INFO="Antix|Debian||https://antixlinux.com/|Fast, lightweight and easy to install systemd-free linux live CD distribution based on Debian Stable for Intel-AMD x86 compatible systems.";;
+      artixlinux)       INFO="Artix Linux|Arch||https://artixlinux.org/|The Art of Linux. Simple. Fast. Systemd-free.";;
+      archlinux)        INFO="Arch Linux|Independent||https://archlinux.org/|Lightweight and flexible Linux® distribution that tries to Keep It Simple.";;
+      archcraft)        INFO="Archcraft|Arch||https://archcraft.io/|Yet another minimal Linux distribution, based on Arch Linux.";;
+      arcolinux)        INFO="Arco Linux|Arch||https://arcolinux.com/|Is all about becoming an expert in linux.";;
+      athenaos)         INFO="Athena OS|Arch||https://athenaos.org/|Offer a different experience than the most used pentesting distributions by providing only tools that fit with the user needs and improving the access to hacking resources and learning materials.";;
+      batocera)         INFO="Batocera|Independent||https://batocera.org/|Retro-gaming distribution with the aim of turning any computer/nano computer into a gaming console during a game or permanently.";;
+      bazzite)          INFO="bazzite|Fedora,SteamOS||https://github.com/ublue-os/bazzite/|Container native gaming and a ready-to-game SteamOS like.";;
+      blendos)          INFO="BlendOS|Arch||https://blendos.co/|A seamless blend of all Linux distributions. Allows you to have an immutable, atomic and declarative Arch Linux system, with application support from several Linux distributions & Android.";;
+      bodhi)            INFO="Bodhi|Debian,Ubuntu||https://www.bodhilinux.com/|Lightweight distribution featuring the fast & fully customizable Moksha Desktop.";;
+      bunsenlabs)       INFO="Bunsenlab|Debian||https://www.bunsenlabs.org/|Light-weight and easily customizable Openbox desktop. The project is a community continuation of CrunchBang Linux.";;
+      cachyos)          INFO="CachyOS|Arch||https://cachyos.org/|Designed to deliver lightning-fast speeds and stability, ensuring a smooth and enjoyable computing experience every time you use it.";;
+      centos-stream)    INFO="CentOS Stream|Fedora,RedHat||https://www.centos.org/centos-stream/|Continuously delivered distro that tracks just ahead of Red Hat Enterprise Linux (RHEL) development, positioned as a midstream between Fedora Linux and RHEL.";;
+      chimeralinux)     INFO="Chimera Linux|Independent|anon:chimera root:chimera|https://chimera-linux.org/|Modern, general-purpose non-GNU Linux distribution.";;
+      crunchbang++)     INFO="#!++|Debian||https://www.crunchbangplusplus.org/|The classic minimal crunchbang feel, now with debian 12 bookworm.";;
+      debian)           INFO="Debian|Independent||https://www.debian.org/|Complete Free Operating System with perfect level of ease of use and stability.";;
+      deepin)           INFO="Deepin|Debian||https://www.deepin.org/|Beautiful UI design, intimate human-computer interaction, and friendly community environment make you feel at home.";;
+      devuan)           INFO="Devuan|Debian||https://www.devuan.org/|Fork of Debian without systemd that allows users to reclaim control over their system by avoiding unnecessary entanglements and ensuring Init Freedom.";;
+      dragonflybsd)     INFO="DragonFlyBSD|FreeBSD||https://www.dragonflybsd.org/|Provides an opportunity for the BSD base to grow in an entirely different direction from the one taken in the FreeBSD, NetBSD, and OpenBSD series.";;
+      easyos)           INFO="EasyOS|Independent||https://easyos.org/|Experimental distribution designed from scratch to support containers.";;
+      edubuntu)         INFO="Edubuntu|Ubuntu||https://www.edubuntu.org/|Stable, secure and privacy concious option for schools.";;
+      elementary)       INFO="elementary OS|Debian,Ubuntu||https://elementary.io/|Thoughtful, capable, and ethical replacement for Windows and macOS.";;
+      endeavouros)      INFO="EndeavourOS|Arch||https://endeavouros.com/|Provides an Arch experience without the hassle of installing it manually for both x86_64 and ARM systems.";;
+      endless)          INFO="Endless OS|Debian||https://www.endlessos.org/os|Completely Free, User-Friendly Operating System Packed with Educational Tools, Games, and More.";;
+      fedora)           INFO="Fedora|Independent||https://www.fedoraproject.org/|Innovative platform for hardware, clouds, and containers, built with love by you.";;
+      freebsd)          INFO="FreeBSD|Independent||https://www.freebsd.org/|Operating system used to power modern servers, desktops, and embedded platforms.";;
+      freedos)          INFO="FreeDOS|Independent||https://freedos.org/|DOS-compatible operating system that you can use to play classic DOS games, run legacy business software, or develop embedded systems.";;
+      garuda)           INFO="Garuda Linux|Arch||https://garudalinux.org/|Feature rich and easy to use Linux distribution.";;
+      gentoo)           INFO="Gentoo|Independent||https://www.gentoo.org/|Highly flexible, source-based Linux distribution.";;
+      ghostbsd)         INFO="GhostBSD|FreeBSD||https://www.ghostbsd.org/|Simple, elegant desktop BSD Operating System.";;
+      haiku)            INFO="Haiku|Independent||https://www.haiku-os.org/|Specifically targets personal computing. Inspired by the BeOS, Haiku is fast, simple to use, easy to learn and yet very powerful.";;
+      holoiso)          INFO="SteamOS HoloISO|Arch,SteamOS||https://github.com/HoloISO/holoiso|Bring the Steam Decks SteamOS Holo redistribution and provide a close-to-official SteamOS experience.";;
+      kali)             INFO="Kali|Debian||https://www.kali.org/|The most advanced Penetration Testing Distribution.";;
+      kdeneon)          INFO="KDE Neon|Debian,Ubuntu||https://neon.kde.org/|Latest and greatest of KDE community software packaged on a rock-solid base.";;
+      kolibrios)        INFO="KolibriOS|Independent||http://kolibrios.org/en/|Tiny yet incredibly powerful and fast operating system.";;
+      kubuntu)          INFO="Kubuntu|Ubuntu||https://kubuntu.org/|Free, complete, and open-source alternative to Microsoft Windows and Mac OS X which contains everything you need to work, play, or share.";;
+      linuxlite)        INFO="Linux Lite|Debian,Ubuntu||https://www.linuxliteos.com/|Your first simple, fast and free stop in the world of Linux.";;
+      linuxmint)        INFO="Linux Mint|Debian,Ubuntu||https://linuxmint.com/|Designed to work out of the box and comes fully equipped with the apps most people need.";;
+      lmde)             INFO="Linux Mint Debian Edition|Debian||https://www.linuxmint.com/download_lmde.php|Aims to be as similar as possible to Linux Mint, but without using Ubuntu. The package base is provided by Debian instead.";;
+      lubuntu)          INFO="Lubuntu|Ubuntu||https://lubuntu.me/|Complete Operating System that ships the essential apps and services for daily use: office applications, PDF reader,  image editor, music and video players, etc. Using lightwave lxde/lxqt.";;
+      mageia)           INFO="Mageia|Independent||https://www.mageia.org/|Stable, secure operating system for desktop & server.";;
+      manjaro)          INFO="Manjaro|Arch||https://manjaro.org/|Versatile, free, and open-source Linux operating system designed with a strong focus on safeguarding user privacy and offering extensive control over hardware.";;
+      mxlinux)          INFO="MX Linux|Debian,Antix||https://mxlinux.org/|Designed to combine elegant and efficient desktops with high stability and solid performance.";;
+      netboot)          INFO="netboot.xyz|iPXE||https://netboot.xyz/|Your favorite operating systems in one place.";;
+      netbsd)           INFO="NetBSD|Independent||https://www.netbsd.org/|Free, fast, secure, and highly portable Unix-like Open Source operating system. It is available for a wide range of platforms, from large-scale servers and powerful desktop systems to handheld and embedded devices.";;
+      nixos)            INFO="NixOS|Independent||https://nixos.org/|Linux distribution based on Nix package manager, tool that takes a unique approach to package management and system configuration.";;
+      macos)            INFO="macOS|proprietary||https://www.apple.com/macos/|Work and play on your Mac are even more powerful. Elevate your presence on video calls. Access information in all-new ways. Boost gaming performance. And discover even more ways to personalize your Mac.";;
+      openbsd)          INFO="OpenBSD|Independent||https://www.openbsd.org/|FREE, multi-platform 4.4BSD-based UNIX-like operating system. Our efforts emphasize portability, standardization, correctness, proactive security and integrated cryptography.";;
+      openindiana)      INFO="OpenIndiana|Solaris,OpenSolaris||https://www.openindiana.org/|Community supported illumos-based operating system.";;
+      opensuse)         INFO="openSUSE|Independent||https://www.opensuse.org/|The makers choice for sysadmins, developers and desktop users.";;
+      oraclelinux)      INFO="Oracle Linux|RedHat||https://www.oracle.com/linux/|Linux with everything required to deploy, optimize, and manage applications on-premises, in the cloud, and at the edge.";;
+      parrotsec)        INFO="Parrot Security|Debian|parrot:parrot|https://www.parrotsec.org/|Provides a huge arsenal of tools, utilities and libraries that IT and security professionals can use to test and assess the security of their assets in a reliable, compliant and reproducible way.";;
+      peppermint)       INFO="PeppermintOS|Debian,Devuan||https://peppermintos.com/|Provides a user with the opportunity to build the system that best fits their needs. While at the same time providing a functioning OS with minimum hassle out of the box.";;
+      popos)            INFO="Pop!_OS|Ubuntu||https://pop.system76.com/|Operating system for STEM and creative professionals who use their computer as a tool to discover and create.";;
+      porteus)          INFO="Porteus|Slackware||http://www.porteus.org/|Complete linux operating system that is optimized to run from CD, USB flash drive, hard drive, or other bootable storage media.";;
+      primtux)          INFO="PrimTux|Ubuntu||https://primtux.fr/|Upgrade for obsolete equipment and benefiting the school or educational environment in the spirit of education.";;
+      reactos)          INFO="ReactOS|Independent||https://reactos.org/|Imagine running your favorite Windows applications and drivers in an open-source environment you can trust.";;
+      rebornos)         INFO="RebornOS|Arch||https://rebornos.org/|Aiming to make Arch Linux as user friendly as possible by providing interface solutions to things you normally have to do in a terminal.";;
+      rockylinux)       INFO="Rocky Linux|RedHat||https://rockylinux.org/|Open-source enterprise operating system designed to be 100% bug-for-bug compatible with Red Hat Enterprise Linux®.";;
+      siduction)        INFO="Siduction|Debian||https://siduction.org/|Operating system based on the Linux kernel and the GNU project. In addition, there are applications and libraries from Debian.";;
+      slackware)        INFO="Slackware|Independent||http://www.slackware.com/|Advanced Linux operating system, designed with the twin goals of ease of use and stability as top priorities.";;
+      slax)             INFO="Slax|Debian Slackware||https://www.slax.org/|Compact, fast, and modern Linux operating system that combines sleek design with modular approach. With the ability to run directly from a USB flash drive without the need for installation, Slax is truly portable and fits easily in your pocket.";;
+      slint)            INFO="Slint|Slackware||https://slint.fr/|Slint is an easy-to-use, versatile, blind-friendly Linux distribution for 64-bit computers. Slint is based on Slackware and borrows tools from Salix. Maintainer: Didier Spaier.";;
+      slitaz)           INFO="SliTaz|Independent||https://www.slitaz.org/en/|Simple, fast and low resource Linux OS for servers & desktops.";;
+      solus)            INFO="Solus|Independent||https://getsol.us/|Designed for home computing. Every tweak enables us to deliver a cohesive computing experience.";;
+      sparkylinux)      INFO="SparkyLinux|Debian||https://sparkylinux.org/|Fast, lightweight and fully customizable operating system which offers several versions for different use cases.";;
+      spirallinux)      INFO="Spiral Linux|Debian||https://spirallinux.github.io/|Selection of Linux spins built from Debian GNU/Linux, with a focus on simplicity and out-of-the-box usability across all the major desktop environments.";;
+      tails)            INFO="Tails|Debian||https://tails.net/|Portable operating system that protects against surveillance and censorship.";;
+      tinycore)         INFO="Tiny Core Linux|Independent||http://www.tinycorelinux.net/|Highly modular based system with community build extensions.";;
+      trisquel)         INFO="Trisquel|Debian,Ubuntu||https://trisquel.info/|Fully free operating system for home users, small enterprises and educational centers.";;
+      truenas-core)     INFO="TrueNAS Core|FreeBSD||https://www.truenas.com/truenas-core/|World’s most popular storage OS because it gives you the power to build your own professional-grade storage system to use in a variety of data-intensive applications without any software costs.";;
+      truenas-scale)    INFO="TrueNAS Scale|Debian||https://www.truenas.com/truenas-scale/|Open Source Hyperconverged Infrastructure (HCI) solution. In addition to powerful scale-out storage capabilities, SCALE adds Linux Containers and VMs (KVM) so apps run closer to data.";;
+      ubuntu)           INFO="Ubuntu|Debian||https://ubuntu.com/|Complete desktop Linux operating system, freely available with both community and professional support.";;
+      ubuntu-budgie)    INFO="Ubuntu Budgie|Ubuntu||https://ubuntubudgie.org/|Community developed distribution, integrating the Budgie Desktop Environment with Ubuntu at its core.";;
+      ubuntucinnamon)   INFO="Ubuntu Cinnamon|Ubuntu||https://ubuntucinnamon.org/|Community-driven, featuring Linux Mint’s Cinnamon Desktop with Ubuntu at the core, packed fast and full of features, here is the most traditionally modern desktop you will ever love.";;
+      ubuntukylin)      INFO="Ubuntu Kylin|Ubuntu||https://ubuntukylin.com/|Universal desktop operating system for personal computers, laptops, and embedded devices. It is dedicated to bringing a smarter user experience to users all over the world.";;
+      ubuntu-mate)      INFO="Ubuntu MATE|Ubuntu||https://ubuntu-mate.org/|Stable, easy-to-use operating system with a configurable desktop environment. It is ideal for those who want the most out of their computers and prefer a traditional desktop metaphor. Using Mate desktop.";;
+      ubuntu-server)    INFO="Ubuntu Server|Ubuntu||https://ubuntu.com/server|Brings economic and technical scalability to your datacentre, public or private. Whether you want to deploy an OpenStack cloud, a Kubernetes cluster or a 50,000-node render farm, Ubuntu Server delivers the best value scale-out performance available.";;
+      ubuntustudio)     INFO="Ubuntu Studio|Ubuntu||https://ubuntustudio.org/|Comes preinstalled with a selection of the most common free multimedia applications available, and is configured for best performance for various purposes: Audio, Graphics, Video, Photography and Publishing.";;
+      ubuntu-unity)     INFO="Ubuntu Unity|Ubuntu||https://ubuntuunity.org/|Flavor of Ubuntu featuring the Unity7 desktop environment (the default desktop environment used by Ubuntu from 2010-2017).";;
+      vanillaos)        INFO="Vanilla OS|Debian,Ubuntu||https://vanillaos.org/|Designed to be a reliable and productive operating system for your daily work.";;
+      void)             INFO="Void Linux|Independent|anon:voidlinux|https://voidlinux.org/|General purpose operating system. Its package system allows you to quickly install, update and remove software; software is provided in binary packages or can be built directly from sources.";;
+      vxlinux)          INFO="VX Linux|Void||https://vxlinux.org/|Pre-configured, secure systemd-free Plasma desktop with focus on convenience, performance and simplicity. Based on the excellent Void Linux.";;
+      whonix)           INFO="Whonix|Debian||https://www.whonix.org/|Superior Internet Privacy with Whonix™ As handy as an app - delivering maximum anonymity and security.";;
+      windows)          INFO="Windows|proprietary||https://www.microsoft.com/en-us/windows/|Whether you’re gaming, studying, running a business, or running a household, Windows helps you get it done.";;
+      windows-server)   INFO="Windows Server|proprietary||https://www.microsoft.com/en-us/windows-server/|Platform for building an infrastructure of connected applications, networks, and web services.";;
+      xerolinux)        INFO="XeroLinux|Arch||https://xerolinux.xyz/|Arch-Based Distro, that provides you with an easy way to install Arch and a well optimized, beautifully Customized Plasma Desktop, that you can later shape to suite your needs!";;
+      xubuntu)          INFO="Xubuntu|Ubuntu||https://xubuntu.org/|Elegant and easy to use operating system. Xubuntu comes with Xfce, which is a stable, light and configurable desktop environment.";;
+      zorin)            INFO="Zorin OS|Ubuntu||https://zorin.com/os/|Alternative to Windows and macOS designed to make your computer faster, more powerful, secure, and privacy-respecting.";;
+    esac
+    echo "${INFO}"
+}
+
+function pretty_name() {
+    local SIMPLE_NAME=""
+    local PRETTY_NAME=""
+    SIMPLE_NAME="${1}"
+    PRETTY_NAME=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f1)
+    echo "${PRETTY_NAME}"
+}
+
+function os_basedof() {
+    local SIMPLE_NAME=""
+    local BASED=""
+    SIMPLE_NAME="${1}"
+    BASED=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f2)
+    echo "${BASED}"
+}
+
+function os_credentials() {
+    local SIMPLE_NAME=""
+    local CREDE=""
+    SIMPLE_NAME="${1}"
+    CREDE=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f3)
+    echo "${CREDE}"
+}
+
+function os_homepage(){
+    local SIMPLE_NAME=""
+    local HOMEP=""
+    SIMPLE_NAME="${1}"
+    HOMEP=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f4)
+    echo "$HOMEP"
+}
+
+function os_about() {
+    local SIMPLE_NAME=""
+    local ABOUT=""
+    SIMPLE_NAME="${1}"
+    ABOUT=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f5)
+    echo "${ABOUT}"
 }
 
 if [ "${1}" == '--test-iso-url' ] || [ "${1}" == '-t' ]; then
@@ -149,7 +290,7 @@ function validate_release() {
   esac
 
   RELEASES=$(${RELEASE_GENERATOR})
-  if [[ ! " ${RELEASES[*]} " =~ " ${RELEASE} " ]]; then
+  if [[ ! " ${RELEASES[*]} " =~ ${RELEASE} ]]; then
       echo -e "ERROR! ${DISPLAY_NAME} ${RELEASE} is not a supported release.\n"
       echo -n "${RELEASES}"
       exit 1
@@ -221,6 +362,160 @@ function list_csv() {
     done
   done
   exit 0
+}
+
+list_supported() {
+    # output OS RELEASE EDITION (usefull for straight testing...)
+    local DL=""
+    local FUNC
+    local OPTION
+    local OS
+
+    for OS in $(os_support); do
+        case ${OS} in
+          *ubuntu-server*) FUNC="ubuntu-server";;
+          *ubuntu*) FUNC="ubuntu";;
+          *) FUNC="${OS}";;
+        esac
+        for RELEASE in $("releases_${FUNC}" | sed -Ee 's/eol-\S+//g' ); do # hide eol releases
+            # If the OS has an editions_() function, use it.
+            if [[ $(type -t "editions_${OS}") == function ]]; then
+                for OPTION in $(editions_"${OS}"); do
+                    echo "${OS} ${RELEASE} ${OPTION}"
+                done
+            elif [[ "${OS}" == "windows"* ]]; then
+                "languages_${OS}"
+                for OPTION in "${LANGS[@]}"; do
+                    echo "${OS} ${RELEASE} ${OPTION}"
+                done
+            else
+                echo "${OS} ${RELEASE}"
+            fi
+        done
+    done
+    exit 0
+}
+
+# output OS RELEASE EDITION (usefull for straight testing...)
+list_isos2() {
+    local show_iso_url="1"
+    local DIR="/dev/null"
+    local FUNC
+    local OPTION
+    local OS
+
+    echo "OS|Release|Edition|URL"
+    for OS in $(os_support); do
+        case ${OS} in
+          *ubuntu-server*) FUNC="ubuntu-server";;
+          *ubuntu*) FUNC="ubuntu";;
+          *) FUNC="${OS}";;
+        esac
+        for RELEASE in $("releases_${FUNC}" | sed -Ee 's/eol-\S+//g' ); do # hide eol releases
+            # If the OS has an editions_() function, use it.
+            if [[ $(type -t "editions_${OS}") == function ]]; then
+                for OPTION in $(editions_"${OS}"); do
+                    quickget "${OS}" "${RELEASE}" "${OPTION}"
+                done
+            elif [[ "${OS}" == "windows"* ]]; then
+                "languages_${OS}"
+                for OPTION in "${LANGS[@]}"; do
+                    get_"${OS}" && web_get
+                done
+            else
+                get_"${OS}" && web_get
+            fi
+        done
+    done
+    exit 0
+}
+
+list_isos() {
+    local show_iso_url="1"
+    local URL
+    local FUNC
+    local OPTION
+    local OS
+
+    for OS in $(os_support); do
+        case ${OS} in
+          *ubuntu-server*) FUNC="ubuntu-server";;
+          *ubuntu*) FUNC="ubuntu";;
+          *) FUNC="${OS}";;
+        esac
+        for RELEASE in $("releases_${FUNC}" | sed -Ee 's/eol-\S+//g' ); do # hide eol releases
+            # If the OS has an editions_() function, use it.
+            if [[ $(type -t "editions_${OS}") == function ]]; then
+                for OPTION in $(editions_"${OS}"); do
+                    validate_release releases_"${OS}"
+                    get_"${OS}" "${OPTION}" | cut_1
+                done
+            elif [[ "${OS}" == "windows"* ]]; then
+                "languages_${OS}"
+                for OPTION in "${LANGS[@]}"; do
+                    validate_release releases_"${OS}"
+                    get_"${OS}" "${OPTION}" | cut_1
+                done
+            #TODO NEEDED?
+            elif [[ "${OS}" == "macos" ]]; then
+                echo "${OS}|${RELEASE}|${OPTION}|"
+            else
+                validate_release releases_"${OS}"
+                get_"${OS}" "${RELEASE}" | cut_1
+            fi
+        done
+    done
+    exit 0
+}
+
+test_isos() {
+    local test_iso_url="1"
+    local DIR="/dev/null"
+    local FUNC
+    local OPTION
+    local OS
+
+    check_it() {
+        validate_release releases_"${OS}"
+        URL=$(get_"${OS}" "${OPTION}" | cut_1)
+        GOOD=$(wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
+        if [[ "${GOOD}" == "OK" ]]; then
+            echo "OK - ${OS},${RELEASE},${OPTION},${URL}"
+        else
+            echo "ERROR - ${OS},${RELEASE},${OPTION},${URL}"
+        fi
+    }
+
+    for OS in $(os_support); do
+        case ${OS} in
+          *ubuntu-server*) FUNC="ubuntu-server";;
+          *ubuntu*) FUNC="ubuntu";;
+          *) FUNC="${OS}";;
+        esac
+        for RELEASE in $("releases_${FUNC}" | sed -Ee 's/eol-\S+//g' ); do # hide eol releases
+            # If the OS has an editions_() function, use it.
+            if [[ $(type -t "editions_${OS}") == function ]]; then
+                for OPTION in $(editions_"${OS}"); do
+                    check_it
+                done
+            elif [[ "${OS}" == "windows"* ]]; then
+                "languages_${OS}"
+                for OPTION in "${LANGS[@]}"; do
+                    check_it
+                done
+            else
+                validate_release releases_"${OS}"
+                URL=$(get_"${OS}" "${RELEASE}" | cut_1)
+                GOOD=$(wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
+                if [[ "${GOOD}" == "OK" ]]; then
+                    echo "OK - ${OS},${RELEASE},,${URL}"
+                else
+                    echo "ERROR - ${OS},${RELEASE},,${URL}"
+                fi
+            fi
+        done
+    done
+    exit 0
 }
 
 function os_support() {
@@ -981,19 +1276,19 @@ function releases_ubuntu() {
     done
 
     case "${OS}" in
-        edubuntu|ubuntu-unity|ubuntucinnamon)
-        echo ${INTERIM_SUPPORT[@]} daily-live
+      edubuntu|ubuntu-unity|ubuntucinnamon)
+        echo "${INTERIM_SUPPORT[@]}" daily-live
         ;;
         kubuntu|lubuntu|ubuntukylin|ubuntu-mate|ubuntustudio|xubuntu)
         ## after 14.04
-        echo ${LTS_SUPPORT[@]:1} ${INTERIM_SUPPORT[@]} daily-live jammy-daily ${EOL_VERSIONS[@]/#/eol-}
+        echo "${LTS_SUPPORT[@]:1}" "${INTERIM_SUPPORT[@]}" daily-live jammy-daily #${EOL_VERSIONS[@]/#/eol-}
         ;;
         ubuntu-budgie)
         #after 16.04
-        echo ${LTS_SUPPORT[@]:2} ${INTERIM_SUPPORT[@]} daily-live jammy-daily ${EOL_VERSIONS[@]/#/eol-}
+        echo "${LTS_SUPPORT[@]:2}" "${INTERIM_SUPPORT[@]}" daily-live jammy-daily #${EOL_VERSIONS[@]/#/eol-}
         ;;
-        ubuntu)
-        echo ${LTS_SUPPORT[@]} ${INTERIM_SUPPORT[@]} daily-live ${EOL_VERSIONS[@]/#/eol-}
+      ubuntu)
+        echo "${LTS_SUPPORT[@]}" "${INTERIM_SUPPORT[@]}" daily-live #${EOL_VERSIONS[@]/#/eol-}
         ;;
     esac
 }
@@ -1015,8 +1310,7 @@ function releases_ubuntu-server() {
             break
         fi
     done
-
-    echo ${LTS_SUPPORT[@]} ${INTERIM_SUPPORT[@]} daily-live
+    echo "${LTS_SUPPORT[@]}" "${INTERIM_SUPPORT[@]}" daily-live
 }
 
 function releases_vanillaos() {
@@ -1144,7 +1438,7 @@ function web_get() {
     fi
 
     if [[ ${OS} != windows && ${OS} != macos && ${OS} != windows-server ]]; then
-        echo Downloading $(pretty_name "${OS}") ${RELEASE} ${EDITION:+ $EDITION} from ${URL}
+        echo Downloading "$(pretty_name "${OS}")" "${RELEASE}" ${EDITION:+ $EDITION} from "${URL}"
     fi
     
     if command -v aria2c &>/dev/null; then
@@ -1190,7 +1484,7 @@ function zsync_get() {
           exit 1
         fi
 
-        echo -e Downloading $(pretty_name "${OS}") ${RELEASE} ${EDITION+ ${EDITION}} from ${URL}'\n'
+        echo -e Downloading "$(pretty_name "${OS}")" "${RELEASE}" ${EDITION+ ${EDITION}} from "${URL}"'\n'
         # Only force http for zsync - not earlier because we might fall through here
         if ! zsync "${URL/https/http}.zsync" -i "${DIR}/${OUT}" -o "${DIR}/${OUT}" 2>/dev/null; then
             echo "ERROR! Failed to download ${URL/https/http}.zsync"
@@ -1459,16 +1753,7 @@ function get_antix() {
       ;;
     esac
 
-    HASH=$(wget -q -O- ${URL}/README.txt | grep "${ISO}" | cut -d' ' -f1 | head -1)
-    echo "${URL}/${ISO} ${HASH}"
-}
-
-function get_archlinux() {
-    local HASH=""
-    local ISO=""
-    local URL="https://mirror.rackspace.com/archlinux"
-    ISO=$(wget -q -O- "https://archlinux.org/releng/releases/json/" | jq -r '.releases[0].iso_url')
-    HASH=$(wget -q -O- "https://archlinux.org/releng/releases/json/" | jq -r '.releases[0].sha1_sum')
+    HASH=$(wget -q -O- "${URL}"/README.txt | grep "${ISO}" | cut_1 | head -1)
     echo "${URL}/${ISO} ${HASH}"
 }
 
@@ -1478,7 +1763,7 @@ function get_archcraft() {
     local TMPURL=""
 
     # Check where the URL redirects using curl. Output to a nonexistent directory so it's not possible to successfully download the image
-    URL=$(curl -Lfs "https://sourceforge.net/projects/archcraft/files/latest/download" -w %{url_effective} -o /this/is/a/nonexistent/directory/$RANDOM/$RANDOM)
+    URL=$(curl -Lfs "https://sourceforge.net/projects/archcraft/files/latest/download" -w %{url_effective} -o /this/is/a/nonexistent/directory/"$RANDOM"/"$RANDOM")
     echo "${URL} ${HASH}"
 }
 
@@ -1496,9 +1781,10 @@ function get_artixlinux() {
     local HASH=""
     local ISO=""
     local URL="https://iso.artixlinux.org/iso"
-    DATE=$(wget -q -O- ${URL}/sha256sums | cut -d'-' -f4 | head -1)
+
+    DATE=$(wget -q -O- "${URL}"/sha256sums | cut -d'-' -f4 | head -1)
     ISO="artix-${EDITION}-${DATE}-x86_64.iso"
-    HASH=$(wget -q -O- ${URL}/sha256sums | grep "${ISO}")
+    HASH=$(wget -q -O- "${URL}"/sha256sums | grep "${ISO}")
     echo "${URL}/${ISO} ${HASH}"
 }
 
@@ -1582,8 +1868,9 @@ function get_vanillaos() {
 function get_batocera() {
     local HASH=""
     local URL="https://mirrors.o2switch.fr/batocera/x86_64/stable/last"
-    local ISO="$(curl -sl ${URL}/ | grep -e 'batocera.*img.gz'|cut -d\" -f2)"
-     echo "${URL}/${ISO} ${HASH}"
+    local ISO="$(curl -sl "${URL}"/ | grep -e 'batocera.*img.gz'|cut -d\" -f2)"
+
+    echo "${URL}/${ISO} ${HASH}"
 }
 
 function get_bazzite() {
@@ -2137,7 +2424,7 @@ function get_macos() {
         fi
     fi
 
-    if [ $skipVerification != true ]; then
+    if [ "$skipVerification" != true ]; then
         if ! python3 "${CHUNKCHECK}" "${VM_PATH}" 2> /dev/null; then
             echo "Verification failed."
             exit 1
@@ -2374,7 +2661,7 @@ function get_reactos() {
     local URL=""
     local TMPURL=""
 
-    URL=$(curl -Lfs "https://sourceforge.net/projects/reactos/files/latest/download" -w %{url_effective} -o /this/is/a/nonexistent/directory/$RANDOM/$RANDOM)
+    URL=$(curl -Lfs "https://sourceforge.net/projects/reactos/files/latest/download" -w %{url_effective} -o /this/is/a/nonexistent/directory/"$RANDOM"/"$RANDOM")
     echo "${URL} ${HASH}"
 }
 
@@ -2443,8 +2730,7 @@ function get_slint() {
     # Change to latest if needed
     ISO="slint64-15.0-5.iso"
     URL="https://slackware.uk/slint/x86_64/slint-${RELEASE}/iso"
-
-    HASH=$(wget -q -O- "${URL}/${ISO}.sha256" | cut -d' ' -f4)
+    HASH=$(wget -q -O- "${URL}"/"${ISO}".sha256 | cut -d' ' -f4)
     echo "${URL}/${ISO}" "${HASH}"
 }
 
@@ -2548,9 +2834,8 @@ function get_truenas-scale() {
 
     local DLINFO="https://www.truenas.com/download-truenas-scale/"
 
-    URL=$(wget -q ${DLINFO} -O- | grep -o "\"https://.*${RELEASE}.*\.iso\""|cut -d\" -f2)
-    HASH=$(wget -q ${URL}.sha256 -O- | cut -d' ' -f1 )
-
+    URL=$(wget -q "${DLINFO}" -O- | grep -o "\"https://.*${RELEASE}.*\.iso\""|cut -d\" -f2)
+    HASH=$(wget -q "${URL}.sha256" -O- | cut_1 )
     echo "${URL} ${HASH}"
 }
 
@@ -2558,10 +2843,8 @@ function get_truenas-core() {
     local ISO=""
     local URL=""
 
-    local DLINFO="https://www.truenas.com/download-truenas-core/"
-    URL=$(wget -q ${DLINFO} -O- | grep -o "\"https://.*${RELEASE}.*\.iso\""|cut -d\" -f2)
-    HASH=$(wget -q ${URL}.sha256 -O- | cut -d' ' -f1)
-
+    URL=$(wget -q "${DLINFO}" -O- | grep -o "\"https://.*${RELEASE}.*\.iso\""|cut -d\" -f2)
+    HASH=$(wget -q "${URL}".sha256 -O- | cut_1)
     echo "${URL} ${HASH}"
 }
 
@@ -2581,12 +2864,12 @@ function get_ubuntu-server() {
 
     if wget -q --spider "${URL}/SHA256SUMS"; then
         DATA=$(wget -qO- "${URL}/SHA256SUMS" | grep 'live-server' | grep amd64 | grep iso)
-        ISO=$(cut -d'*' -f2 <<<${DATA})
-        HASH=$(cut -d' ' -f1 <<<${DATA})
+        ISO=$(cut -d'*' -f2 <<<"${DATA}")
+        HASH=$(cut_1 <<<"${DATA}")
     else
         DATA=$(wget -qO- "${URL}/MD5SUMS" | grep 'live-server' | grep amd64 | grep iso)
-        ISO=$(cut -d' ' -f3 <<<${DATA})
-        HASH=$(cut -d' ' -f1 <<<${DATA})
+        ISO=$(cut -d' ' -f3 <<<"${DATA}")
+        HASH=$(cut_1 <<<"${DATA}")
     fi
 
     if [ -z $ISO ] || [ -z $HASH ]; then
@@ -2637,12 +2920,12 @@ function get_ubuntu() {
 
     if wget -q --spider "${URL}/SHA256SUMS"; then
         DATA=$(wget -qO- "${URL}/SHA256SUMS" | grep 'desktop\|dvd\|install' | grep amd64 | grep iso | grep -v "+mac")
-        ISO=$(cut -d'*' -f2 <<<${DATA} | sed '1q;d')
-        HASH=$(cut -d' ' -f1 <<<${DATA} | sed '1q;d')
+        ISO=$(cut -d'*' -f2 <<<"${DATA}" | sed '1q;d')
+        HASH=$(cut_1 <<<"${DATA}" | sed '1q;d')
     else
         DATA=$(wget -qO- "${URL}/MD5SUMS" | grep 'desktop\|dvd\|install' | grep amd64 | grep iso | grep -v "+mac")
-        ISO=$(cut -d'*' -f2 <<<${DATA})
-        HASH=$(cut -d' ' -f1 <<<${DATA})
+        ISO=$(cut -d'*' -f2 <<<"${DATA}")
+        HASH=$(cut_1 <<<"${DATA}")
     fi
 
     if [ -z $ISO ] || [ -z $HASH ]; then
@@ -2706,7 +2989,7 @@ function get_zorin() {
     local ISO=""
     local URL=""
 
-    URL=$(curl -Lfs "https://zrn.co/${RELEASE}${EDITION}" -w %{url_effective} -o /this/is/a/nonexistent/directory/$RANDOM/$RANDOM)
+    URL=$(curl -Lfs "https://zrn.co/${RELEASE}${EDITION}" -w %{url_effective} -o /this/is/a/nonexistent/directory/"$RANDOM"/"$RANDOM")
     echo "${URL} ${HASH}"
 }
 
@@ -3128,9 +3411,9 @@ function download_windows-server() {
     iso_download_link="$(curl --silent --location --output /dev/null --silent --write-out "%{url_effective}" --head --fail --proto =https --tlsv1.2 --http1.1 -- "$iso_download_link")"
 
     if [ "${COUNTRY}" != "US" ]; then
-        echo Downloading $(pretty_name "${OS}") ${PRETTY_RELEASE} in "${LANG}" from "$iso_download_link"
+        echo Downloading "$(pretty_name "${OS}")" "${PRETTY_RELEASE}" in "${LANG}" from "$iso_download_link"
     else
-        echo Downloading $(pretty_name "${OS}") ${PRETTY_RELEASE} from "$iso_download_link"
+        echo Downloading "$(pretty_name "${OS}")" "${PRETTY_RELEASE}" from "$iso_download_link"
     fi
 
     FILE_NAME="${iso_download_link##*/}"
@@ -3271,9 +3554,9 @@ function download_windows() {
     fi
 
     if [ "${LANG}" != "English International" ]; then
-        echo Downloading Windows ${RELEASE} in "${LANG}" from "$iso_download_link"
+        echo Downloading Windows "${RELEASE}" in "${LANG}" from "$iso_download_link"
     else
-        echo Downloading Windows ${RELEASE} from "$iso_download_link"
+        echo Downloading Windows "${RELEASE}" from "$iso_download_link"
     fi
 
     # Download ISO
@@ -3289,7 +3572,7 @@ function get_windows() {
     if [ "${RELEASE}" == "10-ltsc" ]; then
         download_windows-server windows-10-enterprise ltsc
     elif [ "${OS}" == "windows-server" ]; then
-        download_windows-server windows-server-${RELEASE}
+        download_windows-server windows-server-"${RELEASE}"
     else
         download_windows "${RELEASE}"
     fi
@@ -3380,6 +3663,157 @@ fi
 
 LANGS=()
 
+os_error() {
+    echo "ERROR! You must specify an operating system."
+    echo "- Supported Operating Systems:"
+    os_support | fold -s -w "$(tput cols)"
+    echo -e "\nTo see all possible arguments, use:\n   quickget -h  or  quickget --help"
+    exit 1
+}
+
+os_supported() {
+    if [[ ! " $(os_support) " =~ ${OS} ]]; then
+            echo -e "ERROR! ${OS} is not a supported OS.\n"
+    os_support | fold -s -w "$(tput cols)"
+    exit 1
+    fi
+}
+
+help_message() {
+    printf '                             _              _
+           __ _ _   _ _  ___║ ║ ____ _  ___║ ║_
+          / _` ║ ║ ║ ║ ║/ __║ ║/ / _` ║/ _ \ __║
+         ( (_║ ║ ║_║ ║ ║ (__║   < (_║ ║  __/ ║_      MIT
+          \__, ║\__,_║_║\___║_║\ \__, ║\___║\__║   license
+             ║_║  version: %s ║___/
+ QEMU %s --------------------------------------------------
+         > Quickly create and run optimised Linux, <
+       > Windows and macOS desktop virtual machines. <
+   homepage   -    Not Yet
+  repository  - https://github.com/quickemu-project/quickemu
+ official GUI - https://github.com/quickemu-project/quickgui
+  by Wimpy https://github.com/flexiondotorg and contributors
+ Discord - https://discord.gg/wimpy-s-world-712850672223125565
+--------------------------------------------------------------
+
+Basic Usage:
+ quickget <os> <release> [edition]
+ quickget alpine latest
+
+Advanced Usage:
+ quickget <arg> [path] <os> [re] [ed]
+ quickget -d peppermint latest devuan-xfce
+
+Posible arguments:
+ --help             (-h)                : Show this help message and exit
+ --list-json       (-lj)                : Show OS info in json format
+ --list-csv        (-lc)                : Show OS info in csv format
+ --os-info          (-i) <os>           : Show info about OS
+ --os-homepage      (-o) <os>           : Open OS homepage in default browser
+ --iso-download     (-d) <os> <re> [ed] : Just download ISO
+ --list-supported  (-ls)                : List all supported OS,releases,editions
+ --list-isos       (-li)                : List all supported ISOs
+ --test-isos       (-ti)                : Test if ISOs are available
+ --version          (-v)                : Show version and exit
+
+supported Operating Systems:\n' "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
+    os_support | fold -s -w "$(tput cols)"
+    exit 0
+}
+
+function show_os_info() {
+    local OS=""
+    if [ -z "${1}" ]; then
+
+        os_error
+        exit 1
+    fi
+
+    OS="${1}"
+    os_supported
+    if command -v neofetch > /dev/null; then
+        neofetch -l --ascii_distro "${OS}"
+    fi
+    echo "${OS}"
+    echo -n 'Pretty name: '
+    pretty_name "${OS}"
+    echo -n 'Based of: '
+    os_basedof "${OS}"
+
+    if [ -z "$(os_credentials "${OS}")" ]; then
+        echo 'Credentials: Unknown'
+    else
+        echo -n 'Credentials: '
+        os_credentials "${OS}"
+    fi
+
+    echo -n 'Homepage: '
+    os_homepage "${OS}"
+    echo -n 'Info: '
+    os_about "${OS}"
+
+    if [[ ! $(type -t "editions_${OS}") == function ]]; then
+        echo -n 'Releases: '
+        "releases_${OS}"
+    else
+        echo -n 'Releases: '
+        "releases_${OS}"
+        echo -n 'Editions: '
+        "editions_${OS}"
+    fi
+
+    exit 0
+}
+
+case "${1}" in
+  '-h'|'--help')
+    help_message
+    ;;
+  '-lc'|'list'|'list_csv')
+    list_csv
+    ;;
+  '-lj'|'list_json')
+    list_json
+    ;;
+  '-ls'|'--list-supported')
+    list_supported  
+    ;;
+  '-li'|'--list-isos')
+    list_isos
+    ;;  
+  '-ti'|'--test-isos')
+    test_isos
+    ;;
+  '-d'|'--iso-download')
+    download_iso=1
+    if [ -n "$4" ]; then
+        set -- "$2" "$3" "$4"
+    elif [ -n "$3" ]; then
+        set -- "$2" "$3"
+    else
+        set -- "$2"
+    fi
+    ;;
+  '-i'|'--os-info')
+    echo "$(show_os_info "${2}")" | fold -s -w "$(tput cols)"
+    exit 0
+    ;;
+  '-o'|'--os-homepage')
+    OS="${2}"
+    if [ -z "$(os_homepage "${OS}")" ]; then
+        os_error
+    else
+        open_url "$(os_homepage "${OS}")"
+        exit 0
+    fi
+    ;;
+  '-v'|'--version')
+    WHERE=$(dirname "${BASH_SOURCE[0]}")
+    "${WHERE}/quickemu" --version
+    exit 0
+    ;;
+esac
+
 if [ -n "${1}" ]; then
     OS="${1,,}"
     if [ "${OS}" == "list" ] || [ "${OS}" == "list_csv" ]; then
@@ -3425,7 +3859,7 @@ if [ -n "${2}" ]; then
         EDITION=${EDITIONS[0]}
         if [ -n "${3}" ]; then
             EDITION="${3}"
-            if [[ ! " ${EDITIONS[*]} " =~ " ${EDITION} " ]]; then
+            if [[ ! " ${EDITIONS[*]} " =~ ${EDITION} ]]; then
                 echo -e "ERROR! ${EDITION} is not a supported $(pretty_name "${OS}") edition:\n"
                 for EDITION in "${EDITIONS[@]}"; do
                   echo -n "${EDITION} "
@@ -3481,8 +3915,8 @@ if [ -n "${2}" ]; then
         "languages_${OS}"
         if [ -n "${3}" ]; then
             LANG="${3}"
-            if [[ ! ${LANGS[*]} =~ "${LANG}" ]]; then
-                echo -e "ERROR! ${LANG} is not a supported Windows ${RELEASE} language:\n"
+            if [[ ! ${LANGS[*]} =~ ${LANG} ]]; then
+                echo -e "ERROR! ${LANG} is not a supported $(pretty_name "${OS}") language:\n"
                 for LANG in "${LANGS[@]}"; do
                   echo -n "${LANG} "
                 done
@@ -3496,9 +3930,11 @@ if [ -n "${2}" ]; then
         validate_release "releases_${OS}"
         create_vm "$("get_${OS}")"
     fi
-elif [ "${open_distro_homepage}" == 'on' ]; then
-    HOMEPAGE=$(os_homepages ${OS})
-    open_url "${HOMEPAGE}" && exit 0
+#####>>>>>>
+elif [ "$(releases_"${OS}" | wc -w)" -eq 1 ] && [[ ! $(type -t "editions_${OS}") == function ]]; then
+    RELEASE=$(releases_"${OS}")
+    VM_PATH="${OS}"
+    create_vm "$("get_${OS}")"
 else
     echo "ERROR! You must specify a release."
     case ${OS} in
@@ -3517,11 +3953,11 @@ else
         "languages_${OS}" && echo "${LANGS[@]}"
         ;;
       *)
-        echo -n " - Releases: "
-        releases_"${OS}"
+      echo -n " - Releases: "
+      "releases_${OS}" | fold -s -w "$(tput cols)"
         if [[ $(type -t "editions_${OS}") == function ]]; then
           echo -n " - Editions: "
-          editions_"${OS}"
+          editions_"${OS}" | fold -s -w "$(tput cols)"
         fi
         ;;
     esac
