@@ -320,9 +320,8 @@ function vm_boot() {
     local RAM_VM="2G"
     if [ -z "${ram}" ]; then
         local RAM_HOST=""
-        RAM_HOST=$(free --mega -h | grep Mem | cut -d':' -f2 | cut -d'G' -f1 | sed 's/ //g')
-        #Round up - https://github.com/wimpysworld/quickemu/issues/11
-        RAM_HOST=$(printf '%.*f\n' 0 "${RAM_HOST}")
+        # Determine the number of gigabytes of RAM in the host by extracting the first numerical value from the output.
+        RAM_HOST=$(free --giga | tr ' ' '\n' | grep -m 1 [0-9])
         if [ "${RAM_HOST}" -ge 128 ]; then
             RAM_VM="32G"
         elif [ "${RAM_HOST}" -ge 64 ]; then
@@ -505,7 +504,7 @@ function vm_boot() {
         fi
 
         if [ -z "${disk_size}" ]; then
-            disk_size="16G"
+            disk_size="32G"
         fi
         ;;
      kolibrios|reactos)
@@ -777,7 +776,11 @@ function vm_boot() {
 
     # Try and coerce the display resolution for Linux guests only.
     if [ "${guest_os}" == "linux" ]; then
-        VIDEO="${VIDEO},xres=${X_RES},yres=${Y_RES}"
+        if [ -n "${WIDTH}" ] && [ -n "${HEIGHT}" ]; then
+            VIDEO="${VIDEO},xres=${WIDTH},yres=${HEIGHT}"
+        else
+            VIDEO="${VIDEO},xres=${X_RES},yres=${Y_RES}"
+        fi
     fi
 
     # Allocate VRAM to VGA devices
@@ -979,9 +982,14 @@ function vm_boot() {
         -device usb-redir,chardev=usbredirchardev3,id=usbredirdev3
         -device pci-ohci,id=smartpass
         -device usb-ccid
-        -chardev spicevmc,id=ccid,name=smartcard
-        -device ccid-card-passthru,chardev=ccid
     )
+
+    if "${QEMU}" -chardev spicevmc,id=ccid,name= 2>&1 | grep -q smartcard; then
+        args+=(-chardev spicevmc,id=ccid,name=smartcard
+               -device ccid-card-passthru,chardev=ccid)
+    else
+        echo "WARNING! ${QEMU} was not compiled with support for smartcard devices"
+    fi
 
     # setup usb-controller
     [ -z "${USB_CONTROLLER}" ] && USB_CONTROLLER="$usb_controller"
@@ -1156,7 +1164,7 @@ function vm_boot() {
     else
         # shellcheck disable=SC2054,SC2206
         args+=(-device virtio-blk-pci,drive=SystemDisk
-            -drive id=SystemDisk,if=none,format=qcow2,file="${disk_img}" ${STATUS_QUO})
+            -drive id=SystemDisk,if=none,format=${disk_format:-qcow2},file="${disk_img}" ${STATUS_QUO})
     fi
 
     # https://wiki.qemu.org/Documentation/9psetup
@@ -1346,9 +1354,9 @@ EOF
 function usage() {
     echo
     echo "Usage"
-    echo "  ${LAUNCHER} --vm ubuntu.conf"
+    echo "  ${LAUNCHER} --vm ubuntu.conf [optional params]"
     echo
-    echo "You can also pass optional parameters"
+    echo "List of optional parameters:"
     echo "  --access                          : Enable remote spice access support. 'local' (default), 'remote', 'clientipaddress'"
     echo "  --braille                         : Enable braille support. Requires SDL."
     echo "  --delete-disk                     : Delete the disk image and EFI variables"
@@ -1491,6 +1499,7 @@ function monitor_send_cmd {
 boot="efi"
 cpu_cores=""
 disk_img=""
+disk_format=""
 disk_size=""
 display=""
 extra_args=""
@@ -1509,6 +1518,8 @@ secureboot="off"
 tpm="off"
 usb_devices=()
 viewer="spicy"
+width=""
+height=""
 ssh_port=""
 spice_port=""
 public_dir=""
@@ -1551,6 +1562,8 @@ VMDIR=""
 VMNAME=""
 VMPATH=""
 VIEWER=""
+WIDTH=""
+HEIGHT=""
 SSH_PORT=""
 SPICE_PORT=""
 MONITOR=""
@@ -1669,6 +1682,14 @@ else
             VIEWER="${2}"
             shift
             shift;;
+        -width|--width)
+            WIDTH="${2}"
+            shift;
+            shift;;
+        -height|--height)
+            HEIGHT="${2}"
+            shift;
+            shift;;
         -ssh-port|--ssh-port)
             SSH_PORT="${2}"
             shift;
@@ -1713,6 +1734,10 @@ else
             KEYBOARD="${2}"
             shift;
             shift;;
+        -keyboard_layout|--keyboard_layout)
+            KEYBOARD_LAYOUT="${2}"
+            shift;
+            shift;;
         -mouse|--mouse)
             MOUSE="${2}"
             shift;
@@ -1749,6 +1774,14 @@ if [ -n "${VM}" ] && [ -e "${VM}" ]; then
         exit 1
     fi
 
+     DiskChkMsg="$("$QEMU_IMG" check -q "${disk_img}" 2>&1)"
+
+    if [[ $DiskChkMsg ]]; then
+        echo; echo "ERROR! disk.qcow2 has problems. Try qemu-img check --help."
+        echo; echo "$DiskChkMsg" ; echo
+        exit 1
+    fi
+
     VMDIR=$(dirname "${disk_img}")
     VMNAME=$(basename "${VM}" .conf)
     VMPATH=$(realpath "$(dirname "${VM}")")
@@ -1766,6 +1799,11 @@ if [ -n "${VM}" ] && [ -e "${VM}" ]; then
     # Backwards compatibility for ${disk} (size)
     if [ -n "${disk}" ]; then
         disk_size="${disk}"
+    fi
+
+    # Set the default disk_format if not provided by user
+    if [ -z "${disk_format}" ]; then
+        disk_format=$(${QEMU_IMG} info "${disk_img}" | grep 'file format' | cut -d ':' -f 2 | tr -cd '[:graph:]')
     fi
 
     if [ -n "${display}" ]; then
@@ -1787,6 +1825,11 @@ if [ -n "${VM}" ] && [ -e "${VM}" ]; then
         VIEWER="${viewer}"
     fi
     viewer_param_check
+
+    if [ -z "${WIDTH}" ] || [ -z "${HEIGHT}" ] ; then
+        WIDTH="${width}"
+        HEIGHT="${height}"
+    fi
 
     # Set the default 3D acceleration.
     if [ -z "${gl}" ]; then

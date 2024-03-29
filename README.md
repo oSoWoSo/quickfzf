@@ -52,7 +52,7 @@ Windows**.
 -   EFI (with or without SecureBoot) and Legacy BIOS boot
 -   Graphical user interfaces available
 
-Quickemu is a wrapper for the excellent [QEMU](https://www.qemu.org/)
+Quickemu [![Lint](https://github.com/oSoWoSo/quickemu/actions/workflows/mega-linter.yml/badge.svg)](https://github.com/oSoWoSo/quickemu/actions/workflows/mega-linter.yml) is a wrapper for the excellent [QEMU](https://www.qemu.org/)
 that attempts to automatically *"do the right thing"*, rather than
 expose exhaustive configuration options.
 
@@ -163,7 +163,7 @@ installed via any AUR helper. Assuming your AUR helper is yay, Run the
 following command:
 
 ``` bash
-yay -Sy quickemu
+yay -Syu quickemu
 ```
 
 ## Ubuntu
