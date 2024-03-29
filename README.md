@@ -198,6 +198,8 @@ been packaged.
 [![Packaging
 status](https://repology.org/badge/vertical-allrepos/quickemu.svg)](https://repology.org/project/quickemu/versions)
 
+![Alt](https://repobeats.axiom.co/api/embed/6a18576fed84d09db4139871ef4327fe420d2ff6.svg "Repobeats analytics image")
+
 #### Quickgui
 
 [![Packaging
@@ -274,6 +276,7 @@ functional for all operating systems, including Windows and macOS.
 
 `quickget` also supports:
 
+-   `agarimos` (AgarimOS)
 -   `alma` (Alma Linux)
 -   `alpine` (Alpine Linux)
 -   `android` (Android x86)
@@ -281,15 +284,21 @@ functional for all operating systems, including Windows and macOS.
 -   `archcraft` (Archcraft)
 -   `archlinux` (Arch Linux)
 -   `arcolinux` (Arco Linux)
+-   `artixlinux` (Artix Linux)
+-   `athenaos` (Athenaos)
 -   `batocera` (Batocera)
+-   `bazzite` (Bazzite)
+-   `biglinux` (BigLinux)
 -   `blendos` (BlendOS)
 -   `bodhi` (Bodhi)
 -   `bunsenlabs` (Bunsenlabs)
 -   `cachyos` (CachyOS)
 -   `centos-stream` (CentOS Stream)
+-   `cereus` (Cereus Linux)
 -   `debian` (Debian)
 -   `deepin` (Deepin)
 -   `devuan` (Devuan)
+-   `dietpi` (DietPi)
 -   `dragonflybsd` (DragonFlyBSD)
 -   `elementary` (elementary OS)
 -   `endeavouros` (EndeavourOS)
@@ -310,6 +319,7 @@ functional for all operating systems, including Windows and macOS.
 -   `lmde` (Linux Mint Debian Edition)
 -   `mageia` (Mageia)
 -   `manjaro` (Manjaro)
+-   `miyolinux` (Miyo Linux)
 -   `mxlinux` (MX Linux)
 -   `netboot` (netboot.xyz)
 -   `netbsd` (NetBSD)
@@ -326,14 +336,20 @@ functional for all operating systems, including Windows and macOS.
 -   `rockylinux` (Rocky Linux)
 -   `siduction` (Siduction)
 -   `slackware` (Slackware)
+-   `slax` (Slax)
+-   `slitaz` (SliTaz GNU/Linux)
 -   `solus` (Solus)
--   `spiral` (Spiral)
+-   `sparkylinux` (SparkyLinux)
+-   `spiral` (SpiralLinux)
 -   `tails` (Tails)
 -   `tinycore` (Tiny Core Linux)
 -   `trisquel` (Trisquel)
 -   `truenas-core` (TrueNAS Core)
 -   `truenas-scale` (TrueNAS Scale)
+-   `tuxedoos` (TuxedoOS)
 -   `vanillaos` (Vanilla OS)
+-   `ventoy` (Ventoy)
+-   `voidpup` (Void Puppy)
 -   `void` (Void Linux)
 -   `vxlinux` (VX Linux)
 -   `xerolinux` (XeroLinux)
@@ -850,7 +866,7 @@ You can also pass optional parameters
 
 ```
 <!-- [[[end]]] -->
-
+```
 ## Desktop shortcuts
 
 Desktop shortcuts can be created for a VM, the shortcuts are saved in
@@ -925,7 +941,6 @@ Useful reference that assisted the development of Quickemu.
     -   <https://github.com/kholia/OSX-KVM>
     -   <https://github.com/thenickdude/KVM-Opencore>
     -   <https://gist.github.com/MCJack123/943eaca762730ca4b7ae460b731b68e7>
-    -   <https://github.com/acidanthera/OpenCorePkg/tree/master/Utilities/macrecovery>
     -   <https://www.kraxel.org/blog/2017/09/running-macos-as-guest-in-kvm/>
     -   <https://www.nicksherlock.com/2017/10/passthrough-of-advanced-cpu-features-for-macos-high-sierra-guests/>
     -   <http://philjordan.eu/osx-virt/>
