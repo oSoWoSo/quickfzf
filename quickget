@@ -3842,22 +3842,14 @@ if [ -n "${2}" ]; then
         validate_release "releases_${OS}"
         create_vm "$("get_${OS}")"
     fi
-#####>>>>>>
 elif [ "$(releases_"${OS}" | wc -w)" -eq 1 ] && [[ ! $(type -t "editions_${OS}") == function ]]; then
     RELEASE=$(releases_"${OS}")
     VM_PATH="${OS}"
     create_vm "$("get_${OS}")"
+elif [ "${open_distro_homepage}" == 'on' ]; then
+        HOMEPAGE=$(os_homepage "${OS}")
+        open_url "${HOMEPAGE}" && exit 0
 else
-#=======
-#elif [ "${open_distro_homepage}" == 'on' ]; then
-#    HOMEPAGE=$(os_homepages ${OS})
-#    open_url "${HOMEPAGE}" && exit 0
-#else
-#    if [ "${open_distro_homepage}" == 'on' ]; then
-#        HOMEPAGE=$(os_homepages "${OS}")
-#        open_url "${HOMEPAGE}" && exit 0
-#    fi
-#>>>>>>> upstream -- Current Change
     echo "ERROR! You must specify a release."
     case ${OS} in
       *ubuntu-server*)
