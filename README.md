@@ -52,7 +52,7 @@ Windows**.
 -   EFI (with or without SecureBoot) and Legacy BIOS boot
 -   Graphical user interfaces available
 
-Quickemu [![Lint](https://github.com/oSoWoSo/quickemu/actions/workflows/mega-linter.yml/badge.svg)](https://github.com/oSoWoSo/quickemu/actions/workflows/mega-linter.yml) is a wrapper for the excellent [QEMU](https://www.qemu.org/)
+Quickemu is a wrapper for the excellent [QEMU](https://www.qemu.org/)
 that attempts to automatically *"do the right thing"*, rather than
 expose exhaustive configuration options.
 
@@ -77,7 +77,7 @@ QEMU](https://img.youtube.com/vi/AOTYWEgw0hI/0.jpg)](https://www.youtube.com/wat
 -   [LSB](https://wiki.linuxfoundation.org/lsb/start)
 -   [procps](https://gitlab.com/procps-ng/procps)
 -   [python3](https://www.python.org/)
--   [chunkcheck](https://gist.github.com/MCJack123/943eaca762730ca4b7ae460b731b68e7)
+-   [macrecovery](https://github.com/acidanthera/OpenCorePkg/tree/master/Utilities/macrecovery)
 -   [mkisofs](http://cdrtools.sourceforge.net/private/cdrecord.html)
 -   [usbutils](https://github.com/gregkh/usbutils)
 -   [util-linux](https://github.com/karelzak/util-linux)
@@ -163,7 +163,7 @@ installed via any AUR helper. Assuming your AUR helper is yay, Run the
 following command:
 
 ``` bash
-yay -Syu quickemu
+yay -Sy quickemu
 ```
 
 ## Ubuntu
@@ -197,8 +197,6 @@ been packaged.
 
 [![Packaging
 status](https://repology.org/badge/vertical-allrepos/quickemu.svg)](https://repology.org/project/quickemu/versions)
-
-![Alt](https://repobeats.axiom.co/api/embed/6a18576fed84d09db4139871ef4327fe420d2ff6.svg "Repobeats analytics image")
 
 #### Quickgui
 
@@ -244,16 +242,16 @@ All the official Ubuntu flavours are supported, just replace `ubuntu`
 with your preferred flavour.
 
 -   `edubuntu` (Edubuntu)
--   `kubuntu` (Kubuntu)
+-   `kubuntu` ( Kubuntu)
 -   `lubuntu` (Lubuntu)
 -   `ubuntu-budgie` (Ubuntu Budgie)
--   `ubuntucinnamon` (Ubuntu Cinnamon)
--   `ubuntukylin` (Ubuntu Kylin)
 -   `ubuntu-mate` (Ubuntu MATE)
 -   `ubuntu-server` (Ubuntu Server)
--   `ubuntustudio` (Ubuntu Studio)
--   `ubuntu` (Ubuntu)
 -   `ubuntu-unity` (Ubuntu Unity)
+-   `ubuntu` ( Ubuntu)
+-   `ubuntucinnamon` (Ubuntu Cinnamon)
+-   `ubuntukylin` (Ubuntu Kylin)
+-   `ubuntustudio` (Ubuntu Studio)
 -   `xubuntu` (Xubuntu)
 
 You can also use `quickget` with options to:
@@ -261,98 +259,98 @@ You can also use `quickget` with options to:
 ``` shell
     # show an OS ISO download URL for {os} {release} [edition] 
     quickget --show-iso-url fedora 38 Silverblue   
-    # test if an OS ISO is available for {os} {release} [edition]
+    # test if and OS ISO is available for {os} {release} [edition]
     quickget --test-iso-url nixos 23.05 plasma5
     # open an OS distribution homepage in a browser
     quickget --open-distro-homepage  ubuntu-mate
-    # Only download image file into current directory, without creating VM
-    quickget --download-iso elementary 7.1
 ```
 
-The `--show-iso-url`, `--test-iso-url`, and `--download-iso` options are fully
-functional for all operating systems, including Windows and macOS.
+The `--show-iso-url` and `--test-iso-url` options **do not** work for
+`Windows` (`quickget` will begin downloading the requested release and
+edition of windows)
 
 ## Other Operating Systems
 
 `quickget` also supports:
 
--   `agarimos` (AgarimOS)
--   `alma` (Alma Linux)
--   `alpine` (Alpine Linux)
+-   `alma` ( Alma Linux)
+-   `alpine` ( Alpine Linux)
 -   `android` (Android x86)
 -   `antix` (Antix)
--   `archcraft` (Archcraft)
--   `archlinux` (Arch Linux)
--   `arcolinux` (Arco Linux)
--   `artixlinux` (Artix Linux)
--   `athenaos` (Athenaos)
+-   `archcraft` ( Archcraft)
+-   `archlinux` ( Arch Linux)
+-   `arcolinux` ( Arco Linux)
+-   `artixlinux` ( Artix Linux)
+-   `athenaos` (Athena OS)
 -   `batocera` (Batocera)
--   `bazzite` (Bazzite)
--   `biglinux` (BigLinux)
+-   `bazzite` (bazzite)
+-   `biglinux` ( Big Linux)
 -   `blendos` (BlendOS)
 -   `bodhi` (Bodhi)
--   `bunsenlabs` (Bunsenlabs)
+-   `bunsenlabs` (Bunsenlab)
 -   `cachyos` (CachyOS)
--   `centos-stream` (CentOS Stream)
--   `cereus` (Cereus Linux)
--   `debian` (Debian)
--   `deepin` (Deepin)
--   `devuan` (Devuan)
--   `dietpi` (DietPi)
+-   `centos-stream` ( CentOS Stream)
+-   `chimeralinux` (Chimera Linux)
+-   `crunchbang++` (#!++)
+-   `debian` ( Debian)
+-   `deepin` ( Deepin)
+-   `devuan` ( Devuan)
 -   `dragonflybsd` (DragonFlyBSD)
--   `elementary` (elementary OS)
--   `endeavouros` (EndeavourOS)
+-   `easyos` (EasyOS)
+-   `elementary` ( elementary OS)
+-   `endeavouros` ( EndeavourOS)
 -   `endless` (Endless OS)
--   `fedora` (Fedora)
--   `freebsd` (FreeBSD)
+-   `fedora` ( Fedora)
+-   `freebsd` ( FreeBSD)
 -   `freedos` (FreeDOS)
--   `garuda` (Garuda Linux)
--   `gentoo` (Gentoo)
+-   `garuda` ( Garuda Linux)
+-   `gentoo` ( Gentoo)
 -   `ghostbsd` (GhostBSD)
+-   `guix` ( GNU Guix)
 -   `haiku` (Haiku)
--   `holoiso` (SteamOS HoloISO)
--   `kali` (Kali)
--   `kdeneon` (KDE Neon)
+-   `kali` ( Kali)
+-   `kdeneon` ( KDE Neon)
 -   `kolibrios` (KolibriOS)
 -   `linuxlite` (Linux Lite)
 -   `linuxmint` (Linux Mint)
 -   `lmde` (Linux Mint Debian Edition)
--   `mageia` (Mageia)
--   `manjaro` (Manjaro)
--   `miyolinux` (Miyo Linux)
--   `mxlinux` (MX Linux)
+-   `mageia` ( Mageia)
+-   `manjaro` ( Manjaro)
+-   `mxlinux` ( MX Linux)
 -   `netboot` (netboot.xyz)
 -   `netbsd` (NetBSD)
--   `nixos` (NixOS)
--   `openbsd` (OpenBSD)
+-   `nitrux` ()
+-   `nixos` ( NixOS)
+-   `nwgiso` (nwg-shell)
+-   `openbsd` ( OpenBSD)
 -   `openindiana` (OpenIndiana)
--   `opensuse` (openSUSE)
+-   `opensuse` ( openSUSE)
 -   `oraclelinux` (Oracle Linux)
+-   `parrotsec` ( Parrot Security)
 -   `peppermint` (PeppermintOS)
--   `popos` (Pop!\_OS)
+-   `popos` ( Pop!\_OS)
 -   `porteus` (Porteus)
+-   `primtux` (PrimTux)
 -   `reactos` (ReactOS)
 -   `rebornos` (RebornOS)
--   `rockylinux` (Rocky Linux)
+-   `rockylinux` ( Rocky Linux)
 -   `siduction` (Siduction)
--   `slackware` (Slackware)
+-   `slackware` ( Slackware)
 -   `slax` (Slax)
--   `slitaz` (SliTaz GNU/Linux)
--   `solus` (Solus)
+-   `slint` (Slint)
+-   `slitaz` (SliTaz)
+-   `solus` ( Solus)
 -   `sparkylinux` (SparkyLinux)
--   `spiral` (SpiralLinux)
--   `tails` (Tails)
+-   `spirallinux` (Spiral Linux)
+-   `tails` ( Tails)
 -   `tinycore` (Tiny Core Linux)
--   `trisquel` (Trisquel)
+-   `trisquel` ( Trisquel)
 -   `truenas-core` (TrueNAS Core)
 -   `truenas-scale` (TrueNAS Scale)
--   `tuxedoos` (TuxedoOS)
--   `vanillaos` (Vanilla OS)
--   `ventoy` (Ventoy)
--   `voidpup` (Void Puppy)
--   `void` (Void Linux)
+-   `vanillaos` ( Vanilla OS)
+-   `void` ( Void Linux)
 -   `vxlinux` (VX Linux)
--   `xerolinux` (XeroLinux)
+-   `xerolinux` ( XeroLinux)
 -   `zorin` (Zorin OS)
 
 Or you can download a Linux image and manually create a VM
@@ -390,8 +388,8 @@ quickget macos catalina
 quickemu --vm macos-catalina.conf
 ```
 
-macOS `high-sierra`, `mojave`, `catalina`, `big-sur`, `monterey`, `ventura` and
-`sonoma` are supported.
+macOS `high-sierra`, `mojave`, `catalina`, `big-sur`, `monterey` and
+`ventura` are supported.
 
 -   Use cursor keys and enter key to select the **macOS Base System**
 -   From **macOS Utilities**
@@ -401,7 +399,7 @@ macOS `high-sierra`, `mojave`, `catalina`, `big-sur`, `monterey`, `ventura` and
             click **Erase**.
         -   Enter a `Name:` for the disk
         -   If you are installing macOS Mojave or later (Catalina, Big
-            Sur, Monterey, Ventura and Sonoma), choose any of the APFS options
+            Sur, Monterey and Ventura), choose any of the APFS options
             as the filesystem. MacOS Extended may not work.
     -   Click **Erase**.
     -   Click **Done**.
@@ -479,7 +477,6 @@ There are some considerations when running macOS via Quickemu.
     -   Big Sur
     -   Monterey
     -   Ventura
-    -   Sonoma
 -   `quickemu` will automatically download the required
     [OpenCore](https://github.com/acidanthera/OpenCorePkg) bootloader
     and OVMF firmware from [OSX-KVM](https://github.com/kholia/OSX-KVM).
@@ -527,7 +524,7 @@ sudo rm /Library/Preferences/SystemConfiguration/NetworkInterfaces.plist
 
 Now reboot, and the App Store should work.
 
-## Windows Guests
+## Windows 8, 10 & 11 Guests
 
 `quickget` can download
 [Windows10](https://www.microsoft.com/software-download/windows10) and
@@ -538,9 +535,6 @@ Windows](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/).
 
 Windows 8.1 is also supported but doesn't feature any automated
 installation or driver optimisation.
-
-`quickget` can also download [Windows 10 LTSC](https://www.microsoft.com/en-us/evalcenter/download-windows-10-enterprise) and Windows Server [2012-r2](https://www.microsoft.com/en-us/evalcenter/download-windows-server-2012-r2), [2016](https://www.microsoft.com/en-us/evalcenter/download-windows-server-2016), [2019](https://www.microsoft.com/en-us/evalcenter/download-windows-server-2019), and [2022](https://www.microsoft.com/en-us/evalcenter/download-windows-server-2022). No automated installation is supported for these releases.
-
 
 ``` bash
 quickget windows 11
@@ -553,15 +547,6 @@ quickemu --vm windows-11.conf
     these credentials:
     -   Username: `Quickemu`
     -   Password: `quickemu`
-
-### Regional versions
-
-By default `quickget` will download the *"English International"* release (*"English (United States)"* for server releases),
-but you can optionally specify one of the supported languages: For example:
-
-``` bash
-quickget windows 11 "Chinese (Traditional)"
-```
 
 The default Windows 11 configuration looks like this:
 
@@ -827,9 +812,9 @@ cog.out(f"\n```\n{help}\n```\n")
 ```
 
 Usage
-  quickemu --vm ubuntu.conf
+  quickemu --vm ubuntu.conf [optional params]
 
-You can also pass optional parameters
+List of optional parameters:
   --access                          : Enable remote spice access support. 'local' (default), 'remote', 'clientipaddress'
   --braille                         : Enable braille support. Requires SDL.
   --delete-disk                     : Delete the disk image and EFI variables
@@ -940,7 +925,7 @@ Useful reference that assisted the development of Quickemu.
     -   <https://passthroughpo.st/mac-os-adds-early-support-for-virtio-qemu/>
     -   <https://github.com/kholia/OSX-KVM>
     -   <https://github.com/thenickdude/KVM-Opencore>
-    -   <https://gist.github.com/MCJack123/943eaca762730ca4b7ae460b731b68e7>
+    -   <https://github.com/acidanthera/OpenCorePkg/tree/master/Utilities/macrecovery>
     -   <https://www.kraxel.org/blog/2017/09/running-macos-as-guest-in-kvm/>
     -   <https://www.nicksherlock.com/2017/10/passthrough-of-advanced-cpu-features-for-macos-high-sierra-guests/>
     -   <http://philjordan.eu/osx-virt/>
