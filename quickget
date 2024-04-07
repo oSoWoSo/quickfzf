@@ -33,6 +33,7 @@ function os_info() {
     local INFO=""
     SIMPLE_NAME="${1}"
     case ${SIMPLE_NAME} in
+      #name)            INFO=" PrettyName|BasedOf|Credentials|Homepage|Info";;
       alma)             INFO=" Alma Linux|Fedora,RedHat||https://almalinux.org/|Community owned and governed, forever-free enterprise Linux distribution, focused on long-term stability, providing a robust production-grade platform. AlmaLinux OS is binary compatible with RHEL®.";;
       alpine)           INFO=" Alpine Linux|Independent||https://alpinelinux.org/|Security-oriented, lightweight Linux distribution based on musl libc and busybox.";;
       android)          INFO="Android x86|Independent||https://www.android-x86.org/|Port Android Open Source Project to x86 platform.";;
@@ -44,7 +45,7 @@ function os_info() {
       athenaos)         INFO="Athena OS|Arch||https://athenaos.org/|Offer a different experience than the most used pentesting distributions by providing only tools that fit with the user needs and improving the access to hacking resources and learning materials.";;
       batocera)         INFO="Batocera|Independent||https://batocera.org/|Retro-gaming distribution with the aim of turning any computer/nano computer into a gaming console during a game or permanently.";;
       bazzite)          INFO="bazzite|Fedora,SteamOS||https://github.com/ublue-os/bazzite/|Container native gaming and a ready-to-game SteamOS like.";;
-      biglinux)         INFO=" Big Linux||||";;
+      biglinux)         INFO=" Big Linux|||https://www.biglinux.com.br/|Is the right choice if you want to have an easy and enriching experience with Linux. It has been perfected over more than 19 years, following our motto: “In search of the perfect system”.";;
       blendos)          INFO="BlendOS|Arch||https://blendos.co/|A seamless blend of all Linux distributions. Allows you to have an immutable, atomic and declarative Arch Linux system, with application support from several Linux distributions & Android.";;
       bodhi)            INFO="Bodhi|Debian,Ubuntu||https://www.bodhilinux.com/|Lightweight distribution featuring the fast & fully customizable Moksha Desktop.";;
       bunsenlabs)       INFO="Bunsenlab|Debian||https://www.bunsenlabs.org/|Light-weight and easily customizable Openbox desktop. The project is a community continuation of CrunchBang Linux.";;
@@ -67,7 +68,7 @@ function os_info() {
       garuda)           INFO=" Garuda Linux|Arch||https://garudalinux.org/|Feature rich and easy to use Linux distribution.";;
       gentoo)           INFO=" Gentoo|Independent||https://www.gentoo.org/|Highly flexible, source-based Linux distribution.";;
       ghostbsd)         INFO="GhostBSD|FreeBSD||https://www.ghostbsd.org/|Simple, elegant desktop BSD Operating System.";;
-      guix)             INFO=" GNU Guix|Independent||||";;
+      guix)             INFO=" Guix|Independent||https://guix.gnu.org/|Distribution of the GNU operating system developed by the GNU Project—which respects the freedom of computer users.";;
       haiku)            INFO="Haiku|Independent||https://www.haiku-os.org/|Specifically targets personal computing. Inspired by the BeOS, Haiku is fast, simple to use, easy to learn and yet very powerful.";;
       holoiso)          INFO="SteamOS HoloISO|Arch,SteamOS||https://github.com/HoloISO/holoiso|Bring the Steam Decks SteamOS Holo redistribution and provide a close-to-official SteamOS experience.";;
       kali)             INFO=" Kali|Debian||https://www.kali.org/|The most advanced Penetration Testing Distribution.";;
@@ -75,14 +76,15 @@ function os_info() {
       kolibrios)        INFO="KolibriOS|Independent||http://kolibrios.org/en/|Tiny yet incredibly powerful and fast operating system.";;
       kubuntu)          INFO=" Kubuntu|Ubuntu||https://kubuntu.org/|Free, complete, and open-source alternative to Microsoft Windows and Mac OS X which contains everything you need to work, play, or share.";;
       linuxlite)        INFO="Linux Lite|Debian,Ubuntu||https://www.linuxliteos.com/|Your first simple, fast and free stop in the world of Linux.";;
-      linuxmint)        INFO="Linux Mint|Debian,Ubuntu||https://linuxmint.com/|Designed to work out of the box and comes fully equipped with the apps most people need.";;
-      lmde)             INFO="Linux Mint Debian Edition|Debian||https://www.linuxmint.com/download_lmde.php|Aims to be as similar as possible to Linux Mint, but without using Ubuntu. The package base is provided by Debian instead.";;
-      lubuntu)          INFO="Lubuntu|Ubuntu||https://lubuntu.me/|Complete Operating System that ships the essential apps and services for daily use: office applications, PDF reader,  image editor, music and video players, etc. Using lightwave lxde/lxqt.";;
+      linuxmint)        INFO=" Linux Mint|Debian,Ubuntu||https://linuxmint.com/|Designed to work out of the box and comes fully equipped with the apps most people need.";;
+      lmde)             INFO=" Linux Mint Debian Edition|Debian||https://www.linuxmint.com/download_lmde.php|Aims to be as similar as possible to Linux Mint, but without using Ubuntu. The package base is provided by Debian instead.";;
+      lubuntu)          INFO=" Lubuntu|Ubuntu||https://lubuntu.me/|Complete Operating System that ships the essential apps and services for daily use: office applications, PDF reader,  image editor, music and video players, etc. Using lightwave lxde/lxqt.";;
       mageia)           INFO=" Mageia|Independent||https://www.mageia.org/|Stable, secure operating system for desktop & server.";;
       manjaro)          INFO=" Manjaro|Arch||https://manjaro.org/|Versatile, free, and open-source Linux operating system designed with a strong focus on safeguarding user privacy and offering extensive control over hardware.";;
       mxlinux)          INFO=" MX Linux|Debian,Antix||https://mxlinux.org/|Designed to combine elegant and efficient desktops with high stability and solid performance.";;
       netboot)          INFO="netboot.xyz|iPXE||https://netboot.xyz/|Your favorite operating systems in one place.";;
       netbsd)           INFO="NetBSD|Independent||https://www.netbsd.org/|Free, fast, secure, and highly portable Unix-like Open Source operating system. It is available for a wide range of platforms, from large-scale servers and powerful desktop systems to handheld and embedded devices.";;
+      nitrux)           INFO="Nitrux|Debian||https://nxos.org/|Powered by Debian, KDE Plasma and Frameworks, and AppImages.";;
       nixos)            INFO=" NixOS|Independent||https://nixos.org/|Linux distribution based on Nix package manager, tool that takes a unique approach to package management and system configuration.";;
       nwgiso)           INFO="nwg-shell|Arch|nwg:nwg|https://nwg-piotr.github.io/nwg-shell/|Arch Linux ISO with nwg-shell for sway and Hyprland";;
       macos)            INFO=" macOS|proprietary||https://www.apple.com/macos/|Work and play on your Mac are even more powerful. Elevate your presence on video calls. Access information in all-new ways. Boost gaming performance. And discover even more ways to personalize your Mac.";;
@@ -127,7 +129,7 @@ function os_info() {
       windows-server)   INFO="Windows Server|proprietary||https://www.microsoft.com/en-us/windows-server/|Platform for building an infrastructure of connected applications, networks, and web services.";;
       xerolinux)        INFO=" XeroLinux|Arch||https://xerolinux.xyz/|Arch-Based Distro, that provides you with an easy way to install Arch and a well optimized, beautifully Customized Plasma Desktop, that you can later shape to suite your needs!";;
       xubuntu)          INFO="Xubuntu|Ubuntu||https://xubuntu.org/|Elegant and easy to use operating system. Xubuntu comes with Xfce, which is a stable, light and configurable desktop environment.";;
-      zorin)            INFO="Zorin OS|Ubuntu||https://zorin.com/os/|Alternative to Windows and macOS designed to make your computer faster, more powerful, secure, and privacy-respecting.";;
+      zorin)            INFO=" Zorin OS|Ubuntu||https://zorin.com/os/|Alternative to Windows and macOS designed to make your computer faster, more powerful, secure, and privacy-respecting.";;
     esac
     echo "${INFO}"
 }
@@ -3769,7 +3771,7 @@ Posible arguments:
  --version          (-v)                : Show version and exit
  * To prepare custom VM config (Not supported by quickget) use:
    quickget --custom <some name> <path to ISO>
-----------------for developers--------------------------------
+-------------- for developers / testing ----------------------
  --list-json       (-lj)                : Show OS info in json format
  --list-csv        (-lc)                : Show OS info in csv format
  --list-supported  (-ls)                : List all supported OS,releases,editions
