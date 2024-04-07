@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 export LC_ALL=C
 
+# shellcheck disable=SC2155
+readonly LAUNCHER=$(basename "${0}")
+readonly DISK_MIN_SIZE=$((197632 * 8))
+readonly VERSION="4.9.3-RC1"
+
 if ((BASH_VERSINFO[0] < 4)); then
     echo "Sorry, you need bash 4.0 or newer to run this script."
     exit 1
@@ -1581,11 +1586,6 @@ MOUSE=""
 USB_CONTROLLER=""
 EXTRA_ARGS=""
 SOUND_CARD=""
-
-# shellcheck disable=SC2155
-readonly LAUNCHER=$(basename "${0}")
-readonly DISK_MIN_SIZE=$((197632 * 8))
-readonly VERSION="4.9.1"
 
 # TODO: Make this run the native architecture binary
 QEMU=$(command -v qemu-system-x86_64)
