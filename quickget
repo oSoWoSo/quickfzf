@@ -3685,7 +3685,10 @@ function show_os_info() {
     echo -n 'Info: '
     os_about "${OS}"
 
-    if [[ ! $(type -t "editions_${OS}") == function ]]; then
+    if [[ "${OS}" == *"ubuntu"* ]]; then
+        echo -n 'Releases: '
+        "releases_ubuntu"
+    elif [[ ! $(type -t "editions_${OS}") == function ]]; then
         echo -n 'Releases: '
         "releases_${OS}"
     else
