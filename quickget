@@ -646,6 +646,10 @@ function releases_bazzite() {
     wget -q -O- "https://api.github.com/repos/ublue-os/bazzite/releases" | grep 'download_url' | grep 'sum' | cut -d '/' -f8 | cut -d'v' -f2 | tr '\r\n' ' '
 }
 
+function releases_biglinux() {
+    echo kde
+}
+
 function releases_blendos() {
     local RLIST=""
 
@@ -1716,6 +1720,16 @@ function get_bazzite() {
     ISO=$(wget -q -O- "https://api.github.com/repos/ublue-os/bazzite/releases" | grep 'download_url' | grep 'sum' | cut -d '"' -f4 | cut -d'.' -f1-5 | grep "${RELEASE}" | cut -d'/' -f9)
     HASH=$(wget -q -O- "${URL}/${ISO}.sha256sum" | grep 'SHA256' | cut -d' ' -f4)
     echo "${URL}/${ISO} ${HASH}"
+}
+
+
+function get_biglinux() {
+    local HASH=""
+    local ISO=""
+    local URL="https://iso.biglinux.com.br/"
+    ISO=$(grep -Eo 'biglinux_[0-9]{4}(-[0-9]{2}){2}_k[0-9]{2,3}.iso' <(wget -q -O- "${URL}") | sort -u | tail -n2 | head -n1)
+    HASH=$(curl -s "${URL}""${ISO}".md5 | grep -Eo '[[:alnum:]]{32}')
+    echo "${URL}${ISO} ${HASH}"
 }
 
 function get_blendos() {
