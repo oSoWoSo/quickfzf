@@ -2577,13 +2577,12 @@ function get_nixos() {
 }
 
 function get_nwgiso() {
-    local EDITION="${1:-}"
     #local HASH=""
     local ISO=""
     local URL=""
     local DATE=""
     # No hash available
-    ISO="nwg-live-${EDITION}-x86_64.iso"
+    ISO="nwg-live-${RELEASE}-x86_64.iso"
     URL="https://sourceforge.net/projects/nwg-iso/files"
 
     echo "${URL}/${ISO}"
