@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 export LC_ALL=C
-
-# shellcheck disable=SC2155
+# shellcheck disable=SC2054,SC2155
 readonly LAUNCHER=$(basename "${0}")
 readonly DISK_MIN_SIZE=$((197632 * 8))
 readonly VERSION="4.9.3-RC1"
@@ -1951,3 +1950,4 @@ fi
 
 [ -n "${MONITOR_CMD}" ] && monitor_send_cmd "${MONITOR_CMD}"
 
+# vim:tabstop=2:shiftwidth=2:expandtab
