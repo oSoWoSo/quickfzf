@@ -2570,15 +2570,19 @@ function get_nixos() {
 }
 
 function get_nwgiso() {
-    #local HASH=""
+    local HASH=""
     local ISO=""
     local URL=""
     local DATE=""
-    # No hash available
+
+    case ${RELEASE} in
+      '2024.04.07') HASH="7f8393704cf09a7dca2ca6624880f8d6f5c05c93";;
+      '2024.03.31') HASH="81f1099b904fc6e47e914d5aede9f643111b73a6";;
+    esac
     ISO="nwg-live-${RELEASE}-x86_64.iso"
     URL="https://sourceforge.net/projects/nwg-iso/files"
 
-    echo "${URL}/${ISO}"
+    echo "${URL}/${ISO} ${HASH}"
 }
 
 function get_openbsd() {
