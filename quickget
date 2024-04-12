@@ -173,38 +173,6 @@ function os_about() {
     echo "${ABOUT}"
 }
 
-if [ "${1}" == '--test-iso-url' ] || [ "${1}" == '-t' ]; then
-    test_iso_url="on"
-    if [ -n "$4" ]; then
-        set -- "$2" "$3" "$4"
-    elif [ -n "$3" ]; then
-        set -- "$2" "$3"
-    else
-        set -- "$2"
-    fi
-elif [ "${1}" == '--show-iso-url' ] || [ "${1}" ==  '-s' ]; then
-    show_iso_url="on"
-    if [ -n "$4" ]; then
-        set -- "$2" "$3" "$4"
-    elif [ -n "$3" ]; then
-        set -- "$2" "$3"
-    else
-        set -- "$2"
-    fi
-elif [ "${1}" == '--open-distro-homepage' ] || [ "${1}" == '-o' ]; then
-    open_distro_homepage="on"
-    set -- "$2"
-elif [ "${1}" == '--download-iso'  ] || [ "${1}" == '-d' ]; then
-    download_iso="on"
-    if [ -n "$4" ]; then
-        set -- "$2" "$3" "$4"
-    elif [ -n "$3" ]; then
-        set -- "$2" "$3"
-    else
-        set -- "$2"
-    fi
-fi
-
 function validate_release() {
   local DISPLAY_NAME=""
   local RELEASE_GENERATOR=""
@@ -3657,12 +3625,72 @@ function show_os_info() {
     exit 0
 }
 
+case "${1}" in
+  '-h'|'--help')
+    help_message
+    ;;
+  '-lc'|'--list-csv')
+    list_csv
+    ;;
+  '-lj'|'--list-json')
+    list_json
+    ;;
+  '-ls'|'--list-supported')
+    time list_supported
+    ;;
+  '-li'|'--list-isos')
+    time list_isos
+    ;;
+  '-ti'|'--test-isos')
+    time test_isos
+    ;;
+  '-d'|'--iso-download')
+    download_iso=1
+    if [ -n "$4" ]; then
+        set -- "$2" "$3" "$4"
+    elif [ -n "$3" ]; then
+        set -- "$2" "$3"
+    else
+        set -- "$2"
+    fi
+    ;;
+  '-i'|'--os-info')
+    #shellcheck disable=SC2005
+    echo "$(show_os_info "${2}")" | fold -s -w "$(tput cols)"
+    exit 0
+    ;;
+  '-o'|'--os-homepage')
+    OS="${2}"
+    if [ -z "$(os_homepage "${OS}")" ]; then
+        os_error
+    else
+        open_url "$(os_homepage "${OS}")"
+        exit 0
+    fi
+    ;;
+  '-v'|'--version')
+    WHERE=$(dirname "${BASH_SOURCE[0]}")
+    "${WHERE}/quickemu" --version
+    exit 0
+    ;;
+esac
+
+if [ -n "${1}" ]; then
+    OS="${1,,}"
+    case "${OS}" in
+    '-i'|'--os-info'|'-o'|'--os-homepage'|'-d'|'--iso-download')
+        os_error
+        ;;
+    esac
+else
+    os_error
 fi
+
+os_supported
 
 if [ -n "${2}" ]; then
     RELEASE="${2,,}"
     VM_PATH="${OS}-${RELEASE}"
-
     # If the OS has an editions_() function, use it.
     if [[ $(type -t "editions_${OS}") == function ]]; then
         validate_release "releases_${OS}"
@@ -3741,9 +3769,11 @@ if [ -n "${2}" ]; then
         validate_release "releases_${OS}"
         create_vm "$("get_${OS}")"
     fi
-elif [ "${open_distro_homepage}" == 'on' ]; then
-    HOMEPAGE=$(os_homepages ${OS})
-    open_url "${HOMEPAGE}" && exit 0
+
+elif [ $(releases_"${OS}" | wc -w) -eq 1 ] && [[ ! $(type -t "editions_${OS}") == function ]]; then
+    RELEASE=$(releases_"${OS}")
+    VM_PATH="${OS}"
+    create_vm "$("get_${OS}")"
 else
     echo "ERROR! You must specify a release."
     case ${OS} in
