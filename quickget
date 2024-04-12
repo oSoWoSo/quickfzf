@@ -3628,6 +3628,53 @@ supported Operating Systems:\n' "$(quickemu --version)" "$(qemu-x86_64 -version 
     exit 0
 }
 
+function show_os_info() {
+    local OS=""
+    if [ -z "${1}" ]; then
+
+        os_error
+        exit 1
+    fi
+
+    OS="${1}"
+    os_supported
+    if command -v neofetch > /dev/null; then
+        neofetch -l --ascii_distro "${OS}"
+    fi
+    echo "${OS}"
+    echo -n 'Pretty name: '
+    pretty_name "${OS}"
+    echo -n 'Based of: '
+    os_basedof "${OS}"
+
+    if [ -z "$(os_credentials "${OS}")" ]; then
+        echo 'Credentials: Unknown'
+    else
+        echo -n 'Credentials: '
+        os_credentials "${OS}"
+    fi
+
+    echo -n 'Homepage: '
+    os_homepage "${OS}"
+    echo -n 'Info: '
+    os_about "${OS}"
+
+    if [[ "${OS}" == *"ubuntu"* ]]; then
+        echo -n 'Releases: '
+        "releases_ubuntu"
+    elif [[ ! $(type -t "editions_${OS}") == function ]]; then
+        echo -n 'Releases: '
+        "releases_${OS}"
+    else
+        echo -n 'Releases: '
+        "releases_${OS}"
+        echo -n 'Editions: '
+        "editions_${OS}"
+    fi
+
+    exit 0
+}
+
 fi
 
 if [ -n "${2}" ]; then
