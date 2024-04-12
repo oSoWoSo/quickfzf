@@ -3549,18 +3549,6 @@ fi
 
 LANGS=()
 
-os_error() {
-    echo "ERROR! You must specify an operating system."
-    echo "- Supported Operating Systems:"
-    os_support | fold -s -w "$(tput cols)"
-    echo -e "\nTo see all possible arguments, use:\n   quickget -h  or  quickget --help"
-    exit 1
-}
-
-if [[ ! " $(os_support) " =~ " ${OS} " ]]; then
-    echo -e "ERROR! ${OS} is not a supported OS.\n"
-    os_support
-    exit 1
 help_message() {
     #shellcheck disable=SC2016
     printf '                           _              _
@@ -3614,6 +3602,12 @@ os_error() {
     os_support | fold -s -w "$(tput cols)"
     echo -e "\nTo see all possible arguments, use:\n   quickget -h  or  quickget --help"
     exit 1
+}
+
+os_supported() {
+    if [[ ! " $(os_support) " =~ " ${OS} " ]]; then
+        os_not_supported
+    fi
 }
 
 function show_os_info() {
