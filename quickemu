@@ -1495,7 +1495,6 @@ function monitor_send_cmd {
 boot="efi"
 cpu_cores=""
 disk_img=""
-disk_format=""
 disk_size=""
 display=""
 extra_args=""
@@ -1796,11 +1795,6 @@ if [ -n "${VM}" ] && [ -e "${VM}" ]; then
     # Backwards compatibility for ${disk} (size)
     if [ -n "${disk}" ]; then
         disk_size="${disk}"
-    fi
-
-    # Set the default disk_format if not provided by user
-    if [ -z "${disk_format}" ]; then
-        disk_format=$(${QEMU_IMG} info "${disk_img}" | grep 'file format' | cut -d ':' -f 2 | tr -cd '[:graph:]')
     fi
 
     if [ -n "${display}" ]; then
