@@ -1699,6 +1699,7 @@ function get_chimeralinux() {
     DATE=$(wget -q -O- "${URL}/sha256sums.txt" | head -n1 | cut -d'-' -f5)
     ISO="chimera-linux-x86_64-LIVE-${DATE}-${EDITION}.iso"
     HASH=$(wget -q -O- "${URL}/sha256sums.txt" | grep 'x86_64-LIVE' | grep "${EDITION}" | cut_1)
+    echo "${URL}/${ISO} ${HASH}"
 }
 
 function get_crunchbang++() {
