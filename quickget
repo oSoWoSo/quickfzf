@@ -3536,6 +3536,13 @@ os_supported_edition() {
     fi
 }
 
+os_error_edition() {
+    echo -en "ERROR! You must specify an edition.\n - Editions: "
+    #TODO ERROR here
+    "editions_${OS}"
+    exit 1
+}
+
 function show_os_info() {
     local OS=""
     if [ -z "${1}" ]; then
@@ -3652,9 +3659,7 @@ if [ -n "${2}" ]; then
             EDITION="${3}"
             os_supported_edition
         else
-            echo -en "ERROR! You must specify an edition.\n - Editions: "
-            editions_"${OS}"
-            exit 1
+            os_error_edition
         fi
 
         # Handle odd missing fedora cominations
