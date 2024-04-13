@@ -3572,6 +3572,12 @@ os_error() {
     exit 1
 }
 
+os_path_error() {
+    echo "ERROR! You must specify path."
+    os_error
+    exit 1
+}
+
 os_supported() {
     if [[ ! " $(os_support) " =~ " ${OS} " ]]; then
         os_not_supported
