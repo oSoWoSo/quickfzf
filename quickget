@@ -3543,6 +3543,15 @@ os_error_edition() {
     exit 1
 }
 
+os_supported_lang() {
+    echo -e "ERROR! ${LANG} is not a supported $(pretty_name "${OS}") language\n"
+    echo -n ' - Editions: '
+    for LANG in "${LANGS[@]}"; do
+        echo -n "${LANG} "
+    done
+    exit 1
+}
+
 function show_os_info() {
     local OS=""
     if [ -z "${1}" ]; then
@@ -3705,11 +3714,7 @@ if [ -n "${2}" ]; then
         if [ -n "${3}" ]; then
             LANG="${3}"
             if [[ ! ${LANGS[*]} =~ "${LANG}" ]]; then
-                echo -e "ERROR! ${LANG} is not a supported Windows ${RELEASE} language:\n"
-                for LANG in "${LANGS[@]}"; do
-                  echo -n "${LANG} "
-                done
-                exit 1
+                os_supported_lang
             fi
             VM_PATH="$(echo "${OS}-${RELEASE}-${LANG// /-}" | tr -d '()')"
         fi
