@@ -1,0 +1,9 @@
+{
+  "name": "quickemu-extended",
+  "version": "4.5.3",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "shellcheck -S error quickget quickemu"
+  },
+  "license": "MIT"
+}
