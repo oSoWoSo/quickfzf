@@ -359,11 +359,6 @@ test_isos() {
         validate_release releases_"${OS}"
         URL=$(get_"${OS}" "${OPTION}" | cut_1)
         GOOD=$(timeout 3 wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
-        if [[ "${GOOD}" == "OK" ]]; then
-            echo "OK - ${OS} ${RELEASE} ${OPTION} ${URL}"
-        else
-            echo "ERROR - ${OS} ${RELEASE} ${OPTION} ${URL}"
-        fi
     }
 
     for OS in $(os_support); do
@@ -382,34 +377,26 @@ test_isos() {
                 # skipping because of microsoft
                 "languages_${OS}"
                 for OPTION in "${LANGS[@]}"; do
-                    echo "skipped: ${OS} ${RELEASE} ${OPTION}"
+                    GOOD='ERROR!'
                 done
             elif [[ "${OS}" == *"ubuntu"* ]]; then
                 URL=$(get_ubuntu)
                 GOOD=$(timeout 3 wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
-                if [[ "${GOOD}" == "OK" ]]; then
-                    echo "OK - ${OS} ${RELEASE} ${URL}"
-                else
-                    echo "ERROR - ${OS} ${RELEASE} ${URL}"
-                fi
             elif [[ "${OS}" == *"ubuntu-server"* ]]; then
                 URL="$(get_ubuntu-server)"
                 GOOD=$(timeout 3 wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
-                if [[ "${GOOD}" == "OK" ]]; then
-                    echo "OK - ${OS} ${RELEASE} ${URL}"
-                else
-                    echo "ERROR - ${OS} ${RELEASE} ${URL}"
-                fi
             else
                 validate_release releases_"${OS}"
                 URL=$(get_"${OS}" "${RELEASE}" | cut_1)
                 GOOD=$(timeout 3 wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
-                if [[ "${GOOD}" == "OK" ]]; then
-                    echo "OK - ${OS} ${RELEASE} ${URL}"
-                else
-                    echo "ERROR - ${OS} ${RELEASE} ${URL}"
-                fi
             fi
+
+        if [[ "${GOOD}" == "OK" ]]; then
+            echo "OK - ${OS} ${RELEASE} ${OPTION} ${URL}"
+        else
+            echo "ERROR - ${OS} ${RELEASE} ${OPTION} ${URL}"
+        fi
+
         done
     done
     exit 0
