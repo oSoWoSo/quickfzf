@@ -23,6 +23,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
@@ -34,10 +35,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: List supported
         run: |
-          echo -e "\n\n               Supported:\n"
+          echo -e "\n\n               Supported:\n\n"
           ./quickget -ls | tee supported.txt
           echo -e "\n\n               Finished\n\n"
 
@@ -54,13 +55,20 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-      - name: List supported
+      - uses: actions/checkout@v4
+      - name: OS info
+        #env:
+          #TERM: xterm
         run: |
-          echo -e "\n\n               Supported:\n"
+          sudo apt install -y neofetch
+          echo -e "\n\n"
+          neofetch
+          echo -e "\n\n"
+          export TERM=xterm-256color
+          echo -e "\n\n               OSinfo:\n\n"
           distros="$(./quickget | sed '/^$/q' | tail -n +3)"
           for os in ${distros}; do
-            ./quickget -i "${os}" | tee osinfo.txt
+            echo -e "\n\n      ${os}" && ./quickget -i "${os}" | tee osinfo.txt
           done
           echo -e "\n\n               Finished\n\n"
 
@@ -69,24 +77,24 @@ jobs:
           name: osinfo
           path: osinfo.txt
 
-  ISOs:
+  ISOlist:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: List ISOs
         run: |
           echo -e "\n\n               ISOs:\n\n"
-          ./quickget -li | tee isos.txt
+          ./quickget -li | tee isoslist.txt
           echo -e "\n\n               Finished\n\n"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: isos
-          path: isos.txt
+          name: isoslist
+          path: isoslist.txt
 
 
   Test:
@@ -96,7 +104,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: ISOs availability
         run: |
           echo -e "\n\n               ISOs availability:\n\n"
