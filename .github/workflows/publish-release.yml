@@ -5,6 +5,27 @@ on:
     tags: ['*']
 
 jobs:
+  version-check:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Fetch repo
+        uses: actions/checkout@v4
+        #with:
+          #fetch-depth: 0
+
+      - name: Check if we are on correct commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REL_VERSION=v$(./quickemu --version)
+          GIT_VERSION=$(git describe --tags)
+          echo "Release version ${REL_VERSION}"
+          echo "Git tag version ${GIT_VERSION}"
+          if [ "${REL_VERSION}" != "${GIT_VERSION}" ]; then \
+              echo "This is probably not what you want"; \
+              exit 1; \
+          fi
+
   create-release:
     name: Create Release
     runs-on: ubuntu-22.04
@@ -12,7 +33,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Create release ${{ github.ref }} as a draft
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
       run: |
         gh release create "${{ github.ref }}" --draft --generate-notes
 
