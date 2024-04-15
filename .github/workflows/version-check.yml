@@ -1,0 +1,30 @@
+--- #This will check quickemu version
+# It will be triggered once the release draft is published
+
+name: Check version
+
+on:
+  release:
+    types:
+      - released
+  workflow_dispatch:
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if we are on correct commit
+        run: |
+          REL_VERSION=v$(./quickemu --version)
+          GIT_VERSION=$(git describe --tags)
+          echo "Release version ${REL_VERSION}"
+          echo "Git tag version ${GIT_VERSION}"
+          if [ "${REL_VERSION}" != "${GIT_VERSION}" ]; then \
+              echo "This is probably not what you want"; \
+              exit 1; \
+          fi
