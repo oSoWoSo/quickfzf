@@ -3442,6 +3442,8 @@ Posible arguments:
  --list-csv        (-lc)                : Show OS info in csv format
  --list-supported  (-ls)                : List all supported OS,releases,editions
  --list-isos       (-li)                : List all supported ISOs
+ --show-iso-url     (-s)                : Show ISO download URL
+ --test-iso         (-t)                : Test if ISO is available
  --test-isos       (-ti)                : Test if ISOs are available
 --------------------------------------------------------------
 supported Operating Systems:\n' "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
@@ -3617,6 +3619,14 @@ case "${1}" in
     ;;
   '-li'|'--list-isos')
     time list_isos
+    ;;
+  '-s'|'--show-iso-url')
+    showIsoUrl=on
+    shift
+    ;;
+  '-t'|'--test-iso-url')
+    testIsoUrl=on
+    shift
     ;;
   '-ti'|'--test-isos')
     time test_isos
