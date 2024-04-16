@@ -390,13 +390,11 @@ test_isos() {
                 URL=$(get_"${OS}" "${RELEASE}" | cut_1)
                 GOOD=$(timeout 3 wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
             fi
-
         if [[ "${GOOD}" == "OK" ]]; then
             echo "OK - ${OS} ${RELEASE} ${OPTION} ${URL}"
         else
             echo "ERROR - ${OS} ${RELEASE} ${OPTION} ${URL}"
         fi
-
         done
     done
     exit 0
@@ -1213,14 +1211,12 @@ function web_get() {
             echo "ERROR! Failed to download ${URL} with aria2c. Try running 'quickget' again."
             exit 1
         fi
-
         echo #Necessary as aria2c in suppressed mode does not have new lines
     elif command -v wget2 &>/dev/null; then
         if ! wget2 --quiet --continue --tries=3 --read-timeout=10 --force-progress --progress=bar:force:noscroll "${URL}" -O "${DIR}/${FILE}" "${HEADERS[@]}"; then
             echo "ERROR! Failed to download ${URL} with wget2. Try running 'quickget' again."
             exit 1
         fi
-
     elif ! wget --quiet --continue --tries=3 --read-timeout=10 --show-progress --progress=bar:force:noscroll "${URL}" -O "${DIR}/${FILE}" "${HEADERS[@]}"; then
         echo "ERROR! Failed to download ${URL} with wget. Try running 'quickget' again."
         exit 1
@@ -1232,7 +1228,6 @@ function zsync_get() {
     local FILE="${1##*/}"
     local OUT=""
     local URL="${1}"
-
     # Test mode for ISO
     if [ "${showIsoUrl}" == on ]; then
         echo "${URL}"
@@ -1246,19 +1241,16 @@ function zsync_get() {
         else
             OUT="${FILE}"
         fi
-
         if ! mkdir -p "${DIR}" 2>/dev/null; then
             echo "ERROR! Unable to create directory ${DIR}"
             exit 1
         fi
-
         echo -e Downloading $(pretty_name "${OS}") "${RELEASE}" ${EDITION+ ${EDITION}} from "${URL}"'\n'
         # Only force http for zsync - not earlier because we might fall through here
         if ! zsync "${URL/https/http}.zsync" -i "${DIR}/${OUT}" -o "${DIR}/${OUT}" 2>/dev/null; then
             echo "ERROR! Failed to download ${URL/https/http}.zsync"
             exit 1
         fi
-
         if [ -e "${DIR}/${OUT}.zs-old" ]; then
             rm "${DIR}/${OUT}.zs-old"
         fi
@@ -1523,7 +1515,6 @@ function get_antix() {
                   URL="${URL_runit}"
       ;;
     esac
-
     HASH=$(wget -q -O- "${URL}"/README.txt | grep "${ISO}" | cut_1 | head -1)
     echo "${URL}/${ISO} ${HASH}"
 }
@@ -1655,7 +1646,6 @@ function get_cachyos() {
 function get_centos-stream() {
     local HASH=""
     local ISO=""
-
     case ${RELEASE} in
       8)
         ISO="CentOS-Stream-${RELEASE}-x86_64-latest-${EDITION}.iso"
@@ -1731,7 +1721,6 @@ function get_debian() {
         URL="${URL/hybrid/cd}"
         ISO="${ISO/-live/}"
     fi
-
     HASH=$(wget -q -O- "${URL}/SHA512SUMS" | grep "${ISO}" | cut_1)
     echo "${URL}/${ISO} ${HASH}"
 }
@@ -1791,7 +1780,6 @@ function get_easyos() {
         YEAR="2024";;
     esac
     URL="https://distro.ibiblio.org/easyos/amd64/releases/kirkstone/${YEAR}/${RELEASE}"
-
     HASH=$(wget -q -O- "${URL}/md5.sum.txt" | cut  -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
 }
@@ -2401,8 +2389,7 @@ function get_rebornos() {
 
 function get_rockylinux() {
     local EDITION="${1:-}"
-    if [[ "${RELEASE}" =~ ^8. ]] && [[ "${EDITION}" == "dvd" ]]
-    then
+    if [[ "${RELEASE}" =~ ^8. ]] && [[ "${EDITION}" == "dvd" ]]; then
         EDITION="dvd1"
     fi
     local HASH=""
@@ -2585,15 +2572,12 @@ function get_ubuntu-server() {
     local HASH=""
     local ISO=""
     local URL=""
-
     [[ $RELEASE = daily ]] && RELEASE=daily-live
-
     if [[ "${RELEASE}" == "daily"* ]]; then
         URL="https://cdimage.ubuntu.com/${OS}/${RELEASE}/current"
     else
         URL="https://releases.ubuntu.com/${RELEASE}"
     fi
-
     if wget -q --spider "${URL}/SHA256SUMS"; then
         DATA=$(wget -qO- "${URL}/SHA256SUMS" | grep 'live-server' | grep amd64 | grep iso)
         ISO=$(cut -d'*' -f2 <<<"${DATA}")
@@ -2603,12 +2587,10 @@ function get_ubuntu-server() {
         ISO=$(cut -d' ' -f3 <<<"${DATA}")
         HASH=$(cut_1 <<<"${DATA}")
     fi
-
     if [ -z "$ISO" ] || [ -z "$HASH" ]; then
         echo "$(pretty_name "$OS") ${RELEASE} is currently unavailable. Please select other OS/Release combination"
         exit 1
     fi
-
     if [[ "${RELEASE}" == "daily"* ]] || [ "${RELEASE}" == "dvd" ]; then
         zsync_get "${URL}/${ISO}" "${VM_PATH}" "${OS}-devel.iso"
         make_vm_config "${OS}-devel.iso"
@@ -2624,14 +2606,11 @@ function get_ubuntu() {
     local HASH=""
     local URL=""
     local DATA=""
-
     [[ $RELEASE = daily ]] && RELEASE=daily-live
-
     if [[ "${RELEASE}" == "daily"* ]] && [ "${OS}" == "ubuntustudio" ]; then
         # Ubuntu Studio daily-live images are in the dvd directory
         RELEASE="dvd"
     fi
-
     if [[ "${RELEASE}" == "eol-"* ]]; then
         URL="https://old-releases.ubuntu.com/releases/${RELEASE/eol-/}"
     elif [[ "${RELEASE}" == "jammy-daily" ]]; then
@@ -2649,7 +2628,6 @@ function get_ubuntu() {
     else
         URL="https://cdimage.ubuntu.com/${OS}/releases/${RELEASE}/release"
     fi
-
     if wget -q --spider "${URL}/SHA256SUMS"; then
         DATA=$(wget -qO- "${URL}/SHA256SUMS" | grep 'desktop\|dvd\|install' | grep amd64 | grep iso | grep -v "+mac")
         ISO=$(cut -d'*' -f2 <<<"${DATA}" | sed '1q;d')
@@ -2659,12 +2637,10 @@ function get_ubuntu() {
         ISO=$(cut -d'*' -f2 <<<"${DATA}")
         HASH=$(cut_1 <<<"${DATA}")
     fi
-
     if [ -z "$ISO" ] || [ -z "$HASH" ]; then
         echo "$(pretty_name "$OS") ${RELEASE} is currently unavailable. Please select other OS/Release combination"
         exit 1
     fi
-
     if [[ "${RELEASE}" == "daily"* ]] || [ "${RELEASE}" == "dvd" ]; then
         zsync_get "${URL}/${ISO}" "${VM_PATH}" "${OS}-devel.iso"
         make_vm_config "${OS}-devel.iso"
@@ -3429,22 +3405,24 @@ Advanced Usage:
  quickget -d peppermint latest devuan-xfce
 
 Posible arguments:
- --os-info          (-i) <os>           : Show info about OS
+ --os-info         (-oi) <os>           : Show info about OS
  --show-crede      (-sc) <os>           : Show OS default credentials
- --show-homepage   (-sh) <os>           : Show OS homepage URL
  --open-homepage   (-oh) <os>           : Open OS homepage in default browser
- --show-iso        (-si) <os> <re> [ed] : Show·ISO·download·URL
- --test-iso        (-ti) <os> <re> [ed] : Test if ISO is available
  --download-iso    (-di) <os> <re> [ed] : Just download ISO
  --my-iso          (-mi) <os> <ISO path>: Create VM with downloaded ISO*
  --version          (-v)                : Show version and exit
- --help             (-h)                : Show this help message and exit 
+ --help             (-h)                : Show this help message and exit
  * To prepare custom VM config (Not supported by quickget) use:
    quickget --custom <some name> <path to ISO>
 -------------- for developers / testing ----------------------
- --list-json       (-lj)                : Show OS info in json format
- --list-csv        (-lc)                : Show OS info in csv format
- --list-supported  (-ls)                : List all supported OS,releases,editions
+ --show-homepage   (-sh) <os>           : Show OS homepage URL
+ --show-iso        (-si) <os> <re> [ed] : Show·ISO·download·URL
+ --test-iso        (-ti) <os> <re> [ed] : Test if ISO is available
+ --show-isos       (-ss) <os>           : Show all ISOs of OS
+ --test-isos       (-ts) <os>           : Test all ISOs of OS
+ --list-json       (-lj)                : Show lists in json format
+ --list-csv        (-lc)                : Show lists in csv format
+ --list-supported  (-ls)                : List all OS, releases and editions
  --list-isos       (-li)                : List all supported ISOs
  --test-isos       (-lt)                : Test if ISOs are available
 --------------------------------------------------------------
