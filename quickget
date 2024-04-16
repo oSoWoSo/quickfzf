@@ -3429,12 +3429,16 @@ Advanced Usage:
  quickget -d peppermint latest devuan-xfce
 
 Posible arguments:
- --help             (-h)                : Show this help message and exit
  --os-info          (-i) <os>           : Show info about OS
- --os-homepage      (-o) <os>           : Open OS homepage in default browser
- --iso-download     (-d) <os> <re> [ed] : Just download ISO
- --custom           (-c) <os> <ISO path>: Create VM with downloaded ISO*
+ --show-crede      (-sc) <os>           : Show OS default credentials
+ --show-homepage   (-sh) <os>           : Show OS homepage URL
+ --open-homepage   (-oh) <os>           : Open OS homepage in default browser
+ --show-iso        (-si) <os> <re> [ed] : Show·ISO·download·URL
+ --test-iso        (-ti) <os> <re> [ed] : Test if ISO is available
+ --download-iso    (-di) <os> <re> [ed] : Just download ISO
+ --my-iso          (-mi) <os> <ISO path>: Create VM with downloaded ISO*
  --version          (-v)                : Show version and exit
+ --help             (-h)                : Show this help message and exit 
  * To prepare custom VM config (Not supported by quickget) use:
    quickget --custom <some name> <path to ISO>
 -------------- for developers / testing ----------------------
@@ -3442,9 +3446,7 @@ Posible arguments:
  --list-csv        (-lc)                : Show OS info in csv format
  --list-supported  (-ls)                : List all supported OS,releases,editions
  --list-isos       (-li)                : List all supported ISOs
- --show-iso-url     (-s)                : Show ISO download URL
- --test-iso         (-t)                : Test if ISO is available
- --test-isos       (-ti)                : Test if ISOs are available
+ --test-isos       (-lt)                : Test if ISOs are available
 --------------------------------------------------------------
 supported Operating Systems:\n' "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
     os_support | fold -s -w "$(tput cols)"
@@ -3560,7 +3562,6 @@ handle_missing() {
 function show_os_info() {
     local OS=""
     if [ -z "${1}" ]; then
-
         os_error
         exit 1
     fi
