@@ -22,9 +22,9 @@ export LC_ALL=C
 #}
 
 function cleanup() {
-  if [ -n "$(jobs -p)" ]; then
-    kill "$(jobs -p)"
-  fi
+    if [ -n "$(jobs -p)" ]; then
+        kill "$(jobs -p)"
+    fi
 }
 
 function os_about() {
@@ -277,29 +277,29 @@ function pretty_name_new() {
 }
 
 function validate_release() {
-  local DISPLAY_NAME=""
-  local RELEASE_GENERATOR=""
-  local RELEASES=""
+    local DISPLAY_NAME=""
+    local RELEASE_GENERATOR=""
+    local RELEASES=""
 
-  DISPLAY_NAME="$(pretty_name "${OS}")"
-  case ${OS} in
-    *ubuntu-server*) RELEASE_GENERATOR="releases_ubuntu-server";;
-    *ubuntu*) RELEASE_GENERATOR="releases_ubuntu";;
-    *) RELEASE_GENERATOR="${1}";;
-  esac
+    DISPLAY_NAME="$(pretty_name "${OS}")"
+    case ${OS} in
+      *ubuntu-server*) RELEASE_GENERATOR="releases_ubuntu-server";;
+      *ubuntu*) RELEASE_GENERATOR="releases_ubuntu";;
+      *) RELEASE_GENERATOR="${1}";;
+    esac
 
-  RELEASES=$(${RELEASE_GENERATOR})
-  if [[ ! " ${RELEASES[*]} " =~ " ${RELEASE} " ]]; then
-      echo -e "ERROR! ${DISPLAY_NAME} ${RELEASE} is not a supported release.\n"
-      echo -n "${RELEASES}"
-      exit 1
-  fi
+    RELEASES=$(${RELEASE_GENERATOR})
+    if [[ ! " ${RELEASES[*]} " =~ " ${RELEASE} " ]]; then
+        echo -e "ERROR! ${DISPLAY_NAME} ${RELEASE} is not a supported release."
+        echo " - Releases: ${RELEASES}"
+        exit 1
+    fi
 }
 
 function list_json() {
-  # Reference: https://stackoverflow.com/a/67359273
-  list_csv | jq -R 'split(",") as $h|reduce inputs as $in ([]; . += [$in|split(",")|. as $a|reduce range(0,length) as $i ({};.[$h[$i]]=$a[$i])])'
-  exit 0
+    # Reference: https://stackoverflow.com/a/67359273
+    list_csv | jq -R 'split(",") as $h|reduce inputs as $in ([]; . += [$in|split(",")|. as $a|reduce range(0,length) as $i ({};.[$h[$i]]=$a[$i])])'
+    exit 0
 }
 
 function list_csv() {
@@ -484,12 +484,11 @@ test_isos() {
                 GOOD=$(timeout 3 wget -q --spider "${URL}" && echo 'OK' || echo 'ERROR!')
             fi
 
-        if [[ "${GOOD}" == "OK" ]]; then
-            echo "OK - ${OS} ${RELEASE} ${OPTION} ${URL}"
-        else
-            echo "ERROR - ${OS} ${RELEASE} ${OPTION} ${URL}"
-        fi
-
+            if [[ "${GOOD}" == "OK" ]]; then
+                echo "OK - ${OS} ${RELEASE} ${OPTION} ${URL}"
+            else
+                echo "ERROR - ${OS} ${RELEASE} ${OPTION} ${URL}"
+            fi
         done
     done
     exit 0
@@ -1245,11 +1244,11 @@ function editions_trisquel() {
 }
 
 function releases_truenas() {
-  if [[ $OS == truenas ]] ; then
-    echo "ERROR! The supported TrueNAS OS values are truenas-core or truenas-scale"
-    exit 1;
-  fi
-  }
+    if [[ $OS == truenas ]] ; then
+        echo "ERROR! The supported TrueNAS OS values are truenas-core or truenas-scale"
+        exit 1;
+    fi
+}
 
 function releases_truenas-core() {
    echo 12.0 13.0
@@ -1279,18 +1278,18 @@ function releases_ubuntu() {
     done
 
     case "${OS}" in
-        edubuntu|ubuntu-unity|ubuntucinnamon)
+      edubuntu|ubuntu-unity|ubuntucinnamon)
         echo ${INTERIM_SUPPORT[@]} daily-live
         ;;
-        kubuntu|lubuntu|ubuntukylin|ubuntu-mate|ubuntustudio|xubuntu)
+      kubuntu|lubuntu|ubuntukylin|ubuntu-mate|ubuntustudio|xubuntu)
         ## after 14.04
         echo ${LTS_SUPPORT[@]:1} ${INTERIM_SUPPORT[@]} daily-live jammy-daily ${EOL_VERSIONS[@]/#/eol-}
         ;;
-        ubuntu-budgie)
+      ubuntu-budgie)
         #after 16.04
         echo ${LTS_SUPPORT[@]:2} ${INTERIM_SUPPORT[@]} daily-live jammy-daily ${EOL_VERSIONS[@]/#/eol-}
         ;;
-        ubuntu)
+      ubuntu)
         echo ${LTS_SUPPORT[@]} ${INTERIM_SUPPORT[@]} daily-live ${EOL_VERSIONS[@]/#/eol-}
         ;;
     esac
@@ -1339,18 +1338,18 @@ function releases_windows() {
 
 function languages_windows() {
     if [ "${RELEASE}" == 8 ]; then
-            LANGS=("Arabic" "Brazilian Portuguese" "Bulgarian" "Chinese (Simplified)" "Chinese (Traditional)" "Chinese (Traditional Hong Kong)" \
-            "Croatian" "Czech" "Danish" "Dutch" "English (United States)" "English International" "Estonian" "Finnish" "French" "German" "Greek" \
-            "Hebrew" "Hungarian" "Italian" "Japanese" "Latvian" "Lithuanian" "Norwegian" "Polish" "Portuguese" "Romanian" "Russian" "Serbian Latin" \
-            "Slovak" "Slovenian" "Spanish" "Swedish" "Thai" "Turkish" "Ukrainian")
-        elif [ "${RELEASE}" == "10-ltsc" ]; then
-            LANGS=("English (United States)" "English (Great Britain)" "Chinese (Simplified)" "Chinese (Traditional)" \
-            "French" "German" "Italian" "Japanese" "Korean" "Portuguese (Brazil)" "Spanish")
-        else
-            LANGS=("Arabic" "Brazilian Portuguese" "Bulgarian" "Chinese (Simplified)" "Chinese (Traditional)" "Croatian" "Czech" "Danish" "Dutch" \
-            "English (United States)" "English International" "Estonian" "Finnish" "French" "French Canadian" "German" "Greek" "Hebrew" "Hungarian" \
-            "Italian" "Japanese" "Korean" "Latvian" "Lithuanian" "Norwegian" "Polish" "Portuguese" "Romanian" "Russian" "Serbian Latin" "Slovak" \
-            "Slovenian" "Spanish" "Spanish (Mexico)" "Swedish" "Thai" "Turkish" "Ukrainian")
+        LANGS=("Arabic" "Brazilian Portuguese" "Bulgarian" "Chinese (Simplified)" "Chinese (Traditional)" "Chinese (Traditional Hong Kong)" \
+        "Croatian" "Czech" "Danish" "Dutch" "English (United States)" "English International" "Estonian" "Finnish" "French" "German" "Greek" \
+        "Hebrew" "Hungarian" "Italian" "Japanese" "Latvian" "Lithuanian" "Norwegian" "Polish" "Portuguese" "Romanian" "Russian" "Serbian Latin" \
+        "Slovak" "Slovenian" "Spanish" "Swedish" "Thai" "Turkish" "Ukrainian")
+    elif [ "${RELEASE}" == "10-ltsc" ]; then
+        LANGS=("English (United States)" "English (Great Britain)" "Chinese (Simplified)" "Chinese (Traditional)" \
+        "French" "German" "Italian" "Japanese" "Korean" "Portuguese (Brazil)" "Spanish")
+    else
+        LANGS=("Arabic" "Brazilian Portuguese" "Bulgarian" "Chinese (Simplified)" "Chinese (Traditional)" "Croatian" "Czech" "Danish" "Dutch" \
+        "English (United States)" "English International" "Estonian" "Finnish" "French" "French Canadian" "German" "Greek" "Hebrew" "Hungarian" \
+        "Italian" "Japanese" "Korean" "Latvian" "Lithuanian" "Norwegian" "Polish" "Portuguese" "Romanian" "Russian" "Serbian Latin" "Slovak" \
+        "Slovenian" "Spanish" "Spanish (Mexico)" "Swedish" "Thai" "Turkish" "Ukrainian")
     fi
 }
 
@@ -1391,8 +1390,8 @@ function check_hash() {
       40) hash_algo=sha1sum;;
       64) hash_algo=sha256sum;;
       128) hash_algo=sha512sum;;
-       *) echo "WARNING! Can't guess hash algorithm, not checking ${iso} hash."
-          return;;
+      *) echo "WARNING! Can't guess hash algorithm, not checking ${iso} hash."
+        return;;
     esac
 
     echo -n "Checking ${iso} with ${hash_algo}... "
@@ -1437,8 +1436,8 @@ function web_get() {
     fi
 
     if [ "${DIR}" != "$(pwd)" ] && ! mkdir -p "${DIR}" 2>/dev/null; then
-      echo "ERROR! Unable to create directory ${DIR}"
-      exit 1
+        echo "ERROR! Unable to create directory ${DIR}"
+        exit 1
     fi
 
     if [[ ${OS} != windows && ${OS} != macos && ${OS} != windows-server ]]; then
@@ -1447,9 +1446,9 @@ function web_get() {
 
     if command -v aria2c &>/dev/null; then
         if ! aria2c --stderr -x16 --continue=true --summary-interval=0 --download-result=hide --console-log-level=error "${URL}" --dir "${DIR}" -o "${FILE}" "${HEADERS[@]}"; then
-          echo #Necessary as aria2c in suppressed mode does not have new lines
-          echo "ERROR! Failed to download ${URL} with aria2c. Try running 'quickget' again."
-          exit 1
+            echo #Necessary as aria2c in suppressed mode does not have new lines
+            echo "ERROR! Failed to download ${URL} with aria2c. Try running 'quickget' again."
+            exit 1
         fi
         echo #Necessary as aria2c in suppressed mode does not have new lines
     elif command -v wget2 &>/dev/null; then
@@ -1484,8 +1483,8 @@ function zsync_get() {
         fi
 
         if ! mkdir -p "${DIR}" 2>/dev/null; then
-          echo "ERROR! Unable to create directory ${DIR}"
-          exit 1
+            echo "ERROR! Unable to create directory ${DIR}"
+            exit 1
         fi
 
         echo -e Downloading $(pretty_name "${OS}") ${RELEASE} ${EDITION+ ${EDITION}} from ${URL}'\n'
@@ -1624,10 +1623,10 @@ EOF
             ;;
           truenas-scale|truenas-core)
             echo "boot=\"legacy\"" >> "${CONF_FILE}"
-           # the rest is non-functional
-           # echo "bootdrive_size=\"5G\"" >> "${CONF_FILE}" # boot drive
-           # echo "1stdrive_size=\"20G\"" >> "${CONF_FILE}" # for testing
-           # echo "2nddrive_size=\"20G\"" >> "${CONF_FILE}" # again, for testing
+            # the rest is non-functional
+            # echo "bootdrive_size=\"5G\"" >> "${CONF_FILE}" # boot drive
+            # echo "1stdrive_size=\"20G\"" >> "${CONF_FILE}" # for testing
+            # echo "2nddrive_size=\"20G\"" >> "${CONF_FILE}" # again, for testing
             ;;
           ubuntu-server)
             # 22.04+ fails on LVM build if disk size is < 10G
@@ -1635,15 +1634,15 @@ EOF
             echo "disk_size=\"10G\"" >> "${CONF_FILE}"
             echo "ram=\"4G\"" >> "${CONF_FILE}"
             if [[ "${RELEASE}" == *"22.04"* ]]; then
-            echo "tpm=\"on\"" >> "${CONF_FILE}"
+                echo "tpm=\"on\"" >> "${CONF_FILE}"
             fi
             ;;
           vanillaos)
-          ## Minimum is 50G for abroot, but a 64GB is allocated to give some headroom
-           echo "disk_size=\"64G\"" >> "${CONF_FILE}"
-           ;;
+            ## Minimum is 50G for abroot, but a 64GB is allocated to give some headroom
+            echo "disk_size=\"64G\"" >> "${CONF_FILE}"
+            ;;
           zorin)
-            case  ${EDITION} in
+            case ${EDITION} in
               education64|edulite64)
                 echo "disk_size=\"32G\"" >> "${CONF_FILE}";;
             esac
@@ -1663,8 +1662,8 @@ EOF
         esac
 
         if [ "${OS}" == "ubuntu" ] && [[ ${RELEASE} == *"daily"*  ]]; then
-        # Minimum to install lobster testing is 18GB but 32GB are allocated for headroom
-          echo "disk_size=\"32G\"" >> "${CONF_FILE}"
+            # Minimum to install lobster testing is 18GB but 32GB are allocated for headroom
+            echo "disk_size=\"32G\"" >> "${CONF_FILE}"
         fi
         # Enable TPM for Windows 11
         if [ "${OS}" == "windows" ] && [ "${RELEASE}" == 11 ] || [ "${OS}" == "windows-server" ] && [ "${RELEASE}" == "2022" ]; then
@@ -1737,8 +1736,8 @@ function get_antix() {
     local URL="https://sourceforge.net/projects/antix-linux/files/Final/antiX-${RELEASE}"
 
     case ${RELEASE} in
-        21) URL_runit="${URL}/runit-bullseye";;
-         *) URL_runit="${URL}/runit-antiX-${RELEASE}";;
+      21) URL_runit="${URL}/runit-bullseye";;
+      *) URL_runit="${URL}/runit-antiX-${RELEASE}";;
     esac
 
     case ${EDITION} in
@@ -1808,16 +1807,13 @@ function get_athenaos() {
     local URL=""
     local ISO=""
     case ${RELEASE} in
-        rolling)
-            ISO="athena-rolling-x86_64.iso"
-            URL="https://sourceforge.net/projects/athena-iso/files/rolling"
-            HASH=$(wget -q -O- "${URL}/${ISO}.md5" | cut -d' ' -f1)
-            ;;
-        *)
-            ISO="athena-20${RELEASE}-x86_64.iso"
-            URL="https://sourceforge.net/projects/athena-iso/files/v${RELEASE}"
-            HASH=$(wget -q -O- 'https://sourceforge.net/projects/athena-iso/rss?path=/' | grep '.iso/download"' | grep "${RELEASE}" | cut -d '=' -f7 | cut -d'>' -f2 | cut -d'<' -f1)
-            ;;
+      rolling)
+        ISO="athena-rolling-x86_64.iso"
+        URL="https://sourceforge.net/projects/athena-iso/files/rolling"
+        ;;
+      *)
+        ISO="athena-20${RELEASE}-x86_64.iso"
+        URL="https://sourceforge.net/projects/athena-iso/files/v${RELEASE}"
     esac
     echo "${URL}/${ISO} ${HASH}"
 }
@@ -2743,14 +2739,16 @@ function get_slax() {
 
 
     case ${EDITION} in
-      debian) URL="https://ftp.fi.muni.cz/pub/linux/slax/Slax-12.x"
-          ISO=$(wget -q -O- "${URL}/md5.txt" | grep '64bit-' | cut -d' ' -f3 | tail -n1)
           HASH=$(wget -q -O- "${URL}/md5.txt" | grep '64bit-' | cut -d' ' -f1 | tail -n1)
-      ;;
-      slackware) URL="https://ftp.fi.muni.cz/pub/linux/slax/Slax-15.x"
-          ISO=$(wget -q -O- "${URL}/md5.txt" | grep '64bit-' | cut -d' ' -f3 | tail -n1)
           HASH=$(wget -q -O- "${URL}/md5.txt" | grep '64bit-' | cut -d' ' -f1 | tail -n1)
-      ;;
+      debian)
+        URL="https://ftp.fi.muni.cz/pub/linux/slax/Slax-12.x"
+        ISO=$(wget -q -O- "${URL}/md5.txt" | grep '64bit-' | cut -d' ' -f3 | tail -n1)
+        ;;
+      slackware)
+        URL="https://ftp.fi.muni.cz/pub/linux/slax/Slax-15.x"
+        ISO=$(wget -q -O- "${URL}/md5.txt" | grep '64bit-' | cut -d' ' -f3 | tail -n1)
+        ;;
     esac
     echo "${URL}/${ISO} ${HASH}"
 }
@@ -2775,7 +2773,7 @@ function get_slitaz() {
 
     case ${RELEASE} in
       preferred) ISO="slitaz-rolling";;
-      *)   ISO="slitaz-rolling-${RELEASE}";;
+      *) ISO="slitaz-rolling-${RELEASE}";;
     esac
 
     HASH=$(wget -q -O- "${URL}/${ISO}.md5" |  cut -d' ' -f1)
@@ -2802,7 +2800,7 @@ function get_sparkylinux() {
     case ${EDITION} in
       minimalcli) URL="https://sourceforge.net/projects/sparkylinux/files/cli";;
       minimalgui) URL="https://sourceforge.net/projects/sparkylinux/files/base";;
-      *)   URL="https://sourceforge.net/projects/sparkylinux/files/${EDITION}";;
+      *) URL="https://sourceforge.net/projects/sparkylinux/files/${EDITION}";;
     esac
 
     HASH=$(wget -q -O- ${URL}/${ISO}.allsums.txt | head -2 | grep 'iso' | cut -d' ' -f1)
@@ -2853,10 +2851,10 @@ function get_trisquel() {
     local URL="https://mirrors.ocf.berkeley.edu/trisquel-images"
 
     case ${EDITION} in
-        mate)  ISO="trisquel_${RELEASE}_amd64.iso";;
-        lxde)  ISO="trisquel-mini_${RELEASE}_amd64.iso";;
-        kde)   ISO="triskel_${RELEASE}_amd64.iso";;
-        sugar) ISO="trisquel-sugar_${RELEASE}_amd64.iso";;
+      mate) ISO="trisquel_${RELEASE}_amd64.iso";;
+      lxde) ISO="trisquel-mini_${RELEASE}_amd64.iso";;
+      kde) ISO="triskel_${RELEASE}_amd64.iso";;
+      sugar) ISO="trisquel-sugar_${RELEASE}_amd64.iso";;
     esac
     HASH=$(wget -q -O- "${URL}/${ISO}.sha1" | grep "${ISO}" | cut -d' ' -f1)
     echo "${URL}/${ISO} ${HASH}"
@@ -3003,10 +3001,10 @@ function get_void() {
 
     DATE=$(wget -q -O- "${URL}/sha256sum.txt" | head -n1 | cut -d'.' -f1 | cut -d'-' -f4)
     case ${EDITION} in
-        glibc)      ISO="void-live-x86_64-${DATE}-base.iso";;
-        musl)       ISO="void-live-x86_64-musl-${DATE}-base.iso";;
-        xfce-glibc) ISO="void-live-x86_64-${DATE}-xfce.iso";;
-        xfce-musl)  ISO="void-live-x86_64-musl-${DATE}-xfce.iso";;
+      glibc) ISO="void-live-x86_64-${DATE}-base.iso";;
+      musl) ISO="void-live-x86_64-musl-${DATE}-base.iso";;
+      xfce-glibc) ISO="void-live-x86_64-${DATE}-xfce.iso";;
+      xfce-musl) ISO="void-live-x86_64-musl-${DATE}-xfce.iso";;
     esac
     HASH="$(wget -q -O- "${URL}/sha256sum.txt" | grep "${ISO}" | cut -d' ' -f4)"
     echo "${URL}/${ISO} ${HASH}"
@@ -3353,18 +3351,18 @@ handle_curl_error() {
         22)
             echo "Microsoft servers returned failing HTTP status code!"
             ;;
-        # POSIX defines exit statuses 1-125 as usable by us
-        # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_08_02
-        $((error_code <= 125)))
-            # Must be some other server error (possibly with this specific request/file)
-            # This is when accounting for all possible errors in the curl manual assuming a correctly formed curl command and HTTP(S) request, using only the curl features we're using, and a sane build
+      # POSIX defines exit statuses 1-125 as usable by us
+      # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_08_02
+      $((error_code <= 125)))
+        # Must be some other server error (possibly with this specific request/file)
+        # This is when accounting for all possible errors in the curl manual assuming a correctly formed curl command and HTTP(S) request, using only the curl features we're using, and a sane build
             echo "Server returned an error status!"
             ;;
-        126 | 127)
-            echo "Curl command not found! Please install curl and try again. Exiting..."
+      126 | 127)
+        echo "Curl command not found! Please install curl and try again. Exiting..."
             return "$fatal_error_action"
             ;;
-        # Exit statuses are undefined by POSIX beyond this point
+      # Exit statuses are undefined by POSIX beyond this point
         *)
             case "$(kill -l "$error_code")" in
                 # Signals defined to exist by POSIX:
@@ -3380,7 +3378,7 @@ handle_curl_error() {
                 *)
                     echo "Curl terminated due to a fatal signal!"
                     ;;
-            esac
+         esac
     esac
 
     return 1
@@ -3403,57 +3401,57 @@ function download_windows-server() {
     local PRETTY_RELEASE=""
 
     case "$RELEASE" in
-        "10-ltsc")      PRETTY_RELEASE="10 LTSC";;
-        "2012-r2")      PRETTY_RELEASE="2012 R2";;
-        *)              PRETTY_RELEASE="$RELEASE";;
+      "10-ltsc") PRETTY_RELEASE="10 LTSC";;
+      "2012-r2") PRETTY_RELEASE="2012 R2";;
+      *) PRETTY_RELEASE="$RELEASE";;
     esac
 
 
     case "$LANG" in
-        "English (Great Britain)")
-            CULTURE="en-gb"
-            COUNTRY="GB";;
-        "Chinese (Simplified)")
-            CULTURE="zh-cn"
-            COUNTRY="CN";;
-        "Chinese (Traditional)")
-            CULTURE="zh-tw"
-            COUNTRY="TW";;
-        "French")
-            CULTURE="fr-fr"
-            COUNTRY="FR";;
-        "German")
-            CULTURE="de-de"
-            COUNTRY="DE";;
-        "Italian")
-            CULTURE="it-it"
-            COUNTRY="IT";;
-        "Japanese")
-            CULTURE="ja-jp"
-            COUNTRY="JP";;
-        "Korean")
-            CULTURE="ko-kr"
-            COUNTRY="KR";;
-        "Portuguese (Brazil)")
-            CULTURE="pt-br"
-            COUNTRY="BR";;
-        "Spanish")
-            CULTURE="es-es"
-            COUNTRY="ES";;
-        "Russian")
-            CULTURE="ru-ru"
-            COUNTRY="RU";;
-        *)
-            CULTURE="en-us"
-            COUNTRY="US";;
+      "English (Great Britain)")
+        CULTURE="en-gb"
+        COUNTRY="GB";;
+      "Chinese (Simplified)")
+        CULTURE="zh-cn"
+        COUNTRY="CN";;
+      "Chinese (Traditional)")
+        CULTURE="zh-tw"
+        COUNTRY="TW";;
+      "French")
+        CULTURE="fr-fr"
+        COUNTRY="FR";;
+      "German")
+        CULTURE="de-de"
+        COUNTRY="DE";;
+      "Italian")
+        CULTURE="it-it"
+        COUNTRY="IT";;
+      "Japanese")
+        CULTURE="ja-jp"
+        COUNTRY="JP";;
+      "Korean")
+        CULTURE="ko-kr"
+        COUNTRY="KR";;
+      "Portuguese (Brazil)")
+        CULTURE="pt-br"
+        COUNTRY="BR";;
+      "Spanish")
+        CULTURE="es-es"
+        COUNTRY="ES";;
+      "Russian")
+        CULTURE="ru-ru"
+        COUNTRY="RU";;
+      *)
+        CULTURE="en-us"
+        COUNTRY="US";;
     esac
 
     iso_download_links="$(echo "$iso_download_page_html" | grep -o "https://go.microsoft.com/fwlink/p/?LinkID=[0-9]\+&clcid=0x[0-9a-z]\+&culture=$CULTURE&country=$COUNTRY" | head -c 1024)"
 
     case "$enterprise_type" in
-        # Select x64 LTSC download link
-        "ltsc") iso_download_link=$(echo "$iso_download_links" | head -n 4 | tail -n 1) ;;
-        *) iso_download_link="$iso_download_links" ;;
+      # Select x64 LTSC download link
+      "ltsc") iso_download_link=$(echo "$iso_download_links" | head -n 4 | tail -n 1);;
+      *) iso_download_link="$iso_download_links";;
     esac
 
     iso_download_link="$(curl --silent --location --output /dev/null --silent --write-out "%{url_effective}" --head --fail --proto =https --tlsv1.2 --http1.1 -- "$iso_download_link")"
@@ -3488,7 +3486,7 @@ function download_windows() {
 
     local url="https://www.microsoft.com/en-us/software-download/windows$windows_version"
     case "$windows_version" in
-        8 | 10) url="${url}ISO";;
+      8 | 10) url="${url}ISO";;
     esac
 
     local user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0"
@@ -3634,13 +3632,13 @@ function get_windows() {
 
     rm -f "${VM_PATH}/unattended.iso"
     case ${RELEASE} in
-        10|11)
-            echo "Making unattended.iso"
-            mkdir -p "${VM_PATH}/unattended" 2>/dev/null
-            web_get https://www.spice-space.org/download/windows/spice-webdavd/spice-webdavd-x64-latest.msi "${VM_PATH}/unattended"
-            web_get https://www.spice-space.org/download/windows/vdagent/vdagent-win-0.10.0/spice-vdagent-x64-0.10.0.msi "${VM_PATH}/unattended"
-            web_get https://www.spice-space.org/download/windows/usbdk/UsbDk_1.0.22_x64.msi "${VM_PATH}/unattended"
-            unattended_windows "${VM_PATH}/unattended/autounattend.xml"
+      10|11)
+        echo "Making unattended.iso"
+        mkdir -p "${VM_PATH}/unattended" 2>/dev/null
+        web_get https://www.spice-space.org/download/windows/spice-webdavd/spice-webdavd-x64-latest.msi "${VM_PATH}/unattended"
+        web_get https://www.spice-space.org/download/windows/vdagent/vdagent-win-0.10.0/spice-vdagent-x64-0.10.0.msi "${VM_PATH}/unattended"
+        web_get https://www.spice-space.org/download/windows/usbdk/UsbDk_1.0.22_x64.msi "${VM_PATH}/unattended"
+        unattended_windows "${VM_PATH}/unattended/autounattend.xml"
             mkisofs -quiet -l -o "${VM_PATH}/unattended.iso" "${VM_PATH}/unattended/"
             ;;
     esac
