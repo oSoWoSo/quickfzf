@@ -3756,4 +3756,3 @@ else
     os_error_release
 fi
 
-# vim:tabstop=4:shiftwidth=4:expandtab
