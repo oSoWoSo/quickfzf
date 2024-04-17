@@ -3563,48 +3563,42 @@ help_message() {
         / _` ║ ║ ║ ║ ║/ __║ ║/ / _` ║/ _ \ __║
        ( (_║ ║ ║_║ ║ ║ (__║   < (_║ ║  __/ ║_      MIT
         \__, ║\__,_║_║\___║_║\ \__, ║\___║\__║   license
-           ║_║  version: %s ║___/ part of QUICKEMU project
+           ║_║  version: %s ║___/ part of Quickemu project
  QEMU %s --------------------------------------------------
          > Quickly create and run optimised Linux, <
        > Windows and macOS desktop virtual machines. <
-   homepage   -    Not Yet
-  repository  - https://github.com/quickemu-project/quickemu
- official GUI - https://github.com/quickemu-project/quickgui
-  by Wimpy https://github.com/flexiondotorg and contributors
- Discord - https://discord.gg/wimpy-s-world-712850672223125565
+
+ Project - https://github.com/quickemu-project/quickemu
+ Discord - https://wimpysworld.io/discord
 --------------------------------------------------------------
 
 Basic Usage:
  quickget <os> <release> [edition]
- quickget alpine latest
+ quickget ubuntu 22.04
 
 Advanced Usage:
  quickget <arg> [path] <os> [re] [ed]
- quickget -d peppermint latest devuan-xfce
+ quickget --download ubuntu 22.04
 
-Posible arguments:
- --os-info         (-oi) <os>           : Show info about OS
- --show-crede      (-sc) <os>           : Show OS default credentials
- --open-homepage   (-oh) <os>           : Open OS homepage in default browser
- --download-iso    (-di) <os> <re> [ed] : Just download ISO
- --my-iso          (-mi) <os> <ISO path>: Create VM with downloaded ISO*
- --version          (-v)                : Show version and exit
- --help             (-h)                : Show this help message and exit
-   * To prepare custom VM config (Not supported by quickget) use:
-     quickget --custom <some name> <path to ISO>
--------------- for developers / testing ----------------------
- --show-homepage   (-sh) <os>           : Show OS homepage URL
- --show-iso        (-si) <os> <re> [ed] : Show·ISO·download·URL
- --test-iso        (-ti) <os> <re> [ed] : Test if ISO is available
- --show-isos       (-ss) <os>           : Show all ISOs of OS
- --test-isos       (-ts) <os>           : Test all ISOs of OS
- --list-csv        (-lc)                : Show lists in csv format
- --list-json       (-lj)                : Show lists in json format
- --list-supported  (-ls)                : List all OS, releases and editions
- --list-isos       (-li)                : List all supported ISOs
- --list-test       (-lt)                : Test if all ISOs are available
+Arguments:
+ <12345>                 <os>           : Show info about OS*
+ --download         (-d) <os> <re> [ed] : Download the ISO only; no VM configuration
+ --iso-somwhere     (-i) <os> <ISO path>: Download ISo if is URL, then create default linux config for new VM with provided name
+ --open-homepage    (-o) <os>           : Open homepage for the OS
+ --version          (-v)                : Show version
+ --help             (-h)                : Show this help message
+------------------- For testing & development ----------------
+ --check            (-c)  <os> [re] [ed] : Check download an OS release/edition is available
+ --check-all        (-ca) <os>           : Check all downloads for an OS are available
+ --url              (-u)  <os> <re> [ed] : Show download URL for an OS release/edition
+ --url-all          (-ua) <os>           : Show all download URLs for an OS
+ --list             (-l)                 : List all supported systems in plain text
+ --list-csv         (-lc)                : List all supported systems in csv format
+ --list-json        (-lj)                : List all supported systems in json format
+ --list-urls        (-lu)                : List all supported systems download URLs
+ --test-urls        (-tu)                : Check all downloads for all OSs are available
 --------------------------------------------------------------
-supported Operating Systems:\n' "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
+Supported Operating Systems:\n' "$(quickemu --version)"
     os_support | fold -s -w "$(tput cols)"
 }
 
