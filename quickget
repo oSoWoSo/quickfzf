@@ -33,11 +33,11 @@ function cleanup() {
 }
 
 # Get string before first whitespace (HASH)
-function cut_1() {
+cut_1() {
     cut -d' ' -f1
 }
 
-function os_info() {
+os_info() {
     local SIMPLE_NAME=""
     local INFO=""
     SIMPLE_NAME="${1}"
@@ -144,7 +144,7 @@ function os_info() {
     echo "${INFO}"
 }
 
-function os_about() {
+os_about() {
     local SIMPLE_NAME=""
     local ABOUT=""
     SIMPLE_NAME="${1}"
@@ -152,7 +152,7 @@ function os_about() {
     echo "${ABOUT}"
 }
 
-function os_basedof() {
+os_basedof() {
     local SIMPLE_NAME=""
     local BASED=""
     SIMPLE_NAME="${1}"
@@ -160,7 +160,7 @@ function os_basedof() {
     echo "${BASED}"
 }
 
-function os_credentials() {
+os_credentials() {
     local SIMPLE_NAME=""
     local CREDE=""
     SIMPLE_NAME="${1}"
@@ -168,7 +168,7 @@ function os_credentials() {
     echo "${CREDE}"
 }
 
-function os_homepage(){
+os_homepage(){
     local SIMPLE_NAME=""
     local HOMEP=""
     SIMPLE_NAME="${1}"
@@ -176,7 +176,7 @@ function os_homepage(){
     echo "$HOMEP"
 }
 
-function pretty_name() {
+pretty_name() {
     local SIMPLE_NAME=""
     local PRETTY_NAME=""
     SIMPLE_NAME="${1}"
@@ -184,7 +184,7 @@ function pretty_name() {
     echo "${PRETTY_NAME}"
 }
 
-function show_os_info() {
+show_os_info() {
     local OS=""
     if [ -z "${1}" ]; then
         os_error
@@ -336,7 +336,7 @@ handle_missing() {
     fi
 }
 
-function validate_release() {
+validate_release() {
     local DISPLAY_NAME=""
     local RELEASE_GENERATOR=""
     local RELEASES=""
@@ -351,13 +351,13 @@ function validate_release() {
     os_supported_release
 }
 
-function list_json() {
+list_json() {
     # Reference: https://stackoverflow.com/a/67359273
     list_csv | jq -R 'split(",") as $h|reduce inputs as $in ([]; . += [$in|split(",")|. as $a|reduce range(0,length) as $i ({};.[$h[$i]]=$a[$i])])'
     exit 0
 }
 
-function list_csv() {
+list_csv() {
     local DISPLAY_NAME
     local DL="wget"
     local DOWNLOADER
@@ -537,7 +537,7 @@ test_isos() {
     exit 0
 }
 
-function os_support() {
+os_support() {
     echo alma \
     alpine \
     android \
@@ -1058,6 +1058,7 @@ function editions_primtux() {
 function releases_pureos() {
     wget -q -O- "https://www.pureos.net/download/" | grep -m 1 "downloads.puri" | cut -d '"' -f 2 | cut -d '-' -f 4
 }
+
 function editions_pureos() {
     echo gnome plasma
 }
@@ -1277,7 +1278,7 @@ function editions_zorin() {
     echo core64 lite64 education64 edulite64
 }
 
-function check_hash() {
+check_hash() {
     local iso=""
     local hash=""
     local hash_algo=""
@@ -1306,7 +1307,7 @@ function check_hash() {
     fi
 }
 
-function web_get() {
+web_get() {
     local DIR="${2}"
     local FILE=""
     local URL="${1}"
@@ -1367,7 +1368,7 @@ function web_get() {
     fi
 }
 
-function zsync_get() {
+zsync_get() {
     local DIR="${2}"
     local FILE="${1##*/}"
     local OUT=""
@@ -1408,7 +1409,7 @@ function zsync_get() {
     fi
 }
 
-function make_vm_config() {
+make_vm_config() {
     local CONF_FILE=""
     local IMAGE_FILE=""
     local ISO_FILE=""
@@ -2848,7 +2849,7 @@ function get_zorin() {
     echo "${URL} ${HASH}"
 }
 
-function unattended_windows() {
+unattended_windows() {
     cat << 'EOF' > "${1}"
 <?xml version="1.0" encoding="utf-8"?>
 <unattend xmlns="urn:schemas-microsoft-com:unattend"
@@ -3196,7 +3197,7 @@ handle_curl_error() {
     return 1
 }
 
-function curl_windows() {
+curl_windows() {
     local part_ext=".PART"
     local vm_path="$1"
     local out_file="$2"
@@ -3231,7 +3232,7 @@ function curl_windows() {
     mv "${part_file}" "${real_file}"
 }
 
-function download_windows_server() {
+download_windows_server() {
     # Copyright (C) 2024 Elliot Killick <contact@elliotkillick.com>
     # This function is adapted from the Mido project:
     # https://github.com/ElliotKillick/Mido
@@ -3345,7 +3346,7 @@ function download_windows_server() {
     OS="windows-server"
 }
 
-function download_windows_workstation() {
+download_windows_workstation() {
     # This function is adapted from the Mido project:
     # https://github.com/ElliotKillick/Mido
     # Download newer consumer Windows versions from behind gated Microsoft API
