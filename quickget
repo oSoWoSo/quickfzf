@@ -192,9 +192,11 @@ show_os_info() {
     fi
     OS="${1}"
     os_supported
-    if command -v neofetch > /dev/null; then
-        neofetch -l --ascii_distro "${OS}"
-    fi
+    fetches="neofetch neowofetch onefetch fastfetch hyfetch"
+    for fetch in ${fetches}; do
+        "${fetch}" -l --ascii_distro "${OS}" && break
+    done
+
     echo "${OS}"
     echo -n 'Pretty name: '
     pretty_name "${OS}"
@@ -3604,7 +3606,6 @@ Posible arguments:
 --------------------------------------------------------------
 supported Operating Systems:\n' "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
     os_support | fold -s -w "$(tput cols)"
-    exit 0
 }
 
 trap cleanup EXIT
@@ -3619,19 +3620,18 @@ LANGS=()
 case "${1}" in
   '--os-info'|'-oi')
     #shellcheck disable=SC2005
-    echo "$(show_os_info "${2}")" | fold -s -w "$(tput cols)"
+    show_os_info "${2}"
     exit 0
     ;;
   '--show-crede'|'-sc')
-    echo "$(show_os_info "${2}")"
+    os_credentials "${2}"
     exit 0
     ;;
   '--open-homepage'|'-oh')
-    OS="${2}"
-    if [ -z "$(os_homepage "${OS}")" ]; then
+    if [ -z "$(os_homepage "${2}")" ]; then
         os_error
     else
-        open_url "$(os_homepage "${OS}")"
+        open_url "$(os_homepage "${2}")"
         exit 0
     fi
     ;;
@@ -3649,9 +3649,15 @@ case "${1}" in
     ;;
   '--help'|'-h')
     help_message
+    exit 0
     ;;
   '--show-homepage'|'-sh')
-    echo "TODO:"
+    if [ -z "$(os_homepage "${2}")" ]; then
+        os_error
+    else
+        os_homepage "${2}"
+        exit 0
+    fi
     ;;
   '--show-iso'|'-si')
     showIsoUrl=on
@@ -3662,11 +3668,10 @@ case "${1}" in
     shift
     ;;
   '--show-isos'|'-ss')
-    echo "TODO:"
-    shift
+    showIsoUrl=on
     ;;
   '--test-isos'|'-ts')
-    time test_isos
+    testIsoUrl=on
     ;;
   '--list-csv'|'-lc')
     list_csv
@@ -3681,7 +3686,7 @@ case "${1}" in
     time list_isos
     ;;
   '--list-test'|'-lt')
-    echo "TODO:"
+    time test_isos
     ;;
 esac
 
