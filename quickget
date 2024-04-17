@@ -3623,7 +3623,8 @@ case "${1}" in
     exit 0
     ;;
   '--show-crede'|'-sc')
-    echo "TODO:"
+    echo "$(show_os_info "${2}")"
+    exit 0
     ;;
   '--open-homepage'|'-oh')
     OS="${2}"
