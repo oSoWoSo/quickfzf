@@ -3599,7 +3599,7 @@ Posible arguments:
  --list-json       (-lj)                : Show lists in json format
  --list-supported  (-ls)                : List all OS, releases and editions
  --list-isos       (-li)                : List all supported ISOs
- --test-isos       (-lt)                : Test if ISOs are available
+ --list-test       (-lt)                : Test if all ISOs are available
 --------------------------------------------------------------
 supported Operating Systems:\n' "$(quickemu --version)" "$(qemu-x86_64 -version | head -1 | cut -d' ' -f3)"
     os_support | fold -s -w "$(tput cols)"
@@ -3648,37 +3648,37 @@ case "${1}" in
   '--help'|'-h')
     help_message
     ;;
-  '-sh'|'--show-homepage')
+  '--show-homepage'|'-sh')
     echo "TODO:"
     ;;
-  '-si'|'--show-iso')
+  '--show-iso'|'-si')
     showIsoUrl=on
     shift
     ;;
-  '-lt'|'--test-iso')
+  '--test-iso'|'-ti')
     testIsoUrl=on
     shift
     ;;
-  '-ss'|'--show-isos')
+  '--show-isos'|'-ss')
     echo "TODO:"
     shift
     ;;
-  '-ti'|'--test-isos')
+  '--test-isos'|'-ts')
     time test_isos
     ;;
-  '-lc'|'--list-csv')
+  '--list-csv'|'-lc')
     list_csv
     ;;
-  '-lj'|'--list-json')
+  '--list-json'|'-lj')
     list_json
     ;;
-  '-ls'|'--list-supported')
+  '--list-supported'|'-ls')
     time list_supported
     ;;
-  '-li'|'--list-isos')
+  '--list-isos'|'-li')
     time list_isos
     ;;
-  '-lt'|'--test-isos')
+  '--list-test'|'-lt')
     echo "TODO:"
     ;;
 esac
