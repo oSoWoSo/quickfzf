@@ -105,8 +105,8 @@ os_info() {
       peppermint)       INFO="PeppermintOS|Debian,Devuan||https://peppermintos.com/|Provides a user with the opportunity to build the system that best fits their needs. While at the same time providing a functioning OS with minimum hassle out of the box.";;
       popos)            INFO="Pop!_OS|Ubuntu||https://pop.system76.com/|Operating system for STEM and creative professionals who use their computer as a tool to discover and create.";;
       porteus)          INFO="Porteus|Slackware||http://www.porteus.org/|Complete linux operating system that is optimized to run from CD, USB flash drive, hard drive, or other bootable storage media.";;
-      pureos)           INFO="PureOS|Debian||https://www.pureos.net/|A fully free/libre and open source GNU/Linux operating system, endorsed by the Free Software Foundation.";;
       primtux)          INFO="PrimTux|Ubuntu||https://primtux.fr/|Upgrade for obsolete equipment and benefiting the school or educational environment in the spirit of education.";;
+      pureos)           INFO="PureOS|Debian||https://www.pureos.net/|A fully free/libre and open source GNU/Linux operating system, endorsed by the Free Software Foundation.";;
       reactos)          INFO="ReactOS|Independent||https://reactos.org/|Imagine running your favorite Windows applications and drivers in an open-source environment you can trust.";;
       rebornos)         INFO="RebornOS|Arch||https://rebornos.org/|Aiming to make Arch Linux as user friendly as possible by providing interface solutions to things you normally have to do in a terminal.";;
       rockylinux)       INFO="Rocky Linux|RedHat||https://rockylinux.org/|Open-source enterprise operating system designed to be 100% bug-for-bug compatible with Red Hat Enterprise Linux®.";;
@@ -192,10 +192,14 @@ show_os_info() {
     fi
     OS="${1}"
     os_supported
+    # Included temporary logos from som fetch (don't car about compatibility!)
+    #TODO: Will be changed to quickemu font logos
     fetches="neofetch neowofetch onefetch fastfetch hyfetch"
     for fetch in ${fetches}; do
         "${fetch}" -l --ascii_distro "${OS}" && break
     done
+
+    #TODO: better logic
 
     echo "${OS}"
     echo -n 'Pretty name: '
@@ -675,10 +679,6 @@ function releases_archlinux() {
     echo latest
 }
 
-function releases_archlinux() {
-    echo latest
-}
-
 function releases_arcolinux() {
     local RLIST
     RLIST=$(curl -s https://ant.seedhost.eu/arcolinux/iso/ | grep -o -E ">v[[:digit:]]{2}.[[:digit:]]{2}.[[:digit:]]{2}" | sed -e "s/>//" | tr '\r\n' ' ')
@@ -727,8 +727,6 @@ function editions_artixlinux() {
 }
 
 function releases_athenaos() {
-    #TODO: Is it needed?
-    local PROJECT="athena-iso"
     wget -q -O- 'https://sourceforge.net/projects/athena-iso/rss?path=/' | grep '.iso/download"' | cut -d'=' -f5 | cut -d'"' -f2 | cut -d'/' -f7 | cut -d'v' -f2 | sed ':a;N;$!ba;s/\n/ /g'
 }
 
@@ -1388,6 +1386,7 @@ zsync_get() {
         else
             OUT="${FILE}"
         fi
+
         if ! mkdir -p "${DIR}" 2>/dev/null; then
             echo "ERROR! Unable to create directory ${DIR}"
             exit 1
@@ -1398,6 +1397,7 @@ zsync_get() {
             echo "ERROR! Failed to download ${URL/https/http}.zsync"
             exit 1
         fi
+
         if [ -e "${DIR}/${OUT}.zs-old" ]; then
             rm "${DIR}/${OUT}.zs-old"
         fi
@@ -1418,7 +1418,6 @@ make_vm_config() {
     local IMAGE_TYPE=""
     local GUEST=""
     local SEC_BOOT=""
-
     if [ "${downloadIso}" == on ]; then
         exit 0
     fi
@@ -1707,8 +1706,6 @@ function get_artixlinux() {
 }
 
 function get_athenaos() {
-    #TODO: No longer needed?
-    local PROJECT="athena-iso"
     local HASH=""
     local URL=""
     local ISO=""
@@ -3564,7 +3561,7 @@ help_message() {
        ( (_║ ║ ║_║ ║ ║ (__║   < (_║ ║  __/ ║_      MIT
         \__, ║\__,_║_║\___║_║\ \__, ║\___║\__║   license
            ║_║  version: %s ║___/ part of Quickemu project
- QEMU %s --------------------------------------------------
+ -----------------------------------------------------------------------
          > Quickly create and run optimised Linux, <
        > Windows and macOS desktop virtual machines. <
 
@@ -3754,4 +3751,6 @@ elif [ $(releases_"${OS}" | wc -w) -eq 1 ] && [[ ! $(type -t "editions_${OS}") =
 else
     os_error_release
 fi
+
+# vim:tabstop=4:shiftwidth=4:expandtab
 
