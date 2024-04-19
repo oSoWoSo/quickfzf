@@ -3546,6 +3546,8 @@ case "${1}" in
     done
     exit 0
     ;;
+  '--download'|'-d') downloadIso=on; shift;;
+  '--iso-somewhere'|'-i') echo "TODO:";;
   '--open-homepage'|'-o')
     if [ -z "$(os_info "${2}")" ]; then
         os_error
@@ -3554,51 +3556,17 @@ case "${1}" in
         exit 0
     fi
     ;;
-  '--download-iso'|'-di')
-    downloadIso=on
-    shift
-    ;;
-  '--my-iso'|'-mi')
-    echo "TODO:"
-    ;;
-  '--version'|'-v')
-    WHERE=$(dirname "${BASH_SOURCE[0]}")
-    "${WHERE}/quickemu" --version
-    exit 0
-    ;;
-  '--help'|'-h')
-    help_message
-    exit 0
-    ;;
-  '--show-iso'|'-si')
-    showIsoUrl=on
-    shift
-    ;;
-  '--test-iso'|'-ti')
-    testIsoUrl=on
-    shift
-    ;;
-  '--show-isos'|'-ss')
-    showIsoUrl=on
-    ;;
-  '--test-isos'|'-ts')
-    testIsoUrl=on
-    ;;
-  '--list-csv'|'-lc')
-    list_csv
-    ;;
-  '--list-json'|'-lj')
-    list_json
-    ;;
-  '--list-supported'|'-ls')
-    time list_supported
-    ;;
-  '--list-isos'|'-li')
-    time list_isos
-    ;;
-  '--list-test'|'-lt')
-    time test_isos
-    ;;
+  '--version'|'-v') WHERE=$(dirname "${BASH_SOURCE[0]}"); "${WHERE}/quickemu" --version; exit 0;;
+  '--help'|'-h') help_message; exit 0;;
+  '--check'|'-c') testIsoUrl=on; shift;;
+  '--check-all'|'-ca') testIsoUrl=on;;
+  '--url'|'-u') showIsoUrl=on; shift;;
+  '--url-all'|'-ua') showIsoUrl=on;;
+  '--list-csv'|'-lc') list_csv;;
+  '--list-json'|'-lj') list_json;;
+  '--list'|'-l') time list_supported;;
+  '--list-urls'|'-lu') time list_isos;;
+  '--test-urls'|'-tu') time test_isos;;
 esac
 
 if [ -n "${1}" ]; then
