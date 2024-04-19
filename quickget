@@ -3555,11 +3555,11 @@ case "${1}" in
     os_credentials "${2}"
     exit 0
     ;;
-  '--open-homepage'|'-oh')
-    if [ -z "$(os_homepage "${2}")" ]; then
+  '--open-homepage'|'-o')
+    if [ -z "$(os_info "${2}")" ]; then
         os_error
     else
-        open_url "$(os_homepage "${2}")"
+        open_url "$(os_info "${2}" | cut -d'|' -f4)"
         exit 0
     fi
     ;;
@@ -3578,14 +3578,6 @@ case "${1}" in
   '--help'|'-h')
     help_message
     exit 0
-    ;;
-  '--show-homepage'|'-sh')
-    if [ -z "$(os_homepage "${2}")" ]; then
-        os_error
-    else
-        os_homepage "${2}"
-        exit 0
-    fi
     ;;
   '--show-iso'|'-si')
     showIsoUrl=on
