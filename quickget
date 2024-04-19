@@ -3482,7 +3482,7 @@ help_message() {
        ( (_║ ║ ║_║ ║ ║ (__║   < (_║ ║  __/ ║_      MIT
         \__, ║\__,_║_║\___║_║\ \__, ║\___║\__║   license
            ║_║  version: %s ║___/ part of Quickemu project
- -----------------------------------------------------------------------
+--------------------------------------------------------------
          > Quickly create and run optimised Linux, <
        > Windows and macOS desktop virtual machines. <
 
@@ -3499,23 +3499,26 @@ Advanced Usage:
  quickget --download ubuntu 22.04
 
 Arguments:
- <12345>                 <os>           : Show info about OS*
- --download         (-d) <os> <re> [ed] : Download the ISO only; no VM configuration
- --iso-somwhere     (-i) <os> <ISO path>: Download ISo if is URL, then create default linux config for new VM with provided name
- --open-homepage    (-o) <os>           : Open homepage for the OS
- --version          (-v)                : Show version
- --help             (-h)                : Show this help message
-------------------- For testing & development ----------------
- --check            (-c)  <os> [re] [ed] : Check download an OS release/edition is available
- --check-all        (-ca) <os>           : Check all downloads for an OS are available
- --url              (-u)  <os> <re> [ed] : Show download URL for an OS release/edition
- --url-all          (-ua) <os>           : Show all download URLs for an OS
- --list             (-l)                 : List all supported systems in plain text
- --list-csv         (-lc)                : List all supported systems in csv format
- --list-json        (-lj)                : List all supported systems in json format
- --list-urls        (-lu)                : List all supported systems download URLs
- --test-urls        (-tu)                : Check all downloads for all OSs are available
+ -[12345]              <os>           : Show info* about OS
+ --download       (-d) <os> <re> [ed] : Download the ISO only; no VM configuration
+ --iso-somwhere   (-i) <os> <ISO>     : Download ISo if is URL, then create default linux config for new VM with provided name
+ --open-homepage  (-o) <os>           : Open homepage for the OS
+ --version        (-v)                : Show version
+ --help           (-h)                : Show this help message
+-------------- For testing & development ---------------------
+ --check          (-c) <os> [re] [ed] : Check download an OS release/edition is available
+ --check-all     (-ca) <os>           : Check all downloads for an OS are available
+ --url            (-u) <os> <re> [ed] : Show download URL for an OS release/edition
+ --url-all       (-ua) <os>           : Show all download URLs for an OS
+ --list           (-l)                : List all supported systems in plain text
+ --list-csv      (-lc)                : List all supported systems in csv format
+ --list-json     (-lj)                : List all supported systems in json format
+ --list-urls     (-lu)                : List all supported systems download URLs
+ --test-urls     (-tu)                : Check all downloads for all OSs are available
 --------------------------------------------------------------
+   *info: 1=Logo 2=Based of 3=Credentials 4=Homepage 5=Short info
+    Can be used in any combination like -13254 or -52
+
 Supported Operating Systems:\n' "$(quickemu --version)"
     os_support | fold -s -w "$(tput cols)"
 }
