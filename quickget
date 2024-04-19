@@ -144,91 +144,12 @@ os_info() {
     echo "${INFO}"
 }
 
-os_about() {
-    local SIMPLE_NAME=""
-    local ABOUT=""
-    SIMPLE_NAME="${1}"
-    ABOUT=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f5)
-    echo "${ABOUT}"
-}
-
-os_basedof() {
-    local SIMPLE_NAME=""
-    local BASED=""
-    SIMPLE_NAME="${1}"
-    BASED=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f2)
-    echo "${BASED}"
-}
-
-os_credentials() {
-    local SIMPLE_NAME=""
-    local CREDE=""
-    SIMPLE_NAME="${1}"
-    CREDE=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f3)
-    echo "${CREDE}"
-}
-
-os_homepage(){
-    local SIMPLE_NAME=""
-    local HOMEP=""
-    SIMPLE_NAME="${1}"
-    HOMEP=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f4)
-    echo "$HOMEP"
-}
-
 pretty_name() {
     local SIMPLE_NAME=""
     local PRETTY_NAME=""
     SIMPLE_NAME="${1}"
     PRETTY_NAME=$(os_info "${SIMPLE_NAME}" | cut -d'|' -f1)
     echo "${PRETTY_NAME}"
-}
-
-show_os_info() {
-    local OS=""
-    if [ -z "${1}" ]; then
-        os_error
-        exit 1
-    fi
-    OS="${1}"
-    os_supported
-    # Included temporary logos from som fetch (don't car about compatibility!)
-    #TODO: Will be changed to quickemu font logos
-    fetches="neofetch neowofetch onefetch fastfetch hyfetch"
-    for fetch in ${fetches}; do
-        "${fetch}" -l --ascii_distro "${OS}" && break
-    done
-
-    #TODO: better logic
-
-    echo "${OS}"
-    echo -n 'Pretty name: '
-    pretty_name "${OS}"
-    echo -n 'Based of: '
-    os_basedof "${OS}"
-    if [ -z "$(os_credentials "${OS}")" ]; then
-        echo 'Credentials: Unknown'
-    else
-        echo -n 'Credentials: '
-        os_credentials "${OS}"
-    fi
-    echo -n 'Homepage: '
-    os_homepage "${OS}"
-    echo -n 'Info: '
-    os_about "${OS}"
-    if [[ "${OS}" == *"ubuntu"* ]]; then
-        echo -n 'Releases: '
-        "releases_ubuntu"
-    elif [[ ! $(type -t "editions_${OS}") == function ]]; then
-        echo -n 'Releases: '
-        "releases_${OS}"
-    else
-        echo -n 'Releases: '
-        "releases_${OS}"
-        echo -n 'Editions: '
-        "editions_${OS}"
-    fi
-    exit 0
 }
 
 os_error() {
@@ -3609,6 +3530,18 @@ fi
 LANGS=()
 
 case "${1}" in
+  -1*|-2*|-3*|-4*|-5*)
+    while getopts ":12345" opt; do
+        case $opt in
+          1) os_info "${2}" | cut -d'|' -f1;;
+          2) os_info "${2}" | cut -d'|' -f2;;
+          3) os_info "${2}" | cut -d'|' -f3;;
+          4) os_info "${2}" | cut -d'|' -f4;;
+          5) os_info "${2}" | cut -d'|' -f5;;
+        esac
+    done
+    exit 0
+    ;;
   '--os-info'|'-oi')
     #shellcheck disable=SC2005
     show_os_info "${2}"
