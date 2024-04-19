@@ -3546,15 +3546,6 @@ case "${1}" in
     done
     exit 0
     ;;
-  '--os-info'|'-oi')
-    #shellcheck disable=SC2005
-    show_os_info "${2}"
-    exit 0
-    ;;
-  '--show-crede'|'-sc')
-    os_credentials "${2}"
-    exit 0
-    ;;
   '--open-homepage'|'-o')
     if [ -z "$(os_info "${2}")" ]; then
         os_error
