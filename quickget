@@ -221,7 +221,7 @@ function error_not_supported_os() {
     exit 1
 }
 
-os_supported_edition() {
+function error_not_supported_edition() {
     if [[ ! " ${EDITIONS[*]} " =~ " ${EDITION} " ]]; then
         echo -e "ERROR! ${EDITION} is not a supported $(pretty_name "${OS}") edition\n"
         echo -n ' - Editions: '
@@ -3582,18 +3582,6 @@ os_supported_release() {
     fi
 }
 
-os_supported_edition() {
-    if [[ ! " ${EDITIONS[*]} " =~ " ${EDITION} " ]]; then
-        echo -e "ERROR! ${EDITION} is not a supported $(pretty_name "${OS}") edition\n"
-        echo -n ' - Editions: '
-        for EDITION in "${EDITIONS[@]}"; do
-            echo -n "${EDITION} "
-        done
-        echo ""
-        exit 1
-    fi
-}
-
 os_error_edition() {
     echo -en "ERROR! You must specify an edition.\n - Editions: "
     #TODO ERROR here
@@ -3773,7 +3761,7 @@ if [ -n "${2}" ]; then
         EDITION=${EDITIONS[0]}
         if [ -n "${3}" ]; then
             EDITION="${3}"
-            os_supported_edition
+            error_not_supported_edition
         else
             os_error_edition
         fi
