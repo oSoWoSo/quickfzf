@@ -1862,13 +1862,6 @@ function get_blendos() {
     echo "${URL} ${HASH}"
 }
 
-function get_vanillaos() {
-    # TODO: Dynamically get the latest release from GitHub
-    local HASH=$(web_pipe "https://cdn.vanillaos.org/assets/ISO/22.10-r9/VanillaOS-22.10-all.20231009.sha256.txt" | cut_1)
-    local URL="https://cdn.vanillaos.org/assets/ISO/22.10-r9/VanillaOS-22.10-all.20231009.iso"
-    echo "${URL} ${HASH}"
-}
-
 function get_batocera() {
     local HASH=""
     local URL="https://mirrors.o2switch.fr/batocera/x86_64/stable/last"
@@ -2880,6 +2873,13 @@ function get_ubuntu() {
         check_hash "${ISO}" "${HASH}"
         make_vm_config "${ISO}"
     fi
+}
+
+function get_vanillaos() {
+    # TODO: Dynamically get the latest release from GitHub
+    local HASH=$(web_pipe "https://cdn.vanillaos.org/assets/ISO/22.10-r9/VanillaOS-22.10-all.20231009.sha256.txt" | cut_1)
+    local URL="https://cdn.vanillaos.org/assets/ISO/22.10-r9/VanillaOS-22.10-all.20231009.iso"
+    echo "${URL} ${HASH}"
 }
 
 function get_void() {
