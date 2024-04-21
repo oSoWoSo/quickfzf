@@ -171,12 +171,6 @@ os_path_error() {
     exit 1
 }
 
-os_not_supported() {
-    echo -e "ERROR! ${OS} is not a supported OS.\n"
-    os_support | fold -s -w "$(tput cols)"
-    exit 1
-}
-
 os_supported() {
     if [[ ! " $(os_support) " =~ " ${OS} " ]]; then
         os_not_supported
@@ -218,6 +212,12 @@ os_error_release() {
         fi
         ;;
     esac
+    exit 1
+}
+
+function error_not_supported_os() {
+    echo -e "ERROR! ${OS} is not a supported OS.\n"
+    os_support | fold -s -w "$(tput cols)"
     exit 1
 }
 
@@ -3637,12 +3637,6 @@ os_error() {
     exit 1
 }
 
-os_not_supported() {
-    echo -e "ERROR! ${OS} is not a supported OS.\n"
-    os_support | fold -s -w "$(tput cols)"
-    exit 1
-}
-
 os_path_error() {
     echo 'ERROR! You must specify path.'
     os_error
@@ -3720,12 +3714,6 @@ else
     exit 1
 fi
 
-if [[ ! " $(os_support) " =~ " ${OS} " ]]; then
-    echo -e "ERROR! ${OS} is not a supported OS.\n"
-    os_support
-    exit 1
-fi
-
 help_message() {
     #shellcheck disable=SC2016
     printf '                           _              _
@@ -3772,6 +3760,8 @@ supported Operating Systems:\n' "$(quickemu --version)" "$(qemu-x86_64 -version 
     os_support | fold -s -w "$(tput cols)"
     exit 0
 }
+
+error_not_supported_os
 
 if [ -n "${2}" ]; then
     RELEASE="${2,,}"
