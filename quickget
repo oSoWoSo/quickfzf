@@ -1793,6 +1793,13 @@ function get_antix() {
     echo "${URL}/${ISO} ${HASH}"
 }
 
+function get_archcraft() {
+    local HASH=""
+    local URL=""
+    URL="https://sourceforge.net/projects/archcraft/files/latest/download"
+    echo "${URL} ${HASH}"
+}
+
 function get_archlinux() {
     local HASH=""
     local ISO=""
@@ -1800,13 +1807,6 @@ function get_archlinux() {
     ISO=$(web_pipe "https://archlinux.org/releng/releases/json/" | jq -r '.releases[0].iso_url')
     HASH=$(web_pipe "https://archlinux.org/releng/releases/json/" | jq -r '.releases[0].sha1_sum')
     echo "${URL}/${ISO} ${HASH}"
-}
-
-function get_archcraft() {
-    local HASH=""
-    local URL=""
-    URL="https://sourceforge.net/projects/archcraft/files/latest/download"
-    echo "${URL} ${HASH}"
 }
 
 function get_arcolinux() {
