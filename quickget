@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 export LC_ALL=C
+# Just to wake up CI (quickget-tests)
 
 # Here the quick 'n dirty guide to adding a new OS to quickget
 #
