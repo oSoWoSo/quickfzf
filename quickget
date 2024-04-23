@@ -354,14 +354,14 @@ function list_csv() {
 
 function create_config() {
     local OS="${1}"
-    local DESTINATION="${2}"
+    local SOURCE="${2}"
     local USE
 
-    if [[ "${DESTINATION}" == "http://"* ]] || [[ "${DESTINATION}" == "https://"* ]]; then
-        web_get "${DESTINATION}" "${OS}"
+    if [[ "${SOURCE}" == "http://"* ]] || [[ "${SOURCE}" == "https://"* ]]; then
+        web_get "${SOURCE}" "${OS}"
         echo "#TODO: create config!"
-    elif [[ "${DESTINATION}" == "/"* ]]; then
-        cp "${OS}" "${DESTINATION}"/
+    elif [[ "${SOURCE}" == "/"* ]]; then
+        cp "${SOURCE}" "${OS}"/
         echo "#TODO: create config!"
     else
         echo "You forget write full path?" && exit 1
