@@ -402,7 +402,7 @@ function configure_cpu() {
             # If the host has an Intel CPU, passes the host CPU model features, model, stepping, exactly to the guest.
             # Disable huge pages (,-pdpe1gb) on macOS to prevent crashes
             # - https://stackoverflow.com/questions/60231203/qemu-qcow2-mmu-gva-to-gpa-crash-in-mac-os-x
-            if [ "${HOST_CPU_VENDOR}" == "GenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
+            if [ "${HOST_CPU_VENDOR}" == "xxGenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
                 CPU_MODEL="host"
                 CPU="-cpu ${CPU_MODEL},-pdpe1gb,+hypervisor"
             else
@@ -415,7 +415,7 @@ function configure_cpu() {
                 ventura|sonoma)
                     # A CPU with AVX2 support is required for >= macOS Ventura
                     if check_cpu_flag sse4_2 && check_cpu_flag avx2; then
-                        if [ "${HOST_CPU_VENDOR}" != "GenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
+                        if [ "${HOST_CPU_VENDOR}" != "xxGenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
                             CPU+=",+avx2,+sse4.2"
                         fi
                     else
@@ -426,7 +426,7 @@ function configure_cpu() {
                 catalina|big-sur|monterey)
                     # A CPU with SSE4.2 support is required for >= macOS Catalina
                     if check_cpu_flag sse4_2; then
-                        if [ "${HOST_CPU_VENDOR}" != "GenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
+                        if [ "${HOST_CPU_VENDOR}" != "xxGenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
                             CPU+=",+sse4.2"
                         fi
                     else
@@ -436,7 +436,7 @@ function configure_cpu() {
                 *)
                     # A CPU with SSE4.1 support is required for >= macOS Sierra
                     if check_cpu_flag sse4_1; then
-                        if [ "${HOST_CPU_VENDOR}" != "GenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
+                        if [ "${HOST_CPU_VENDOR}" != "xxGenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
                             CPU+=",+sse4.1"
                         fi
                     else
@@ -445,7 +445,7 @@ function configure_cpu() {
                     fi;;
             esac
 
-            if [ "${HOST_CPU_VENDOR}" != "GenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
+            if [ "${HOST_CPU_VENDOR}" != "xxGenuineIntel" ] && [ -z "${HYPERVISOR}" ]; then
                 for FLAG in abm adx aes amd-ssbd apic arat bmi1 bmi2 clflush cmov cx8 cx16 de \
                             eist erms f16c fma fp87 fsgsbase fxsr invpcid invtsc lahf_lm lm \
                             mca mce mmx movbe mpx msr mtrr nx pae pat pcid pge pse popcnt pse36 \
@@ -820,7 +820,7 @@ function configure_storage() {
 
         # Only check disk image size if preallocation is off
         if [ "${preallocation}" == "off" ]; then
-            DISK_CURR_SIZE=$(${STAT} -c%s "${disk_img}")
+            DISK_CURR_SIZE=$(${STAT} -c %s "${disk_img}")
             if [ "${DISK_CURR_SIZE}" -le "${DISK_MIN_SIZE}" ]; then
                 echo "             Looks unused, booting from ${iso}${img}"
                 if [ -z "${iso}" ] && [ -z "${img}" ]; then
@@ -940,7 +940,7 @@ function configure_display() {
     esac
 
     # Configure multiscreen if max_outputs was provided in the .conf file
-    if [ -v max_outputs ]; then
+    if [[ $max_outputs ]]; then
         VIDEO="${VIDEO},max_outputs=${max_outputs}"
     fi
 
@@ -1748,7 +1748,7 @@ function fileshare_param_check() {
             echo " - WARNING! Public directory: '${PUBLIC}' doesn't exist!"
         else
             PUBLIC_TAG="Public-${USER,,}"
-            PUBLIC_PERMS=$(${STAT}  -c "%A" "${PUBLIC}")
+            if [ "${OS_KERNEL}" == "Darwin" ]; then PUBLIC_PERMS=$(${STAT} -c "%A" "${PUBLIC}"); fi
         fi
     fi
 }
