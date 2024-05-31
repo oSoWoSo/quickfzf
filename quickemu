@@ -949,10 +949,11 @@ function configure_display() {
     # allows seamless mouse in macOS when using the qxl-vga device.
     # https://www.collabora.com/news-and-blog/blog/2021/11/26/venus-on-qemu-enabling-new-virtual-vulkan-driver/
     # https://github.com/quickemu-project/quickemu/issues/222
-    VGA="-vga none"
+    # VGA="-vga none"
 
     # Add fullscreen options
-    VIDEO="${VGA} ${VIDEO} ${FULLSCREEN}"
+    # VIDEO="${VGA} ${VIDEO} ${FULLSCREEN}"
+    VIDEO="-vga none ${VIDEO} ${FULLSCREEN}"
 }
 
 function configure_audio() {
@@ -995,7 +996,7 @@ function configure_ports() {
     fi
 
     if [ "${display}" == "none" ] || [ "${display}" == "spice" ] || [ "${display}" == "spice-app" ]; then
-        local SPICE="disable-ticketing=on"
+        SPICE="disable-ticketing=on"
         # gl=on can be use with 'spice' too, but only over local connections (not tcp ports)
         if [ "${display}" == "spice-app" ]; then
             SPICE+=",gl=${gl}"
@@ -1127,7 +1128,7 @@ function vm_boot() {
     SMM="${SMM:-off}"
     local TEMP_PORT=""
     USB_HOST_PASSTHROUGH_CONTROLLER="qemu-xhci"
-    VGA=""
+    #VGA=""
     VIDEO=""
 
     KERNEL_NAME="$(uname -s)"
@@ -1181,7 +1182,7 @@ function vm_boot() {
 
     # shellcheck disable=SC2206
     args+=(${VIDEO} -display ${DISPLAY_RENDER})
-    # Only enable SPICE is using SPICE display
+    # Only enable SPICE if using SPICE display
     if [ "${display}" == "none" ] || [ "${display}" == "spice" ] || [ "${display}" == "spice-app" ]; then
         # shellcheck disable=SC2054
         args+=(-spice "${SPICE}"
