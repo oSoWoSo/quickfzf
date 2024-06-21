@@ -410,13 +410,17 @@ function configure_cpu() {
         # https://github.com/quickemu-project/quickemu/pull/1225#issuecomment-2117555805
 
         # Skylake-Server-v3 should be default 
-        # as is only officially supported Sonoma CPU and *technically* supports up to 10x2 cores.
         # See https://en.wikipedia.org/wiki/IMac_Pro#Technical_specifications 
         # Also retains IBRS spectre mitigation
         # Tests suggest edit of .conf file to cpu_cores="8"  ie 4 core x 2 threads for MacOS to recognise Xeon
+        # Will work both with cpu_cores="16" and ="32" but 'About' will show Cpu as unrecognised, only sysctl will show the CPU name ...
+        # Other Xeon oddballs like 14 or 28 don't boot, even when forced.
+        # CascadeLake is Mac Pro 2019 but is practically identical to Skylake 
+        # Whilst switching from Sky to Cascade still leaves 'About' displaying iMacPro 2017 ...
 
         #CPU_MODEL="Haswell-v2"
         CPU_MODEL="Skylake-Server-v3"
+        #CPU_MODEL="Cascadelake-Server-v3"
 
         # A CPU with fma is required for Mac Graphics 'Metal' support (@flexiondotorg) # REVIEW add darwin hardware test ?
 
@@ -514,8 +518,7 @@ function configure_cpu() {
         fi
 
         # Not many host CPU's will have AVX 512
-
-        if [[ "$CPU_MODEL" == 'Skylake-Server'* ]]; then
+        if [[ "$CPU_MODEL" == 'Skylake-Server'* ]] || [[ "$CPU_MODEL" == 'Cascadelake-Server'* ]]; then
             for FLAG in clwb adx smap avx512f avx512dq avx512bw avx512cd avx512vl ; do
                 if ! check_cpu_flag "$FLAG"; then
                     QEMU_CPU_FLAG="${FLAG//_/-}"
@@ -524,8 +527,16 @@ function configure_cpu() {
             done
         fi
 
-        [[ $UseHostOverWrite ]] && CPU="-cpu host,kvm=on,vendor=GenuineIntel,vmware-cpuid-freq=on,pdpe1gb=off" 
+        # Only diff to Skylake is = PKU  AVX512VNNI  SPEC_CTRL  SPEC_CTRL_SSBD  
+        # plus the VMX which is to be ignored, unless Host = Intel ?? REVIEW 
+        # But Qemu doesn't allow spec ctrl for V3, at least
+        # And avx512_vnni has underscore in lscpu but not hyphenated in qemu, so:
+        if [[ "$CPU_MODEL" == 'Cascadelake-Server'* ]]; then
+            if ! check_cpu_flag "pku"; then CPU+=",pku=off" ; fi
+            if ! check_cpu_flag "avx512_vnni"; then CPU+=",avx512vnni=off" ; fi
+        fi
 
+        [[ $UseHostOverWrite ]] && CPU="-cpu host,kvm=on,vendor=GenuineIntel,vmware-cpuid-freq=on,pdpe1gb=off" 
 
         # Disable S3 support in the VM to prevent macOS suspending during install
         GUEST_TWEAKS+=" -global ICH9-LPC.disable_s3=1 -device isa-applesmc,osk=$(echo "bheuneqjbexolgurfrjbeqfthneqrqcyrnfrqbagfgrny(p)NccyrPbzchgreVap" | tr 'A-Za-z' 'N-ZA-Mn-za-m')"
