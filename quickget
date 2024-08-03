@@ -3093,7 +3093,7 @@ function download_windows_workstation() {
     local iso_download_link_html=""
     local iso_download_link=""
 
-    echo; echo "Downloading Windows ${RELEASE} (${I18N})"
+    echo; echo "Downloading Windows ${RELEASE} (${I18N})"; echo
     # This function is adapted from the Mido project:
     # https://github.com/ElliotKillick/Mido
     # Download newer consumer Windows versions from behind gated Microsoft API
@@ -3110,13 +3110,13 @@ function download_windows_workstation() {
     { echo; date; echo; echo "$url"; echo 
     } >  "/tmp/qe_win_dl_log.txt"
 
-    { echo "I18N Lang:"; echo; echo "$I18N"; echo 
+    { echo "I18N Lang: $I18N"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
 
     local user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0"
     session_id="$(uuidgen)"
 
-    { echo "$user_agent"; echo; echo "$session_id"; echo 
+    { echo "$user_agent"; echo; uuidparse "$session_id"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
 
     # Get product edition ID for latest release of given Windows version
@@ -3129,6 +3129,14 @@ function download_windows_workstation() {
         handle_curl_error $?
         return $?
     }
+
+    # Copyright (C) 2024 GPL3 Alex Genovese 
+    # https://github.com/TuxVinyards/qqX
+    # Slow down the 'bot' behaviour, make it seem more human, so the anti-ddos routines don't block us:
+    local RndNum=
+    RndNum="$( (tr -cd '0-5' | head -c 1) < /dev/urandom )"
+    echo " - Taking a few human seconds to 'read' the download page ... " ; sleep "1$RndNum"
+    echo "   ... to hopefully stop the anti-ddos and anti-bot routines from blocking us"
 
     { echo; date; echo "iso_download_page_html:"; echo; echo "$iso_download_page_html"; echo ; echo "End of Page"; echo
     } >  "/tmp/qe_win_dl_page_html.txt"
@@ -3150,6 +3158,9 @@ function download_windows_workstation() {
         handle_curl_error $?
         return $?
     }
+
+    RndNum="$( (tr -cd '0-6' | head -c 1) < /dev/urandom )"
+    echo " - A few human seconds here too ...." ; sleep "1$RndNum"
 
     # Extract everything after the last slash
     local url_segment_parameter="${url##*/}"
@@ -3185,6 +3196,9 @@ function download_windows_workstation() {
     sku_id="$(echo "$language_skuid_table_html" | grep "${I18N}" | sed 's/&quot;//g' | cut -d ',' -f 1  | cut -d ':' -f 2 | tr -cd '[:alnum:]-' | head -c 16)"
     echo "$sku_id"
 
+    RndNum="$( (tr -cd '0-4' | head -c 1) < /dev/urandom )"
+    echo " - And a few human seconds here .... " ; sleep "1$RndNum"
+
     { echo "sku_id"; echo; echo "$sku_id"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
 
@@ -3195,6 +3209,9 @@ function download_windows_workstation() {
     # --referer: Required by Microsoft servers to allow request
     iso_download_link_html="$(curl --silent --request POST --user-agent "$user_agent" --data "" --referer "$url" --header "Accept:" --max-filesize 100K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=6e2a1789-ef16-4f27-a296-74ef7ef5d96b&host=www.microsoft.com&segments=software-download,$url_segment_parameter&query=&action=GetProductDownloadLinksBySku&sessionId=$session_id&skuId=$sku_id&language=English&sdVersion=2")"
     iso_download_link_cmd="$(echo --silent --request POST --user-agent "$user_agent" --data "" --referer "$url" --header "Accept:" --max-filesize 100K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=6e2a1789-ef16-4f27-a296-74ef7ef5d96b&host=www.microsoft.com&segments=software-download,${url_segment_parameter}&query=&action=GetProductDownloadLinksBySku&sessionId=${session_id}&skuId=${sku_id}&language=English&sdVersion=2")"
+
+    RndNum="$( (tr -cd '2-5' | head -c 1) < /dev/urandom )"
+    echo " - And some more, hopefully successful, human seconds before we start .... " ; sleep "1$RndNum"
 
     { echo "iso_download_link_cmd"; echo; echo "curl $iso_download_link_cmd"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
@@ -3210,12 +3227,12 @@ function download_windows_workstation() {
     fi
 
     if echo "$iso_download_link_html" | grep -q "We are unable to complete your request at this time."; then
-        echo; echo " - WARNING! Microsoft blocked the automated download request based on your IP address."
+        echo; echo " - UNFORTUNATELY: Microsoft blocked the download request based on your IP address."; echo
         failed=1
     fi
 
     if echo "$iso_download_link_html" | grep -q "We encountered a problem processing your request. Please try again later."; then
-        echo; echo " - WARNING! Microsoft blocked the automated download request based on your IP address."
+        echo; echo " - UNFORTUNATELY: Microsoft blocked the request and is saying to try again later."; echo
         failed=1
     fi
 
