@@ -3193,7 +3193,7 @@ function download_windows_workstation() {
     } >>  "/tmp/qe_win_dl_log.txt"
 
     # tr: Filter for only alphanumerics or "-" to prevent HTTP parameter injection
-    sku_id="$(echo "$language_skuid_table_html" | grep "${I18N}" | sed 's/&quot;//g' | cut -d ',' -f 1  | cut -d ':' -f 2 | tr -cd '[:alnum:]-' | head -c 16)"
+    sku_id="$(echo "$language_skuid_table_html" | grep "${I18N}&" | sed 's/&quot;//g' | cut -d ',' -f 1  | cut -d ':' -f 2 | tr -cd '[:alnum:]-' | head -c 16)"
     echo "$sku_id"
 
     RndNum="$( (tr -cd '0-4' | head -c 1) < /dev/urandom )"
