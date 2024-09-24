@@ -1,0 +1,18 @@
+# .github/workflows/rebase-upstream.yml
+name: Rebase Upstream
+on:
+  schedule:
+  - cron: "0 0 * * *"  # run every midnight
+  workflow_dispatch:   # run manually
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+      with:
+        fetch-depth: 100 # greater than the number of commits you made
+    - uses: imba-tjd/rebase-upstream-action@master
+      with:
+        upstream: quickemu-project/quickemu # Change to upstream author/repo
+        branch: master
