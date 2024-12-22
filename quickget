@@ -3214,10 +3214,7 @@ function download_windows_workstation() {
 
     echo -n " - Getting language SKU ID: "
     # Get language -> skuID association table
-    # SKU ID: This specifies the language of the ISO. We always use "English (United States)", however, the SKU for this changes with each Windows release
-    # We must make this request so our next one will be allowed
-    # --data "" is required otherwise no "Content-Length" header will be sent causing HTTP response "411 Length Required"
-    language_skuid_table_json="$(curl --silent --request POST --user-agent "$user_agent" --data "" --header "Accept:" --max-filesize 10K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=a8f8f489-4c7f-463a-9ca6-5cff94d8d041&host=www.microsoft.com&segments=software-download,$profile&query=&action=getskuinformationbyproductedition&sessionId=$session_id&productEditionId=$product_edition_id&sdVersion=2")" || {
+    language_skuid_table_json="$(curl -s --fail --max-filesize 100K --proto =https --tlsv1.2 --http1.1 "https://www.microsoft.com/software-download-connector/api/getskuinformationbyproductedition?profile=${profile}&ProductEditionId=${product_edition_id}&SKU=undefined&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}")" || {
         handle_curl_error $?
         return $?
     }
@@ -3227,17 +3224,15 @@ function download_windows_workstation() {
     { echo; date; echo "language_skuid_table_json - FULL "; echo; echo "$language_skuid_table_json"; echo ; echo "End of Page"; echo
     } >  "/tmp/qe_win_dl_lang_table full.txt"
 
-    # Limit untrusted size for input validation
-    language_skuid_table_json="$(echo "$language_skuid_table_json" | head -c 10240)"
-
     { echo "language_skuid_table_cmd"; echo; echo "curl $language_skuid_table_cmd"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
 
     { echo "language_skuid_table_json"; echo; echo "$language_skuid_table_json"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
 
-    # tr: Filter for only alphanumerics or "-" to prevent HTTP parameter injection
-    sku_id="$(echo "$language_skuid_table_json" | grep "${I18N}&" | sed 's/&quot;//g' | cut -d ',' -f 1  | cut -d ':' -f 2 | tr -cd '[:alnum:]-' | head -c 16)"
+    #sku_id="$(echo "$language_skuid_table_json" | grep "${I18N}&" | sed 's/&quot;//g' | cut -d ',' -f 1  | cut -d ':' -f 2 | tr -cd '[:alnum:]-' | head -c 16)"
+    #sku_id="$(echo "${language_skuid_table_json}" | jq -r '.Skus[] | select(.LocalizedLanguage=="'"${I18N}"'").Id')"
+    sku_id="$(echo "${language_skuid_table_json}" | jq -r '.Skus[] | select(.LocalizedLanguage=="'"${I18N}&"'").Id')"
     echo "$sku_id"
 
     RndNum="$( (tr -cd '0-4' | head -c 1) < /dev/urandom )"
@@ -3251,8 +3246,8 @@ function download_windows_workstation() {
     # Get ISO download link
     # If any request is going to be blocked by Microsoft it's always this last one (the previous requests always seem to succeed)
     # --referer: Required by Microsoft servers to allow request
-    iso_download_link_json="$(curl --silent --request POST --user-agent "$user_agent" --data "" --referer "$url" --header "Accept:" --max-filesize 100K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=6e2a1789-ef16-4f27-a296-74ef7ef5d96b&host=www.microsoft.com&segments=software-download,$profile&query=&action=GetProductDownloadLinksBySku&sessionId=$session_id&skuId=$sku_id&language=English&sdVersion=2")"
-    iso_download_link_cmd="$(echo --silent --request POST --user-agent "$user_agent" --data "" --referer "$url" --header "Accept:" --max-filesize 100K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=6e2a1789-ef16-4f27-a296-74ef7ef5d96b&host=www.microsoft.com&segments=software-download,${profile}&query=&action=GetProductDownloadLinksBySku&sessionId=${session_id}&skuId=${sku_id}&language=English&sdVersion=2")"
+    iso_download_link_json="$(curl -s --fail --referer "$url" "https://www.microsoft.com/software-download-connector/api/GetProductDownloadLinksBySku?profile=${profile}&productEditionId=undefined&SKU=${sku_id}&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}")"
+    iso_download_link_cmd="$(echo -s --fail --referer "$url" "https://www.microsoft.com/software-download-connector/api/GetProductDownloadLinksBySku?profile=${profile}&productEditionId=undefined&SKU=${sku_id}&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}")"
 
     RndNum="$( (tr -cd '2-5' | head -c 1) < /dev/urandom )"
     echo " - And some more, hopefully successful, human seconds before we start .... " ; sleep "1$RndNum"
@@ -3270,7 +3265,7 @@ function download_windows_workstation() {
         failed=1
     fi
 
-    if echo "$iso_download_link_json" | grep -q "We are unable to complete your request at this time."; then
+    if echo "$iso_download_link_json" | grep -q "Sentinel marked this request as rejected."; then
         echo; echo " - UNFORTUNATELY: Microsoft blocked the download request based on your IP address."; echo
         failed=1
     fi
@@ -3289,9 +3284,7 @@ function download_windows_workstation() {
     fi
 
     # Filter for 64-bit ISO download URL
-    # sed: HTML decode "&" character
-    # tr: Filter for only alphanumerics or punctuation
-    iso_download_link="$(echo "$iso_download_link_json" | grep -o "https://software.download.prss.microsoft.com.*IsoX64" | cut -d '"' -f 1 | sed 's/&amp;/\&/g' | tr -cd '[:alnum:][:punct:]')"
+    iso_download_link="$(echo "${iso_download_link_json}" | jq -r '.ProductDownloadOptions[].Uri' | grep x64)"
     
     { echo "iso_download_link - filtered"; echo; echo "$iso_download_link"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
