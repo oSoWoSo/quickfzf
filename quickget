@@ -3275,10 +3275,10 @@ function download_windows_workstation() {
     fi
 
     if [ ${failed} -eq 1 ]; then
+        echo "   Continue with the VM creation process, then:" 
         echo "   Manually download the Windows ${windows_version} ISO using a web browser from: ${url}"
         echo "   Save the downloaded ISO to: $(realpath "${VM_PATH}")"
-        echo "   Update the config file to reference the downloaded ISO: ./${VM_PATH}.conf"
-        echo "   Continuing with the VM creation process..." ; echo
+        echo "   Update the config file to reference the downloaded ISO ... "; echo
         return 1
     fi
 
