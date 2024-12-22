@@ -1221,6 +1221,12 @@ function web_get() {
         exit 1
     fi
 
+    # allow external process (qqX) to pick up the finalized name (and avoid overwrites eg windows 'unattended') 
+    # external proc should clear this file before starting
+    if ! grep -sq 'New_VM_InstanceName' "/tmp/qe_new_vm_name.txt" ; then 
+        printf "\n New_VM_InstanceName=\"%s\" \n" "$(basename "$DIR")" > "/tmp/qe_new_vm_name.txt"
+    fi
+
     if [[ ${OS} != windows && ${OS} != macos && ${OS} != windows-server ]]; then
         echo "Downloading $(pretty_name "${OS}") ${RELEASE} ${EDITION}"
         echo "- URL: ${URL}"
@@ -3275,7 +3281,7 @@ function download_windows_workstation() {
     fi
 
     if [ ${failed} -eq 1 ]; then
-        echo "   Continue with the VM creation process, then:" 
+        echo "   RETRY in an hour's time OR continue with the VM creation process, then:" 
         echo "   Manually download the Windows ${windows_version} ISO using a web browser from: ${url}"
         echo "   Save the downloaded ISO to: $(realpath "${VM_PATH}")"
         echo "   Update the config file to reference the downloaded ISO ... "; echo
@@ -3416,6 +3422,7 @@ function create_config() {
         echo "ERROR! Could not create directory: ${VM_PATH}. Please verify that it does not already exist"
         exit 1
     fi
+
     if [[ "${INPUT}" == "http://"* ]] || [[ "${INPUT}" == "https://"* ]]; then
         INPUT="$(web_redirect "${INPUT}")"
         if [[ "${INPUT}" == *".iso" ]] || [[ "${INPUT}" == *".img" ]]; then
