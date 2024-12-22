@@ -3207,10 +3207,9 @@ function download_windows_workstation() {
     RndNum="$( (tr -cd '0-6' | head -c 1) < /dev/urandom )"
     echo " - A few human seconds here too ...." ; sleep "1$RndNum"
 
-    # Extract everything after the last slash
-    local url_segment_parameter="${url##*/}"
+    local profile="606624d44113"
 
-    { echo "url_segment_parameter:"; echo; echo "$url_segment_parameter"; echo 
+    { echo "profile:"; echo; echo "$profile"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
 
     echo -n " - Getting language SKU ID: "
@@ -3218,12 +3217,12 @@ function download_windows_workstation() {
     # SKU ID: This specifies the language of the ISO. We always use "English (United States)", however, the SKU for this changes with each Windows release
     # We must make this request so our next one will be allowed
     # --data "" is required otherwise no "Content-Length" header will be sent causing HTTP response "411 Length Required"
-    language_skuid_table_json="$(curl --silent --request POST --user-agent "$user_agent" --data "" --header "Accept:" --max-filesize 10K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=a8f8f489-4c7f-463a-9ca6-5cff94d8d041&host=www.microsoft.com&segments=software-download,$url_segment_parameter&query=&action=getskuinformationbyproductedition&sessionId=$session_id&productEditionId=$product_edition_id&sdVersion=2")" || {
+    language_skuid_table_json="$(curl --silent --request POST --user-agent "$user_agent" --data "" --header "Accept:" --max-filesize 10K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=a8f8f489-4c7f-463a-9ca6-5cff94d8d041&host=www.microsoft.com&segments=software-download,$profile&query=&action=getskuinformationbyproductedition&sessionId=$session_id&productEditionId=$product_edition_id&sdVersion=2")" || {
         handle_curl_error $?
         return $?
     }
 
-    language_skuid_table_cmd="$(echo --silent --request POST --user-agent "$user_agent" --data "" --header "Accept:" --max-filesize 10K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=a8f8f489-4c7f-463a-9ca6-5cff94d8d041&host=www.microsoft.com&segments=software-download,$url_segment_parameter&query=&action=getskuinformationbyproductedition&sessionId=$session_id&productEditionId=$product_edition_id&sdVersion=2")" 
+    language_skuid_table_cmd="$(echo --silent --request POST --user-agent "$user_agent" --data "" --header "Accept:" --max-filesize 10K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=a8f8f489-4c7f-463a-9ca6-5cff94d8d041&host=www.microsoft.com&segments=software-download,$profile&query=&action=getskuinformationbyproductedition&sessionId=$session_id&productEditionId=$product_edition_id&sdVersion=2")" 
 
     { echo; date; echo "language_skuid_table_json - FULL "; echo; echo "$language_skuid_table_json"; echo ; echo "End of Page"; echo
     } >  "/tmp/qe_win_dl_lang_table full.txt"
@@ -3252,8 +3251,8 @@ function download_windows_workstation() {
     # Get ISO download link
     # If any request is going to be blocked by Microsoft it's always this last one (the previous requests always seem to succeed)
     # --referer: Required by Microsoft servers to allow request
-    iso_download_link_json="$(curl --silent --request POST --user-agent "$user_agent" --data "" --referer "$url" --header "Accept:" --max-filesize 100K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=6e2a1789-ef16-4f27-a296-74ef7ef5d96b&host=www.microsoft.com&segments=software-download,$url_segment_parameter&query=&action=GetProductDownloadLinksBySku&sessionId=$session_id&skuId=$sku_id&language=English&sdVersion=2")"
-    iso_download_link_cmd="$(echo --silent --request POST --user-agent "$user_agent" --data "" --referer "$url" --header "Accept:" --max-filesize 100K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=6e2a1789-ef16-4f27-a296-74ef7ef5d96b&host=www.microsoft.com&segments=software-download,${url_segment_parameter}&query=&action=GetProductDownloadLinksBySku&sessionId=${session_id}&skuId=${sku_id}&language=English&sdVersion=2")"
+    iso_download_link_json="$(curl --silent --request POST --user-agent "$user_agent" --data "" --referer "$url" --header "Accept:" --max-filesize 100K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=6e2a1789-ef16-4f27-a296-74ef7ef5d96b&host=www.microsoft.com&segments=software-download,$profile&query=&action=GetProductDownloadLinksBySku&sessionId=$session_id&skuId=$sku_id&language=English&sdVersion=2")"
+    iso_download_link_cmd="$(echo --silent --request POST --user-agent "$user_agent" --data "" --referer "$url" --header "Accept:" --max-filesize 100K --fail --proto =https --tlsv1.2 --http1.1 -- "https://www.microsoft.com/en-US/api/controls/contentinclude/html?pageId=6e2a1789-ef16-4f27-a296-74ef7ef5d96b&host=www.microsoft.com&segments=software-download,${profile}&query=&action=GetProductDownloadLinksBySku&sessionId=${session_id}&skuId=${sku_id}&language=English&sdVersion=2")"
 
     RndNum="$( (tr -cd '2-5' | head -c 1) < /dev/urandom )"
     echo " - And some more, hopefully successful, human seconds before we start .... " ; sleep "1$RndNum"
