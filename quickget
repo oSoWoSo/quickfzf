@@ -3185,9 +3185,9 @@ function download_windows_workstation() {
     # https://github.com/TuxVinyards/qqX
     # Slow down the 'bot' behaviour, make it seem more human, so the anti-ddos routines don't block us:
     local RndNum=
-    RndNum="$( (tr -cd '0-5' | head -c 1) < /dev/urandom )"
-    echo " - Taking a few human seconds to 'read' the download page ... " ; sleep "1$RndNum"
-    echo "   ... to hopefully stop the anti-ddos and anti-bot routines from blocking us"
+    RndNum="$( (tr -cd '5-8' | head -c 1) < /dev/urandom )"
+    echo " - Taking a few human seconds to appear to 'read' the download page ... " ; sleep "$RndNum"
+    echo "   ... to hopefully stop any now or future anti-ddos and anti-bot routines from blocking us"
 
     { echo; date; echo "iso_download_page_html:"; echo; echo "$iso_download_page_html"; echo ; echo "End of Page"; echo
     } >  "/tmp/qe_win_dl_page_html.txt"
@@ -3210,8 +3210,8 @@ function download_windows_workstation() {
         return $?
     }
 
-    RndNum="$( (tr -cd '0-6' | head -c 1) < /dev/urandom )"
-    echo " - A few human seconds here too ...." ; sleep "1$RndNum"
+    RndNum="$( (tr -cd '6-9' | head -c 1) < /dev/urandom )"
+    echo " - A few human seconds here too ...." ; sleep "$RndNum"
 
     local profile="606624d44113"
 
@@ -3239,8 +3239,8 @@ function download_windows_workstation() {
     sku_id="$(echo "${language_skuid_table_json}" | jq -r '.Skus[] | select(.LocalizedLanguage=="'"${I18N}"'").Id')"
     echo "$sku_id"
 
-    RndNum="$( (tr -cd '0-4' | head -c 1) < /dev/urandom )"
-    echo " - And a few human seconds here .... " ; sleep "1$RndNum"
+    RndNum="$( (tr -cd '6-9' | head -c 1) < /dev/urandom )"
+    echo " - And a few human seconds here .... " ; sleep "$RndNum"
 
     { echo "sku_id:"; echo; echo "$sku_id"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
@@ -3254,8 +3254,8 @@ function download_windows_workstation() {
     # capture 'cmd' for the log file
     iso_download_link_cmd="$(echo -s --fail --referer "$url" "https://www.microsoft.com/software-download-connector/api/GetProductDownloadLinksBySku?profile=${profile}&productEditionId=undefined&SKU=${sku_id}&friendlyFileName=undefined&Locale=en-US&sessionID=${session_id}")"
 
-    RndNum="$( (tr -cd '2-5' | head -c 1) < /dev/urandom )"
-    echo " - And some more, hopefully successful, human seconds before we start .... " ; sleep "1$RndNum"
+    RndNum="$( (tr -cd '5-8' | head -c 1) < /dev/urandom )"
+    echo " - And some more, hopefully successful, human seconds before we start .... " ; sleep "$RndNum"
 
     { echo "iso_download_link_cmd:"; echo; echo "curl $iso_download_link_cmd"; echo 
     } >>  "/tmp/qe_win_dl_log.txt"
