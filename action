@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+#shellcheck disable=SC1090
+
+function write_output() {
+    . "actions/${OS}"
+    RELEASES=$(cut -d: -f1 < "public/tmp_${OS}" | cut -d' ' -f2 | sort -ur | paste -sd ' ')
+    if grep -q 'function edition' "actions/${OS}"; then
+        EDITIONS=$(printf 'EDITIONS="%s"\n' "$(cut -d: -f1 < "public/tmp_${OS}" | cut -d' ' -f3 | sort -ur | paste -sd ' ')")
+    else
+        EDITIONS=$(echo -e "\n")
+    fi
+    echo
+    printf '# Template file for '\''%s'\''
+OSNAME="%s"
+PRETTY="%s"
+ORIGIN="%s"
+DESCRIPTION="%s"
+HOMEPAGE="%s"
+CREDENTIALS="%s"
+RELEASES="%s"
+%s
+' "$OS" "$OSNAME" "$PRETTY" "$ORIGIN" "$DESCRIPTION" "$HOMEPAGE" "$CREDENTIALS" "$RELEASES" "$EDITIONS" | tee -a "public/${OS}"
+    tee -a < "public/tmp_${OS}" "public/${OS}"
+    rm "public/tmp_${OS}"
+    echo
+}
+
+function test_result() {
+    local OS="${1}"
+    local RELEASE="${2}"
+    local EDITION="${3:-}"
+    local URL="${4:-}"
+    local RESULT="${5:-}"
+
+    if [ -n "${EDITION}" ]; then
+        OS="${OS} ${RELEASE} ${EDITION}"
+    else
+        OS="${OS} ${RELEASE}"
+    fi
+
+    if [ -n "${RESULT}" ]; then
+        # Pad the OS string for consistent output
+        OS=$(printf "%-35s" "${OS}")
+        echo -e "${OS} ${URL}"
+    else
+        OS=$(printf "%-36s" "${OS}:")
+        echo -e "${OS} ${URL}"
+    fi
+}
+
+function test_all() {
+    OS="${1}"
+    mkdir -p public
+    rm -f "public/${OS}"
+    touch "public/${OS}"
+    rm -f "public/tmp_${OS}"
+    touch "public/tmp_${OS}"
+    . "actions/${OS}"
+    if [[ "${OS}" == *ubuntu* && "${OS}" != "ubuntu-server" ]]; then
+        FUNC="ubuntu"
+    fi
+    echo "${OS}
+"
+    for RELEASE in $("releases_"); do
+        . "actions/${OS}"
+        if [[ $(type -t "editions_") == function ]]; then
+            for EDITION in $(editions_""); do
+                . "actions/${OS}"
+                URL=$(get_ | cut -d' ' -f1 | head -n 1)
+                if [ "${OPERATION}" == "show" ]; then
+                    test_result "${OS}" "${RELEASE}" "${EDITION}" "${URL}" | tee -a "public/tmp_${OS}"
+                elif [ "${OPERATION}" == "test" ]; then
+                    CHECK=$(web_check "${URL}" && echo "PASS" || echo "FAIL")
+                    test_result "${OS}" "${RELEASE}" "${EDITION}" "${URL}" "${CHECK}" | tee -a "public/tmp_${OS}"
+                fi
+            done
+        elif [[ "${OS}" == "windows"* ]]; then
+            "languages_${OS}"
+            for I18N in "${I18N[@]}"; do
+                if [ "${OPERATION}" == "show" ]; then
+                    test_result "${OS}" "${RELEASE}" "${I18N}" ""
+                elif [ "${OPERATION}" == "test" ]; then
+                    test_result "${OS}" "${RELEASE}" "${I18N}" "${URL}" "SKIP"
+                fi
+            done
+        elif [[ "${OS}" == "macos" ]]; then
+            (get_)
+        elif [ "${OS}" == "ubuntu-server" ]; then
+            (get_)
+        elif [[ "${OS}" == *ubuntu* ]]; then
+            (get_ubuntu)
+        else
+            #validate_release releases_"${OS}"
+            URL=$(get_"${OS}" | cut -d' ' -f1 | head -n 1)
+            if [ "${OPERATION}" == "show" ]; then
+                test_result "${OS}" "${RELEASE}" "${EDITION}" "${URL}" | tee -a "public/tmp_${OS}"
+            elif [ "${OPERATION}" == "test" ]; then
+                CHECK=$(web_check "${URL}" && echo "PASS" || echo "FAIL")
+                test_result "${OS}" "${RELEASE}" "${EDITION}" "${URL}" "${CHECK}" | tee -a "public/tmp_${OS}"
+            fi
+        fi
+    done
+}
+
+function os_support() {
+    echo alma \
+    alpine \
+    zorin
+}
+
+# Download a file from the web and pipe it to stdout
+function web_pipe() {
+    curl --silent --location "${1}"
+}
+
+# checks if a URL is reachable
+function web_check() {
+    local HEADERS=()
+    local URL="${1}"
+    # Process any headers
+    while (( "$#" )); do
+        if [ "${1}" == "--header" ]; then
+            HEADERS+=("${1}" "${2}")
+            shift 2
+        else
+            shift
+        fi
+    done
+    curl --silent --location --head --output /dev/null --fail --connect-timeout 30 --max-time 30 --retry 3 "${HEADERS[@]}" "${URL}"
+}
+
+# checks if a URL needs to be redirected and returns the final URL
+function web_redirect() {
+    local REDIRECT_URL=""
+    local URL="${1}"
+    # Check for URL redirections
+    # Output to nonexistent directory so the download fails fast
+    REDIRECT_URL=$(curl --silent --location --fail --write-out '%{url_effective}' --output /var/cache/${RANDOM}/${RANDOM} "${URL}" )
+    if [ "${REDIRECT_URL}" != "${URL}" ]; then
+        echo "${REDIRECT_URL}"
+    else
+        echo "${URL}"
+    fi
+}
+
+if [ "${1}" == -t ] || [ "${1}" == --test ]; then
+    OPERATION='test'
+    shift
+else
+    OPERATION='show'
+fi
+
+if [ -z "${1}" ]; then
+  for file in actions/*; do
+    OS="${file##*/}"
+    test_all "${OS}"
+    write_output "${OS}"
+  done
+elif [ -n "${1}" ]; then
+  test_all "${1}"
+  write_output "${1}"
+fi
