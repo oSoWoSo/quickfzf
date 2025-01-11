@@ -46,8 +46,8 @@ jobs:
 
       - name: "Install dependencies 📦️"
         run: |
-          apt-get -y update
-          apt-get -y install curl qemu-utils jq
+          sudo apt-get -y update
+          sudo apt-get -y install curl qemu-utils jq
 
       - name: "Check ${{ matrix.config.os }} downloads 💿️"
         run: |
