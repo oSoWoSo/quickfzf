@@ -1,0 +1,64 @@
+name: "Test distros matrix 🧪"
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - actions/'**'
+
+jobs:
+  list-variants:
+    name: "List OS variants"
+    runs-on: ubuntu-22.04
+    outputs:
+      affected-os: ${{ steps.set-output.outputs.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Install dependencies 📦️"
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install curl jq
+
+      - name: "Detect affected OS"
+        id: set-output
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          SUPPORTED_OS=$(./quickget | awk 'NR==2,/zorin/' | cut -d':' -f2 | tail -n +2 | paste -sd' ')
+          AFFECTED_OS=""
+          for os in $SUPPORTED_OS; do
+            if echo "$CHANGED_FILES" | grep -q "$os"; then
+              AFFECTED_OS+="{\"os\": \"$os\"},"
+            fi
+          done
+          AFFECTED_OS_JSON="{\"include\": [${AFFECTED_OS%,}]}"
+          echo "$AFFECTED_OS_JSON" > affected-os.json
+          echo "::set-output name=os::$AFFECTED_OS_JSON"
+
+      - name: "Show affected OS"
+        run: |
+          cat affected-os.json
+
+  tests:
+    name: "Check 💿️"
+    needs: list-variants
+    runs-on: ubuntu-22.04
+    container:
+      image: ubuntu:22.04
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.list-variants.outputs.affected-os) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Install dependencies 📦️"
+        run: |
+          apt-get -y update
+          apt-get -y install curl jq
+
+      - name: "Run tests for ${{ matrix.os }}"
+        run: |
+          ./quickget --check ${{ matrix.os }} | tee results/${{ matrix.os }}.txt >> $GITHUB_STEP_SUMMARY
