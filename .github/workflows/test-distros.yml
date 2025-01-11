@@ -1,0 +1,165 @@
+name: "Test distros 🧪"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - quickget
+  pull_request:
+    branches:
+      - master
+    paths:
+      - quickget
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: "Check 💿️"
+    runs-on: ubuntu-22.04
+    container:
+      image: ubuntu:22.04
+      env:
+        OS: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: alma }
+          - { os: alpine }
+          - { os: android }
+          - { os: antix }
+          - { os: archcraft }
+          - { os: archlinux }
+          - { os: arcolinux }
+          - { os: artixlinux }
+          - { os: athenaos }
+          - { os: batocera }
+          - { os: bazzite }
+          - { os: biglinux }
+          - { os: blendos }
+          - { os: bodhi }
+          - { os: bunsenlabs }
+          - { os: cachyos }
+          - { os: centos-stream }
+          - { os: chimeralinux }
+          - { os: crunchbang++ }
+          - { os: debian }
+          - { os: deepin }
+          - { os: devuan }
+          - { os: dragonflybsd }
+          - { os: easyos }
+          - { os: elementary }
+          - { os: endeavouros }
+          - { os: endless }
+          - { os: fedora }
+          - { os: freebsd }
+          - { os: garuda }
+          - { os: gentoo }
+          - { os: ghostbsd }
+          - { os: gnomeos }
+          - { os: guix }
+          - { os: haiku }
+          - { os: kali }
+          - { os: kdeneon }
+          - { os: kolibrios }
+          - { os: linuxlite }
+          - { os: linuxmint }
+          - { os: lmde }
+          - { os: lubuntu }
+          - { os: maboxlinux }
+          - { os: macos }
+          - { os: mageia }
+          - { os: manjaro }
+          - { os: mxlinux }
+          - { os: netboot }
+          - { os: netbsd }
+          - { os: nitrux }
+          - { os: nixos }
+          - { os: nwg-shell }
+          - { os: openbsd }
+          - { os: openindiana }
+          - { os: opensuse }
+          - { os: oraclelinux }
+          - { os: parrotsec }
+          - { os: peppermint }
+          - { os: popos }
+          - { os: porteus }
+          - { os: primtux }
+          - { os: proxmox-ve }
+          - { os: pureos }
+          - { os: reactos }
+          - { os: rebornos }
+          - { os: rockylinux }
+          - { os: siduction }
+          - { os: slackware }
+          - { os: slax }
+          - { os: slint }
+          - { os: slitaz }
+          - { os: solus }
+          - { os: sparkylinux }
+          - { os: tails }
+          - { os: tinycore }
+          - { os: trisquel }
+          - { os: truenas-core }
+          - { os: truenas-scale }
+          - { os: tuxedo-os }
+          - { os: ubuntu }
+          - { os: ubuntu-budgie }
+          - { os: ubuntu-mate }
+          - { os: ubuntu-server }
+          - { os: ubuntu-unity }
+          - { os: ubuntucinnamon }
+          - { os: ubuntukylin }
+          - { os: ubuntustudio }
+          - { os: vanillaos }
+          - { os: void }
+          - { os: vxlinux }
+          - { os: windows }
+          - { os: windows-server }
+          - { os: xubuntu }
+          - { os: zorin }
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Install dependencies 📦️"
+        run: |
+          apt-get -y update
+          apt-get -y install curl qemu-utils jq
+
+      - name: "List ${{ matrix.config.os }} variants 📃"
+        run: |
+          mkdir -p results
+          ./quickget --list | tail -n +2 | grep ${{ matrix.config.os }} | tee results/1LIST.txt
+
+      - name: Upload list results
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: results/1LIST.txt
+
+      - name: "Check ${{ matrix.config.os }} downloads 💿️"
+        run: |
+          ./quickget --check ${{ matrix.config.os }} | tee results/${{ matrix.config.os }}.txt
+          VARIATIONS=$(grep -c "^${{ matrix.config.os }}" results/1LIST.txt || echo 0)
+          DOWNLOADS=$(grep -c '^PASS:' results/${{ matrix.config.os }}.txt || echo 0)
+          if [[ $VARIATIONS -ne $DOWNLOADS ]]; then
+            echo "Mismatch in variations and downloads" >> $GITHUB_STEP_SUMMARY
+            echo "- Variations: ${VARIATIONS}" >> $GITHUB_STEP_SUMMARY
+            echo "- Downloads: ${DOWNLOADS}" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          if grep -vqE '^(PASS:|SKIP:)' results/${{ matrix.config.os }}.txt; then
+            grep -vE '^(PASS:|SKIP:)' results/${{ matrix.config.os }}.txt >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Upload ${{ matrix.config.os }} results
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: results/
