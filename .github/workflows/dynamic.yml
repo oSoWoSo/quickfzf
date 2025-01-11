@@ -1,0 +1,72 @@
+name: "Test distros dynamic 🧪"
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+    branches:
+      - '**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  list-variants:
+    name: "List OS variants"
+    runs-on: ubuntu-22.04
+    outputs:
+      os-matrix: ${{ steps.generate-matrix.outputs.os-matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Install dependencies 📦️"
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install curl qemu-utils jq
+
+      - name: "List OS variants 📃"
+        id: generate-matrix
+        run: |
+          mkdir -p results
+          ./quickget --list | tail -n +2 | awk '{print $1}' | jq -R -s -c 'split("\n")[:-1] | map({os: .})' > matrix.json
+          echo "::set-output name=os-matrix::$(cat matrix.json)"
+          cat matrix.json
+
+  tests:
+    name: "Check 💿️"
+    needs: list-variants
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config: ${{ fromJson(needs.list-variants.outputs.os-matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Install dependencies 📦️"
+        run: |
+          apt-get -y update
+          apt-get -y install curl qemu-utils jq
+
+      - name: "Check ${{ matrix.config.os }} downloads 💿️"
+        run: |
+          mkdir -p results
+          ./quickget --check ${{ matrix.config.os }} | tee results/${{ matrix.config.os }}.txt
+
+      - name: "Verify ${{ matrix.config.os }} results"
+        run: |
+          RESULTS_FILE=results/${{ matrix.config.os }}.txt
+          if grep -vq '^PASS:' $RESULTS_FILE; then
+            echo "Failed checks for ${{ matrix.config.os }}:"
+            grep -v '^PASS:' $RESULTS_FILE
+            exit 1
+          else
+            echo "All checks passed for ${{ matrix.config.os }}"
+          fi
+
+      - name: "Upload ${{ matrix.config.os }} results"
+        uses: actions/upload-artifact@v3
+        with:
+          name: results-${{ matrix.config.os }}
+          path: results/${{ matrix.config.os }}.txt
