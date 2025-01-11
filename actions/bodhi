@@ -11,7 +11,7 @@ function releases_() {
 }
 
 function editions_() {
-    echo standard hwe s76
+    echo standard hwe s76 apppack
 }
 
 function get_() {

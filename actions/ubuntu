@@ -145,7 +145,7 @@ function get_() {
         HASH=$(cut -d' ' -f1 <<<"${DATA}")
     fi
     if [ -z "${ISO}" ] || [ -z "${HASH}" ]; then
-        echo "$(pretty_name "${OS}") ${RELEASE} is currently unavailable. Please select other OS/Release combination"
+        echo "${PRETTY} ${RELEASE} is currently unavailable. Please select other OS/Release combination"
         exit 1
     fi
     if [[ "${RELEASE}" == "daily"* ]] || [ "${RELEASE}" == "dvd" ]; then
