@@ -1,0 +1,115 @@
+name: "Test distros 🧪"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - quickget
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - quickget
+
+jobs:
+  quickget-tests:
+    name: "Run quickget tests 👟"
+    runs-on: ubuntu-22.04
+
+    container:
+      image: ubuntu:22.04
+      env:
+        OS: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: alma }
+          - { os: alpine }
+          - { os: android }
+          - { os: antix }
+          - { os: archcraft }
+          - { os: archlinux }
+          - { os: arco }
+          - { os: artixlinux }
+          - { os: athenaos }
+          - { os: batocera }
+          - { os: bazzite }
+          - { os: biglinux }
+          - { os: blendos }
+          - { os: bodhi }
+          - { os: bunsenlabs }
+          - { os: cachyos }
+          - { os: cantos-stream }
+          - { os: chimeralinux }
+          - { os: crunchbang++ }
+          - { os: debian }
+          - { os: deepin }
+          - { os: devuan }
+          - { os: dragonflybsd }
+          - { os: dsl }
+          - { os: easyos }
+          - { os: elementary }
+          - { os: endeavouros }
+          - { os: endless }
+          - { os: fedora }
+          - { os: freebsd }
+          - { os: garuda }
+          - { os: gentoo }
+          - { os: ghostbsd }
+          - { os: gnomeos }
+          - { os: guix }
+          - { os: haiku }
+          - { os: kali }
+          - { os: kdeneon }
+          - { os: kolibrios }
+          - { os: linuxlite }
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Install dependencies 📦️"
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install curl qemu-utils
+
+      - name: "List OS variants 📃"
+        run: |
+          mkdir -p results
+          ./quickget --list | tail -n +2 | tee results/list.txt
+
+      - name: "Check ${{ matrix.config.os }} downloads 💿️"
+        run: |
+          mkdir -p results
+          if ./quickget --check ${{ matrix.config.os }} > results/${{ matrix.config.os }}.txt; then
+            echo "Check completed for ${{ matrix.config.os }}"
+          else
+            echo "Quickget failed for ${{ matrix.config.os }}"
+          fi
+
+      - name: "Display results 📊"
+        run: |
+          RESULTS_FILE=results/${{ matrix.config.os }}.txt
+          if [[ -f $RESULTS_FILE ]]; then
+            WINDOWS=$(grep -c "windows-" $RESULTS_FILE)
+            FAILED=$(grep -c ^FAIL $RESULTS_FILE)
+            SKIPPED=$(grep -c ^SKIP $RESULTS_FILE)
+            PASSED=$(grep -c ^PASS $RESULTS_FILE)
+            CHECKED=$((WINDOWS + FAILED + SKIPPED + PASSED))
+            echo -e "\nResults:"
+            echo -e "- CHECKED:\t${CHECKED}"
+            echo -e "- PASSED:\t${PASSED}"
+            echo -e "- SKIPPED:\t${SKIPPED}\t(of which ${WINDOWS} are Windows)"
+            echo -e "- FAILED:\t${FAILED}\n"
+            grep ^FAIL $RESULTS_FILE | tee results/failed.txt
+            VARIATIONS=$(wc -l results/list.txt | cut -d' ' -f 1)
+            DOWNLOADS=$(wc -l $RESULTS_FILE | cut -d' ' -f 1)
+            echo
+            echo "Compare OS variations with downloads:"
+            echo -e "- Variations:\t${VARIATIONS}"
+            echo -e "- Downloads:\t${DOWNLOADS}"
+          else
+            echo "Results file not found for ${{ matrix.config.os }}."
+          fi
