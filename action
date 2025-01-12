@@ -90,8 +90,7 @@ function test_all() {
         elif [[ "${OS}" == *ubuntu* ]]; then
             (get_)
         else
-            #validate_release releases_"${OS}"
-            URL=$(get_"${OS}" | cut -d' ' -f1 | head -n 1)
+            URL=$(get_ | cut -d' ' -f1 | head -n 1)
             if [ "${OPERATION}" == "show" ]; then
                 test_result "${OS}" "${RELEASE}" "${EDITION}" "${URL}" | tee -a "public/tmp_${OS}"
             elif [ "${OPERATION}" == "test" ]; then
