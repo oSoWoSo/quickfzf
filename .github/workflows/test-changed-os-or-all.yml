@@ -22,34 +22,33 @@ jobs:
       - name: "Get Changed Files"
         id: changed-files
         run: |
-          # Najít změněné soubory v posledním commitu nebo PR
-          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-            git diff --name-only origin/${{ github.base_ref }} > changed_files.txt
+          if [ $(git rev-list --count HEAD) -eq 1 ]; then
+            echo "First commit detected. No changes to compare."
+            touch changed_files.txt
           else
-            git diff --name-only HEAD^ > changed_files.txt
+            if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+              git diff --name-only origin/${{ github.base_ref }} > changed_files.txt
+            else
+              git diff --name-only HEAD^ > changed_files.txt
+            fi
           fi
           echo "Changed files:"
-          cat changed_files.txt
+          cat changed_files.txt || echo "No changed files."
 
       - name: "Generate Matrix"
         id: set-matrix
         run: |
-          # Filtrovat změněné soubory z adresáře actions/
           CHANGED_FILES=$(grep "^actions/" changed_files.txt || true)
-
-          # Pokud nejsou žádné změněné soubory v actions/, použít všechny soubory
           if [[ -z "$CHANGED_FILES" ]]; then
             CHANGED_FILES=$(find actions/ -maxdepth 1 -type f -printf "%f\n")
           else
             CHANGED_FILES=$(echo "$CHANGED_FILES" | sed 's|actions/||g')
           fi
-
-          # Vytvořit JSON matrix
           MATRIX="{\"include\": ["
           for file in $CHANGED_FILES; do
             MATRIX+="{\"file\": \"$file\"},"
           done
-          MATRIX="${MATRIX%,}]}" # Odebrat poslední čárku
+          MATRIX="${MATRIX%,}]}"
           echo "Generated Matrix: $MATRIX"
           echo "::set-output name=matrix::$MATRIX"
 
