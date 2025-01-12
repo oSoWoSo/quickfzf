@@ -1,4 +1,4 @@
-name: "Test supported Operating Systems"
+name: "Test Supported Operating Systems"
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   generate-matrix:
-    name: "Generate Matrix"
+    name: "Generate Matrix for Changed Files"
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -19,15 +19,37 @@ jobs:
       - name: "Check out repository"
         uses: actions/checkout@v4
 
+      - name: "Get Changed Files"
+        id: changed-files
+        run: |
+          # Najít změněné soubory v posledním commitu nebo PR
+          if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            git diff --name-only origin/${{ github.base_ref }} > changed_files.txt
+          else
+            git diff --name-only HEAD^ > changed_files.txt
+          fi
+          echo "Changed files:"
+          cat changed_files.txt
+
       - name: "Generate Matrix"
         id: set-matrix
         run: |
-          FILES=$(find actions/ -maxdepth 1 -type f -printf "%f\n")
+          # Filtrovat změněné soubory z adresáře actions/
+          CHANGED_FILES=$(grep "^actions/" changed_files.txt || true)
+
+          # Pokud nejsou žádné změněné soubory v actions/, použít všechny soubory
+          if [[ -z "$CHANGED_FILES" ]]; then
+            CHANGED_FILES=$(find actions/ -maxdepth 1 -type f -printf "%f\n")
+          else
+            CHANGED_FILES=$(echo "$CHANGED_FILES" | sed 's|actions/||g')
+          fi
+
+          # Vytvořit JSON matrix
           MATRIX="{\"include\": ["
-          for file in $FILES; do
+          for file in $CHANGED_FILES; do
             MATRIX+="{\"file\": \"$file\"},"
           done
-          MATRIX="${MATRIX%,}]}"
+          MATRIX="${MATRIX%,}]}" # Odebrat poslední čárku
           echo "Generated Matrix: $MATRIX"
           echo "::set-output name=matrix::$MATRIX"
 
@@ -37,7 +59,7 @@ jobs:
           echo "${{ steps.set-matrix.outputs.matrix }}"
 
   run-actions:
-    name: "check 💿️"
+    name: "Check 💿️"
     needs: generate-matrix
     runs-on: ubuntu-latest
     strategy:
@@ -52,7 +74,7 @@ jobs:
           sudo apt-get -y update
           sudo apt-get -y install curl jq
 
-      - name: "Check out ${{ matrix.file }}"
+      - name: "Run Check for ${{ matrix.file }}"
         run: |
           mkdir -p results
           ./quickget --check ${{ matrix.file }} | tee results/${{ matrix.file }}.txt
