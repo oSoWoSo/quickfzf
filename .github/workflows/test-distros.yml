@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-      supported: ${{ steps.list-supported.outputs.supported }}
+      oses: ${{ steps.list-supported.outputs.supported }}
 
     steps:
       - name: "Check out repository"
@@ -52,13 +52,13 @@ jobs:
 
       - name: "show supported"
         run: |
-          ./quickget | awk 'NR==3,/zorin/' | tr ' ' '\n' | jq -R . | jq -s . > results/supported.json
+          ./quickget | awk 'NR==3,/zorin/' | tr ' ' '\n' | jq -R . | jq -s . | tee results/supported.json
 
       - name: "variable"
         id: list-supported
         run: |
-          SUPPORTED=$(cat results/supported.json)
-          echo "supported=$SUPPORTED" >> $GITHUB_OUTPUT
+          OSES=$(cat results/supported.json)
+          echo "oses=$OSES" >> $GITHUB_OUTPUT
 
       - name: "display supported"
         run: |
@@ -68,11 +68,11 @@ jobs:
         id: set-matrix
         run: |
           MATRIX="{\"include\": ["
-          for os in $supported; do
+          for os in $oses; do
             MATRIX+="{\"os\": \"$os\"},"
           done
           MATRIX="${MATRIX%,}]}"
-          #echo "Generated Matrix: $MATRIX"
+          echo "Generated Matrix: $MATRIX"
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
       - name: "display Matrix"
