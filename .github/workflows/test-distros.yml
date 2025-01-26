@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-      oses: ${{ steps.list-supported.outputs.supported }}
+      oses: ${{ steps.list-supported.outputs.oses }}
 
     steps:
       - name: "Check out repository"
